@@ -37,7 +37,7 @@ bool sPath::is_root(){
 void sPath::addFile(sFile & file) {
     size = size + 1;
     filegory[size - 1] = &file;
-    files.add(file.get_name(),size);
+    files.add(file.get_name());
     if (check_almost_full()) expandCapacity();
 }
 
@@ -64,6 +64,9 @@ sPath * sPath::get_parent(){
 
 Set<string> sPath::get_subsets(){
     return subsets;
+}
+Set<string> sPath::get_files(){
+    return files;
 }
 
 void sPath::addPath(string sub_path_name){

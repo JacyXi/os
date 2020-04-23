@@ -25,12 +25,14 @@ public:
     bool check_almost_full();
     std::string toString();
     Set<string> get_subsets();
+    Set<string> get_files();
     bool is_subset(string name);
     bool is_root();
     string get_name();
     void get_all_parent(sPath * thisLevel, Set<string> & parents_book);
     int read_file(string filename);
     void get_pwd(sPath * thisLevel, Stack<string> & pwd_road);
+
 private:
     int findLocation(string filename);
     sFile ** filegory;
@@ -41,7 +43,7 @@ private:
     string pathname;
     const static int INIT_SIZE = 10;
     Set<string> subsets;
-    Map<string,int> files;
+    Set<string> files;
 };
 
 #endif

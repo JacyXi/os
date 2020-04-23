@@ -87,6 +87,30 @@ int sFileSystem::pwd(){
     return 2;
 }
 
+int sFileSystem::cd(string goalpath){
+    for (int i = 0; i< path_amount; i++) {
+        if  (allpath[i]->get_name().compare(goalpath)==0) {
+            current_path = allpath[i];
+            return 2;
+        }
+    }
+    error("No such exist path.");
+}
 
+int sFileSystem::ls(){
+    Set<string> subsets = current_path->get_subsets();
+    cout << "subfolders:" << endl;
+    cout << "------------" << endl;
+    for (string p : subsets) {
+        cout << p << endl;
+    }
+    Set<string> files = current_path->get_files();
+    cout << "files:"<< endl;
+    cout << "------------" << endl;
+    for (string f : files) {
+        cout << f << endl;
+    }
+    cout << "------------" << endl;
+}
 
-set<string> sFileSystem::alluser = {"Jacy","Yanzhang"};
+set<string> sFileSystem::alluser = {"Jacy","Yanzhang","Xiaojie","Yuhao","Yuheng"};
