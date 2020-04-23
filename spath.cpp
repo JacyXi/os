@@ -119,6 +119,7 @@ sPath * sPath::get_parent(){
 Set<string> sPath::get_subsets(){
     return subsets;
 }
+
 Set<string> sPath::get_files(){
     return files;
 }
@@ -188,9 +189,8 @@ void sPath::removePath(string path){
 string sPath::get_name(){
     return pathname;
 }
-<<<<<<< HEAD
+
 void sPath::get_all_parent(sPath * thisLevel, Set<string> & parents_book){
-=======
 
 /*
  * Method: get_all_parent
@@ -200,7 +200,6 @@ void sPath::get_all_parent(sPath * thisLevel, Set<string> & parents_book){
  * if it has no parents(it is a root), then add it to parents_book as a root
  */
 void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
->>>>>>> dev1
     if (!thisLevel->is_root()) {
         parents_book.add(get_name());
         get_all_parent(thisLevel->get_parent(), parents_book);
@@ -226,9 +225,8 @@ int sPath::read_file(string filename){
     }
 }
 
-<<<<<<< HEAD
+
 void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
-=======
 /*
  * Method: get_pwd
  * Usage: cstk.get_pwd(*thisLevel, & pwd_road);
