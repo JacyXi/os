@@ -190,7 +190,6 @@ string sPath::get_name(){
     return pathname;
 }
 
-void sPath::get_all_parent(sPath * thisLevel, Set<string> & parents_book){
 
 /*
  * Method: get_all_parent
@@ -226,15 +225,13 @@ int sPath::read_file(string filename){
 }
 
 
-void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
 /*
  * Method: get_pwd
  * Usage: cstk.get_pwd(*thisLevel, & pwd_road);
  * ---------------------------------------------
- * 这个没看懂
+ * 获取当前文件绝对路径
  */
-void sPath::get_pwd(sPath *thisLevel, Stack<string> & pwd_road) {
->>>>>>> dev1
+void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
         pwd_road.push(get_name());
         get_pwd(thisLevel->get_parent(), pwd_road);
