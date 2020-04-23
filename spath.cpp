@@ -94,7 +94,7 @@ void sPath::removePath(string path){
 string sPath::get_name(){
     return pathname;
 }
-void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
+void sPath::get_all_parent(sPath * thisLevel, Set<string> & parents_book){
     if (!thisLevel->is_root()) {
         parents_book.add(get_name());
         get_all_parent(thisLevel->get_parent(), parents_book);
@@ -111,11 +111,25 @@ int sPath::read_file(string filename){
         error("No such  file.");
     }
 }
-void sPath::get_pwd(sPath *thisLevel, Stack<string> & pwd_road) {
+
+void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
         pwd_road.push(get_name());
         get_pwd(thisLevel->get_parent(), pwd_road);
     } else {
         pwd_road.push("root");
+    }
+}
+
+bool sPath::has_file(string filename) {
+    return files.contains(filename);
+}
+
+void sPath::chmod(string user, string filename, int mod){
+    int location = findLocation(filename);
+    if (location != -1) {
+        filegory[location] -> change_mod(user, mod);
+    } else {
+        error("No such  file.");
     }
 }

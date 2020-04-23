@@ -32,6 +32,7 @@ public:
     int find(string file);
     int revoke(string file);
     void ch_user(string user);
+    int pwd(sPath * thislevel);
 
 private:
     sPath * current_path;

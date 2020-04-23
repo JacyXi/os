@@ -76,8 +76,12 @@ int sFileSystem::mv(string from, string to, string operants){
 }
 
 int sFileSystem::pwd(){
+    return pwd(current_path);
+}
+
+int  sFileSystem::pwd(sPath * thislevel){
     Stack<string> parents_book;
-    current_path->get_pwd(current_path, parents_book);
+    thislevel->get_pwd(thislevel, parents_book);
     string output;
     for (string i; !parents_book.isEmpty(); i = parents_book.pop()) {
         output.append(i);
@@ -86,7 +90,6 @@ int sFileSystem::pwd(){
     cout << output << endl;
     return 2;
 }
-
 int sFileSystem::cd(string goalpath){
     for (int i = 0; i< path_amount; i++) {
         if  (allpath[i]->get_name().compare(goalpath)==0) {
@@ -113,4 +116,28 @@ int sFileSystem::ls(){
     cout << "------------" << endl;
 }
 
+int sFileSystem::chmod(string file, int mod){
+    current_path->chmod(current_user, file, mod);
+    return 2;
+}
+
+int sFileSystem::find(string file) {
+    bool check = false;
+    for (int i = 0; i < path_amount; i++) {
+        if  (allpath[i]->has_file(file)) pwd(allpath[i]); check = true;
+    }
+    if (check) return 2;
+    cout << "No result." << endl;
+    return 2;
+}
+
+int sFileSystem::revoke(string file) {
+    if (current_path->has_file(file)) {
+        sFile * thisfile = current_path->get_file(file);
+        thisfile->revoke();
+        return 2;
+    } else {
+        error("No such file exists.");
+    }
+}
 set<string> sFileSystem::alluser = {"Jacy","Yanzhang","Xiaojie","Yuhao","Yuheng"};

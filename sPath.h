@@ -32,7 +32,9 @@ public:
     void get_all_parent(sPath * thisLevel, Set<string> & parents_book);
     int read_file(string filename);
     void get_pwd(sPath * thisLevel, Stack<string> & pwd_road);
-
+    bool has_file(string filename);
+    sFile * get_file(string filename);
+    void chmod(string user, string filename, int mod);
 private:
     int findLocation(string filename);
     sFile ** filegory;

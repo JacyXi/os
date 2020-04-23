@@ -42,7 +42,7 @@ string sFile::get_info(){
     output.append(get_type());
     output.append("\n");
     output.append("File size: ");
-    output.append(get_size());
+    output.append(to_string(get_size()).append(" kb"));
     output.append("\n");
     output.append("File location: ");
     output.append(get_location());
