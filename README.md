@@ -1,7 +1,7 @@
 # os
 For whom concerned about the project, you could do the following steps when you want to improve your part each day.
 
-1. git fetch
+1. git pull
 
    Never have you forgotten to fetch others' latest work from the remote repo.  In avoid of causing conflict, "git fecth" could make sure you keep up with.
 
