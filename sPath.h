@@ -1,3 +1,10 @@
+/*
+ * File: sPath.h
+ * ---------------
+ * This interface defines the sPath class, which implements the
+ * sPath abstraction for the path in the filesystem.
+ */
+
 #ifndef SPATH_H
 #define SPATH_H
 
@@ -7,7 +14,12 @@
 #include <map>
 #include "stack.h"
 
-
+/*
+ * Class: sPath
+ * -------------
+ * This interface defines a class that models the path in a filesystem
+ *
+ */
 
 class sPath
 {
