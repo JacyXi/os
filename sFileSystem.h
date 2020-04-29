@@ -34,6 +34,7 @@ public:
     void ch_user(string user);
     int pwd(sPath * thislevel);
 
+
 private:
     sPath * current_path;
     sPath ** allpath;
@@ -43,6 +44,7 @@ private:
     static set<string> alluser;
     int path_amount;
     static const int STORAGE = 100;
+    int hashfunc(string filename);
 
 };
 
