@@ -1,12 +1,12 @@
 #include "userlogin.h"
-
 #include<assert.h>
 #include <iostream>
 #include "stdio.h"
-#include "string.h"
+#include <string>
+
 using namespace std;
 
-//定义变量
+
 char reg_name[30]="",reg_pwd[10]="";
 char on_name[30],on_pwd[10];
 
@@ -113,7 +113,7 @@ void dl()
         scanf("%s",on_name);
         printf("\n\t\t please enter the password :");
         scanf("%s",on_pwd);
-        if(strcmp(reg_name,on_name)==0&&strcmp(reg_pwd,on_pwd)==0)
+        if(strcmp(reg_name,on_name) == 0 && strcmp(reg_pwd,on_pwd) == 0)
         {
             printf("\n\n\t\t Login succeeded \n\n");
             break;

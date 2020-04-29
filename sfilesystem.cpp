@@ -114,6 +114,7 @@ int sFileSystem::ls(){
         cout << f << endl;
     }
     cout << "------------" << endl;
+    return 2;
 }
 
 int sFileSystem::chmod(string file, int mod){
