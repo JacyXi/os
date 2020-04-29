@@ -6,6 +6,7 @@
 #include <error.h>
 #include "set.h"
 #include "stack.h"
+#include "foreach.h"
 
 
 sFileSystem::sFileSystem()
@@ -23,7 +24,7 @@ sFileSystem::sFileSystem(string user){
 }
 
 bool sFileSystem::checkuser(string user) {
-    return (alluser.find(user) != alluser.end()) ? true: false;
+    return (alluser.find(user) != alluser.end()) ? true : false;
 }
 
 int sFileSystem::touch(string filename, string content){
@@ -39,6 +40,7 @@ int sFileSystem::mkdir(string pathname) {
     allpath[path_amount - 1] = new sPath(pathname, current_path);
     return 2;
 }
+
 int sFileSystem::rm(string goalfile){
     current_path->removeFile(goalfile);
     return 2;
@@ -61,6 +63,7 @@ int sFileSystem::rm(string goalpath, string operants) {
     }
     return 2;
 }
+
 int sFileSystem::cat(string filename) {
     return current_path->read_file(filename);
 }
@@ -114,9 +117,10 @@ int sFileSystem::ls(){
         cout << f << endl;
     }
     cout << "------------" << endl;
+    return 2;
 }
 
-int sFileSystem::chmod(string file, int mod){
+int sFileSystem::chmod(string file, int mod) {
     current_path->chmod(current_user, file, mod);
     return 2;
 }
@@ -140,4 +144,16 @@ int sFileSystem::revoke(string file) {
         error("No such file exists.");
     }
 }
+
+int sFileSystem::hashfunc(string filename){
+    int length = filename.length();
+    const char *y = filename.c_str();
+    string code = to_string(length);
+    for (int i = 0; i < length; i++) {
+        code.append(to_string((int)y[i]));
+    }
+    return atoi(code.c_str());
+}
+
+
 set<string> sFileSystem::alluser = {"Jacy","Yanzhang","Xiaojie","Yuhao","Yuheng"};
