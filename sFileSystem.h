@@ -7,6 +7,7 @@
 #include <error.h>
 #include <set>
 #include "map.h"
+#include "bpt.h"
 
 
 using namespace std;
@@ -20,6 +21,8 @@ public:
     int touch(string filename, string content);
     int mkdir(string goalPath, string pathname);
     int mkdir(string pathname);
+    void rm(string goalfile,sPath* operationPath);
+    void rm(string goalpath, string operants,sPath* operationPath);
     int rm(string goalfile);
     int rm(string goalpath, string operants);
     int cat(string filename);
@@ -45,6 +48,8 @@ private:
     int path_amount;
     static const int STORAGE = 100;
     int hashfunc(string filename);
+    int get_location(string pathname);
+
 
 };
 

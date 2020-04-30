@@ -7,7 +7,7 @@
 #include "set.h"
 #include "stack.h"
 #include "foreach.h"
-
+#include "bpt.h"
 
 sFileSystem::sFileSystem()
 {
@@ -20,7 +20,7 @@ sFileSystem::sFileSystem(string user){
     allpath[0] = root;
     current_path = root;
     path_amount = 1;
-
+    bpt::bplus_tree database("storage.db",true);
 }
 
 bool sFileSystem::checkuser(string user) {
@@ -30,6 +30,29 @@ bool sFileSystem::checkuser(string user) {
 int sFileSystem::touch(string filename, string content){
     sFile nfile = sFile(current_user, 7, filename, content);
     current_path->addFile(nfile);
+    int key = hashfunc(filename);
+    bpt::bplus_tree database("storage.db");
+    sPath* target[10];
+    database.search(key,&target);
+    bool is_empty = true;
+    for (int i = 0; i < 10;i++) {
+        if (target[i]!=nullptr) is_empty = true;
+    }
+    if (is_empty) {
+        target[0] = current_path;
+        database.insert(key, target);
+    } else {
+        bool has_inseart = false;
+        for (int i = 0; i < 10; i++) {
+            if (target[i] == nullptr) {
+                target[i] = current_path;
+                database.update(key, target);
+                has_inseart = true;
+                break;
+            }
+        }
+        if (!has_inseart) error("The duplicated file are too much.");
+    }
     return 2;
 }
 
@@ -40,28 +63,54 @@ int sFileSystem::mkdir(string pathname) {
     allpath[path_amount - 1] = new sPath(pathname, current_path);
     return 2;
 }
-
-int sFileSystem::rm(string goalfile){
-    current_path->removeFile(goalfile);
+int sFileSystem::rm(string goalfile) {
+    rm(goalfile, current_path);
     return 2;
 }
 
-int sFileSystem::rm(string goalpath, string operants) {
+void sFileSystem::rm(string goalfile,sPath* operationPath){
+    operationPath -> removeFile(goalfile);
+    bpt::bplus_tree database("storage.db");
+    database.remove(hashfunc(goalfile));
+}
+
+int sFileSystem::rm(string goal, string operants){
+    rm(goal,operants,current_path);
+    return 2;
+}
+
+void sFileSystem::rm(string goal, string operants,sPath* operationPath) {
     if (operants.compare("-r") == 0) {
-        if (current_path->get_name().compare(goalpath) == 0) error("Could not delect your current path.");
-        if (current_path->is_subset(goalpath)) {
-            current_path->removePath(goalpath);
-            int location = 1; //我还没想好
+        if (operationPath -> get_name().compare(goal) == 0) error("Could not delect your current path.");
+        if (operationPath -> is_subset(goal)) {
+            operationPath -> removePath(goal);
+            int location = get_location(goal);
+            sPath* path_to_remove = allpath[location];
+            for (string files : path_to_remove->get_files()) rm(files, path_to_remove);
+            for (string subsets : path_to_remove->get_subsets()) rm(subsets, "-r",path_to_remove);
             allpath[location] -> ~sPath();
             allpath[location] = nullptr;
         } else {
             Set<string> parent_book;
-            current_path->get_all_parent(current_path->get_parent(), parent_book);
-            if (parent_book.contains(goalpath)) error("Could not delete super path.");
-            //写删除那个分支的所有文件夹
+            operationPath->get_all_parent(current_path->get_parent(), parent_book);
+            if (parent_book.contains(goal)) {
+                error("Could not delete super path.");
+            } else {
+                int location = get_location(goal);
+                if (location > 1) {
+                    sPath* path_to_remove = allpath[location];
+                    sPath* its_parent = path_to_remove -> get_parent();
+                    its_parent -> removePath(goal);
+                    for (string files : path_to_remove->get_files()) rm(files, path_to_remove);
+                    for (string subsets : path_to_remove->get_subsets()) rm(subsets, "-r", path_to_remove);
+                    allpath[location] -> ~sPath();
+                    allpath[location] = nullptr;
+                }
+            }
         }
+    } else {
+        rm(goal);
     }
-    return 2;
 }
 
 int sFileSystem::cat(string filename) {
@@ -69,8 +118,32 @@ int sFileSystem::cat(string filename) {
 }
 
 int sFileSystem::cp(string from, string to, string operants) {
-    //太难写了，一会儿再写
+    //判断是否存在目标文件夹，判断是否是当前文件夹
+    if (!current_path->get_name().compare(to)) error("Could not copy to the current directory.");
+    int location = get_location(to);
+    if (location < 0) error("Could not find the target directory.");
+    sPath* operation_path = allpath[location];
+    //复制文件夹
+    if (!operants.compare("-r")) {
+
+
+    } else if (!operants.compare("-p")) {
+        //复制文件
+    } else {
+        error("Wrong operants.");
+    }
+
+
+
+
     return 0;
+}
+int sFileSystem::get_location(string pathname){
+    int location = -1;
+    for (int i = 0; i < path_amount; i++) {
+        if (!allpath[i]->get_name().compare(pathname)) location = i; break;
+    }
+    return location;
 }
 
 int sFileSystem::mv(string from, string to, string operants){
@@ -95,7 +168,7 @@ int  sFileSystem::pwd(sPath * thislevel){
 }
 int sFileSystem::cd(string goalpath){
     for (int i = 0; i< path_amount; i++) {
-        if  (allpath[i]->get_name().compare(goalpath)==0) {
+        if  (!allpath[i]->get_name().compare(goalpath)) {
             current_path = allpath[i];
             return 2;
         }
@@ -126,12 +199,15 @@ int sFileSystem::chmod(string file, int mod) {
 }
 
 int sFileSystem::find(string file) {
-    bool check = false;
-    for (int i = 0; i < path_amount; i++) {
-        if  (allpath[i]->has_file(file)) pwd(allpath[i]); check = true;
+    bpt::bplus_tree database("storage.db");
+    sPath* target[10];
+    if (database.search(hashfunc(file), &target) != 0){
+        cout << "No such file."<<endl;
+    } else {
+        for (int i = 0; i < 10; i++) {
+            if (target[i]!=nullptr) pwd(target[i]);
+        }
     }
-    if (check) return 2;
-    cout << "No result." << endl;
     return 2;
 }
 
@@ -152,7 +228,8 @@ int sFileSystem::hashfunc(string filename){
     for (int i = 0; i < length; i++) {
         code.append(to_string((int)y[i]));
     }
-    return atoi(code.c_str());
+    code.append("0000000000000000");
+    return atoi(code.substr(0,16).c_str());
 }
 
 

@@ -8,8 +8,6 @@
 
 #ifndef UNIT_TEST
 #include "predefined.h"
-#else
-#include "util/unit_test_predefined.h"
 #endif
 
 namespace bpt {

@@ -36,6 +36,7 @@ inline index_t *find(internal_node_t &node, const key_t &key) {
     }
     return begin(node);
 }
+
 inline record_t *find(leaf_node_t &node, const key_t &key) {
     return lower_bound(begin(node), end(node), key);
 }

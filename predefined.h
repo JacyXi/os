@@ -2,6 +2,7 @@
 #define PREDEFINED_H
 
 #include <string.h>
+#include "sPath.h"
 
 namespace bpt {
 
@@ -9,24 +10,14 @@ namespace bpt {
 #define BP_ORDER 20
 
 /* key/value type */
-typedef int value_t;
-struct key_t {
-    char k[16];
+typedef sPath* value_t[10];
 
-    key_t(const char *str = "")
-    {
-        bzero(k, sizeof(k));
-        strcpy(k, str);
-    }
-
-    operator bool() const {
-        return strcmp(k, "");
-    }
-};
+typedef int key_t;
 
 inline int keycmp(const key_t &a, const key_t &b) {
-    int x = strlen(a.k) - strlen(b.k);
-    return x == 0 ? strcmp(a.k, b.k) : x;
+    if (a == b) return 0;
+    else if (a > b) return 1;
+    else return -1;
 }
 
 #define OPERATOR_KEYCMP(type) \
