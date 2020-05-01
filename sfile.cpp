@@ -123,8 +123,8 @@ string sFile::get_type(){
  * -------------------------------
  * Returns a string of the size of this file (i.e. "200kb")
  */
-string sFile::get_size(){
-    return to_string(size).append(" kb");
+int sFile::get_size(){
+    return size;
 }
 
 /*
