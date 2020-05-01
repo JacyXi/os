@@ -47,7 +47,8 @@ private:
     static set<string> alluser;
     int path_amount;
     static const int STORAGE = 100;
-    int hashfunc(string filename);
+    static const int TREESIZE = 10;
+    int hashfunc(string filename, bool is_path);
     int get_location(string pathname);
     void copyDirHelper(sPath* current, sPath* operation_path, string operants);
 
