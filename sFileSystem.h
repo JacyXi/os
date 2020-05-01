@@ -49,6 +49,7 @@ private:
     static const int STORAGE = 100;
     int hashfunc(string filename);
     int get_location(string pathname);
+    void copyDirHelper(sPath* current, sPath* operation_path, string operants);
 
 
 };

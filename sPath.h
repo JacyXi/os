@@ -47,6 +47,7 @@ public:
     bool has_file(string filename);
     sFile * get_file(string filename);
     void chmod(string user, string filename, int mod);
+    string get_absolute();
 private:
     int findLocation(string filename);
     sFile ** filegory;

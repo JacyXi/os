@@ -29,14 +29,14 @@ bool sFileSystem::checkuser(string user) {
 
 int sFileSystem::touch(string filename, string content){
     sFile nfile = sFile(current_user, 7, filename, content);
-    current_path->addFile(nfile);
+    current_path -> addFile(nfile);
     int key = hashfunc(filename);
     bpt::bplus_tree database("storage.db");
     sPath* target[10];
-    database.search(key,&target);
+    database.search(key, &target);
     bool is_empty = true;
-    for (int i = 0; i < 10;i++) {
-        if (target[i]!=nullptr) is_empty = true;
+    for (int i = 0; i < 10; i++) {
+        if (target[i] != nullptr) is_empty = true;
     }
     if (is_empty) {
         target[0] = current_path;
@@ -57,10 +57,10 @@ int sFileSystem::touch(string filename, string content){
 }
 
 int sFileSystem::mkdir(string pathname) {
-    if (current_path->is_subset(pathname)) error("The path already exists.");
-    current_path->addPath(pathname);
+    if (current_path -> is_subset(pathname)) error("The path already exists.");
+    current_path -> addPath(pathname.append(current_path -> get_absolute()));
     path_amount += 1;
-    allpath[path_amount - 1] = new sPath(pathname, current_path);
+    allpath[path_amount - 1] = new sPath(pathname.append(current_path->get_absolute()), current_path);
     return 2;
 }
 int sFileSystem::rm(string goalfile) {
@@ -85,7 +85,7 @@ void sFileSystem::rm(string goal, string operants,sPath* operationPath) {
         if (operationPath -> is_subset(goal)) {
             operationPath -> removePath(goal);
             int location = get_location(goal);
-            sPath* path_to_remove = allpath[location];
+            sPath * path_to_remove = allpath[location];
             for (string files : path_to_remove->get_files()) rm(files, path_to_remove);
             for (string subsets : path_to_remove->get_subsets()) rm(subsets, "-r",path_to_remove);
             allpath[location] -> ~sPath();
@@ -114,7 +114,7 @@ void sFileSystem::rm(string goal, string operants,sPath* operationPath) {
 }
 
 int sFileSystem::cat(string filename) {
-    return current_path->read_file(filename);
+    return current_path -> read_file(filename);
 }
 
 int sFileSystem::cp(string from, string to, string operants) {
@@ -125,6 +125,12 @@ int sFileSystem::cp(string from, string to, string operants) {
     sPath* operation_path = allpath[location];
     //复制文件夹
     if (!operants.compare("-r")) {
+        if (current_path->is_subset(from)) {
+
+
+        } else {
+            error("No such directory exists.");
+        }
 
 
     } else if (!operants.compare("-p")) {
@@ -138,6 +144,7 @@ int sFileSystem::cp(string from, string to, string operants) {
 
     return 0;
 }
+
 int sFileSystem::get_location(string pathname){
     int location = -1;
     for (int i = 0; i < path_amount; i++) {
@@ -147,8 +154,9 @@ int sFileSystem::get_location(string pathname){
 }
 
 int sFileSystem::mv(string from, string to, string operants){
-    //先cp，后delete
-    return 0;
+    cp(from, to, operants);
+    rm(from,operants);
+    return 2;
 }
 
 int sFileSystem::pwd(){
@@ -157,7 +165,7 @@ int sFileSystem::pwd(){
 
 int  sFileSystem::pwd(sPath * thislevel){
     Stack<string> parents_book;
-    thislevel->get_pwd(thislevel, parents_book);
+    thislevel -> get_pwd(thislevel, parents_book);
     string output;
     for (string i; !parents_book.isEmpty(); i = parents_book.pop()) {
         output.append(i);
@@ -194,7 +202,7 @@ int sFileSystem::ls(){
 }
 
 int sFileSystem::chmod(string file, int mod) {
-    current_path->chmod(current_user, file, mod);
+    current_path -> chmod(current_user, file, mod);
     return 2;
 }
 

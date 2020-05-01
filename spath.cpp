@@ -110,6 +110,10 @@ sPath * sPath::get_parent(){
     return parent;
 }
 
+string sPath::get_absolute(){
+    return pathname;
+}
+
 /*
  * Method: get_subsets
  * Usage: cstk.get_subsets();
@@ -131,7 +135,8 @@ Set<string> sPath::get_files(){
  * Add the sub_path_name into the set(subsets)
  */
 void sPath::addPath(string sub_path_name){
-    subsets.add(sub_path_name);
+    int position = sub_path_name.find("/");
+    subsets.add(sub_path_name.substr(0,position));
 }
 
 /*
@@ -177,7 +182,8 @@ void sPath::removeFile(string filename){
  * Delete the path in the subsets
  */
 void sPath::removePath(string path){
-    subsets.remove(path);
+    int position = path.find("/");
+    subsets.remove(path.substr(0,position));
 }
 
 /*
@@ -187,7 +193,8 @@ void sPath::removePath(string path){
  * Return the pathname
  */
 string sPath::get_name(){
-    return pathname;
+    int position = pathname.find("/");
+    return pathname.substr(0,position);
 }
 
 
@@ -233,7 +240,8 @@ int sPath::read_file(string filename){
  */
 void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
-        pwd_road.push(get_name());
+        string name = get_name().substr(0,get_name().find("/"));
+        pwd_road.push(name);
         get_pwd(thisLevel->get_parent(), pwd_road);
     } else {
         pwd_road.push("root");
