@@ -121,17 +121,23 @@ void Memory::Add_to_memory(Process process){
 
 
         int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
-        int Free_memory_index = 0; // This is to record the index of the vector called Free_memory
-        for (Block Free_Blocks : Free_memory){
+
+
+        // Do a deep copy of Free_memory for iteration
+        Vector<Block> Free_memory_copy = Free_memory;
+        // Start the for loop iteration
+        for (Block Free_Blocks : Free_memory_copy){
             free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
+
             if (free_accumulated_memory < memory_declared) {
                 // Get the address for the free block at this iteration
                 page_index Free_Block_Start = Free_Blocks.start;
                 page_index Free_Block_Terminate = Free_Blocks.terminate;
 
+
                 // Remove the block in free memory
-                Free_memory.remove(Free_memory_index);
-                Free_memory_index += 1;
+                Free_memory.remove(0);
+
 
                 // Add occupation on the Occupied_memory
                 Block new_occupied;
@@ -145,7 +151,9 @@ void Memory::Add_to_memory(Process process){
                 continue;
             }
             else{
+
                 int remaining_memory = free_accumulated_memory - memory_declared;
+
                 /*This is to check whether the remaining memory is 0 modulo 4.
                   Eg. The remaining memory = 5kb, then 5kb/4 = 1; then 1*4<5, we should return 1 page.
                       However, the reamaining memory should be 1*4  = 4kb as in this situation there will be fragments.
@@ -175,6 +183,11 @@ void Memory::Add_to_memory(Process process){
                     divide_free.inner_page_index += inner_page_total;
                     divide_free.outer_page_index -= 1;}
 
+                if (divide_free.inner_page_index > 1023) {
+                    divide_free.inner_page_index -= inner_page_total;
+                    divide_free.outer_page_index += 1;}
+
+
 
                 page_index divide_occupied;
                 divide_occupied.inner_page_index = divide_free.inner_page_index - 1;
@@ -182,6 +195,11 @@ void Memory::Add_to_memory(Process process){
                 if (divide_occupied.inner_page_index <0){
                     divide_occupied.inner_page_index += inner_page_total;
                     divide_occupied.outer_page_index -= 1;
+                }
+
+                if (divide_occupied.inner_page_index >1023){
+                    divide_occupied.inner_page_index -= inner_page_total;
+                    divide_occupied.outer_page_index += 1;
                 }
 
 
@@ -198,15 +216,15 @@ void Memory::Add_to_memory(Process process){
                 Free.terminate = Free_Block_Terminate;
                 Free.Block_size = remaining_memory;
 
-                Free_memory[Free_memory_index] = Free;
+                Free_memory[0] = Free;
                 Occupied_memory.add(Occupied);
 
                 page_table.add(Occupied);
 
                 // Update the map. Construct linkage between process and its coressponding page table.
                 All_Process_Status.put(process,page_table);
-
-
+                // This makes sure that if going into this else statement, the for loop will terminate.
+                break;
             }
 
         }
@@ -294,4 +312,11 @@ int Memory::Get_Occupied_Memory_Size(){
 
 Vector<Process> Memory::Get_Current_Process(){
     return Current_Process;
+}
+
+Vector<Block> Memory::Get_Free_memory(){
+    return Free_memory;
+}
+Vector<Block> Memory::Get_Occupied_memory(){
+    return Occupied_memory;
 }
