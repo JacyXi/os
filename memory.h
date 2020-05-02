@@ -6,18 +6,29 @@
 #include"strlib.h"
 using namespace std;
 
+/* Struct Process: Here, the process has 3 data fields.
+   For each App, we assume it has multiple possible processes.
+   And for each process of a specific App, it has its own declared memory.
+*/
 struct Process{
     string App_name;
     int process;
     int memory_declared;
 };
 
-
+/* Struct page index: Here, the page index has 2 data fields.
+   For each page index, it is located by its outer page index and inner page index.
+   For detailed principle please refer to OS design textbook.
+*/
 struct page_index{
     int outer_page_index;
     int inner_page_index;
 };
 
+/* Struct Block: Here, the Block has 3 data fields.
+   For each Block, it is refered to a continuous memory block in the memory.
+   We describe it by its start and terminate location using page index as well as its size.
+*/
 struct Block{
     page_index start;
     page_index terminate;
@@ -43,16 +54,42 @@ bool operator==(Block A,Block B);
 class Memory
 {
 public:
+    /* Default constructor with 4GB memory*/
     Memory();
+
+    /* Constructor with specified total size of the memory*/
     Memory(int size);
+
+    /* Method to add a specific process into the memory, the allocate algorithm will allocate the memory to this process*/
     void Add_to_memory(Process process);
+
+    /* Method to remove a specific process out of the memory, also will free the memory*/
     void Remove_from_memory(Process process);
+
+    /* Method to get a specific process's address location in the memory*/
     Vector<Block> Get_address(Process process);
+
+    /* Method to get a specific App's total memory size inside the memory currently*/
     int Get_App_memory(string App_Name);
+
+    /* Method to get a specific process's memory size inside the memory currently*/
     int Get_process_memory(Process process);
+
+    /* Method to get the size of total free space inside the memory currently*/
     int Get_Free_Memory_Size();
+
+    /* Method to get the size of total occupied space inside the memory currently*/
     int Get_Occupied_Memory_Size();
+
+    /* Method to get all the current process inside the mememory right currently*/
     Vector<Process> Get_Current_Process();
+
+    /* Method to get the free space fragments(blocks) inside the memory right now*/
+    Vector<Block> Get_Free_memory();
+
+    /* Method to get the occupied space fragments(blocks) inside the memory right now*/
+    Vector<Block> Get_Occupied_memory();
+
 
 
 private:
