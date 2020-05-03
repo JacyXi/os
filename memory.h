@@ -14,7 +14,7 @@ using namespace std;
  * And for each process of a specific App, it has its own declared memory.
  */
 struct Process {
-    string App_name;
+    string app_name;
     int process;
     int memory_declared;
 };
@@ -39,7 +39,7 @@ struct page_index {
 struct Block {
     page_index start;
     page_index terminate;
-    int Block_size;
+    int block_size;
 };
 
 
@@ -69,76 +69,76 @@ public:
     Memory(int size);
 
 
-    /* Method:Add_to_memory
-     * Usage:Add_to_memory(process)
+    /* Method:add_to_memory
+     * Usage:add_to_memory(process)
      * --------------------------------------
      * If there the process has already been added into the memory, print error message.
      * If the memory space is not enough for the process, print error message.
-     * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
-     * Free_memory, Current_Process, All_Process_Status will be modified.*/
-    void Add_to_memory(Process process);
+     * If nothing goes wrong, then the data field of free_size, occupied_size, Occupied_memory,
+     * free_memory, current_process, all_process_status will be modified.*/
+    void add_to_memory(Process process);
 
-    /* Method:Remove_from_memory
-     * Usage:Remove_from_memory(process)
+    /* Method:remove_from_memory
+     * Usage:remove_from_memory(process)
      * --------------------------------------
      * If there are no such a process inside the memory, print error message.
-     * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
-     * Free_memory, Current_Process, All_Process_Status will be modified.*/
-    void Remove_from_memory(Process process);
+     * If nothing goes wrong, then the data field of free_size, occupied_size, Occupied_memory,
+     * free_memory, current_process, all_process_status will be modified.*/
+    void remove_from_memory(Process process);
 
-    /* Method:Get_address
-     * Usage:Get_address(process)
+    /* Method:get_address
+     * Usage:get_address(process)
      * --------------------------------------
      * If there are no such a process inside the memory, print error message.
      * If nothing goes wrong, then the function will return the memory location of the process
      * in the form of memory blocks.*/
-    Vector<Block> Get_address(Process process);
+    Vector<Block> get_address(Process process);
 
-    /* Method:Get_App_memory
-     * Usage:Get_App_memory(App_name)
+    /* Method:get_app_memory
+     * Usage:get_app_memory(app_name)
      * --------------------------------------
      * This function will return the total memory occupied by the App.
-     * The input is the string App_name.*/
-    int Get_App_memory(string App_Name);
+     * The input is the string app_name.*/
+    int get_app_memory(string app_name);
 
-    /* Method:Get_process_memory
-     * Usage:Get_process_memory(process)
+    /* Method:get_process_memory
+     * Usage:get_process_memory(process)
      * --------------------------------------
      * This function will return the memory occupied by the process specified.*/
-    int Get_process_memory(Process process);
+    int get_process_memory(Process process);
 
-    /* Method:Get_Free_Memory_Size
-     * Usage:Get_Free_Memory_Size()
+    /* Method:get_free_memory_size
+     * Usage:get_free_memory_size()
      * --------------------------------------
      * This function will return the total space of free memory.(The unit is kb)*/
-    int Get_Free_Memory_Size();
+    int get_free_memory_size();
 
-    /* Method:Get_Occupied_Memory_Size
-     * Usage:Get_Occupied_Memory_Size()
+    /* Method:get_occupied_memory_size
+     * Usage:get_occupied_memory_size()
      * --------------------------------------
      * This function will return the total space of occupied memory.(The unit is kb)*/
-    int Get_Occupied_Memory_Size();
+    int get_occupied_memory_size();
 
-    /* Method:Get_Current_Process
-     * Usage:Get_Current_Process()
+    /* Method:get_current_process
+     * Usage:get_current_process()
      * --------------------------------------
      * This function will return all the processes in the memory right now. Information include
-     * App_name, process index and memory declared inside each process.*/
-    Vector<Process> Get_Current_Process();
+     * app_name, process index and memory declared inside each process.*/
+    Vector<Process> get_current_process();
 
-    /* Method:Get_Free_memory
-     * Usage:Get_Free_memory()
+    /* Method:get_free_memory
+     * Usage:get_free_memory()
      * --------------------------------------
      * This function will return all the free memory location in the memory right now.
      * The location information will be represented as blocks in the memory.*/
-    Vector<Block> Get_Free_memory();
+    Vector<Block> get_free_memory();
 
-    /* Method:Get_Occupied_memory
-     * Usage:Get_Occupied_memory()
+    /* Method:get_occupied_memory
+     * Usage:get_occupied_memory()
      * --------------------------------------
      * This function will return all the occupied memory location in the memory right now.
      * The location information will be represented as blocks in the memory.*/
-    Vector<Block> Get_Occupied_memory();
+    Vector<Block> get_occupied_memory();
 
 
 
@@ -149,17 +149,17 @@ private:
     static const int OUT_PAGE_TOTAL = 1024;
     int inner_page_total;
     int size;
-    int Free_size;
-    int Occupied_size;
+    int free_size;
+    int occupied_size;
 
     /* These two vectors are used to record the use of physical memory*/
-    Vector<Block> Occupied_memory;
+    Vector<Block> occupied_memory;
 
-    Vector<Block> Free_memory;
+    Vector<Block> free_memory;
     /*This vector is used to record the process in the memory*/
-    Vector<Process> Current_Process;
+    Vector<Process> current_process;
     /*This map is used to record the process in the memory and its according page_table in the form of vec<Block>*/
-    Map<Process,Vector<Block>> All_Process_Status;
+    Map<Process, Vector<Block>> all_process_status;
 
 };
 
