@@ -51,22 +51,24 @@ bool operator==(Block A,Block B){
 
 
 
+
+
 // Below are the definition of Memory class.
 
-
+/* Default constructor with 4GB memory*/
 Memory::Memory()
 {
-size = Initial_total_size;
+size = INITIAL_TOTAL_SIZE;
 Free_size = size;
 Occupied_size = 0;
-inner_page_total = size/out_page_total/single_page_size;
+inner_page_total = size/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
 // Add the free block(the complete memory) into the vector of Free_memory.
 page_index Free_start;
 page_index Free_terminate;
 Free_start.outer_page_index = 0;
 Free_start.inner_page_index = 0;
-Free_terminate.outer_page_index = out_page_total-1; // 1023
+Free_terminate.outer_page_index = OUT_PAGE_TOTAL-1; // 1023
 Free_terminate.inner_page_index = inner_page_total-1; //1023
 
 Block Free;
@@ -77,19 +79,20 @@ Free_memory.add(Free);
 
 }
 
+/* Constructor with specified total size of the memory*/
 Memory::Memory(int size){
     // Remark: The size must be xxxGB, xxx must be an integer.
     this->size = size;
     Free_size = size;
     Occupied_size = 0;
-    inner_page_total = (this->size)/out_page_total/single_page_size;
+    inner_page_total = (this->size)/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
     // Add the free block(the complete memory) into the vector of Free_memory.
     page_index Free_start;
     page_index Free_terminate;
     Free_start.outer_page_index = 0;
     Free_start.inner_page_index = 0;
-    Free_terminate.outer_page_index = out_page_total-1; // This time might not be 1023
+    Free_terminate.outer_page_index = OUT_PAGE_TOTAL-1; // This time might not be 1023
     Free_terminate.inner_page_index = inner_page_total-1; //This time might not be 1023
     Block Free;
     Free.start = Free_start;
@@ -99,6 +102,13 @@ Memory::Memory(int size){
 
 }
 
+/* Method:Add_to_memory
+ * Usage:Add_to_memory(process)
+ * --------------------------------------
+ * If there the process has already been added into the memory, print error message.
+ * If the memory space is not enough for the process, print error message.
+ * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+ * Free_memory, Current_Process, All_Process_Status will be modified.*/
 void Memory::Add_to_memory(Process process){
 //    string App_name = process.App_name;
 //    int process_index = process.process;
@@ -160,10 +170,10 @@ void Memory::Add_to_memory(Process process){
                     */
 
                 // This variable counts the number of pages needed to free from the buttom.
-                int pages_from_bottom = remaining_memory/single_page_size;
+                int pages_from_bottom = remaining_memory/SINGLE_PAGE_SIZE;
 
-                if (pages_from_bottom * single_page_size < remaining_memory) {
-                    remaining_memory = pages_from_bottom*single_page_size;
+                if (pages_from_bottom * SINGLE_PAGE_SIZE < remaining_memory) {
+                    remaining_memory = pages_from_bottom*SINGLE_PAGE_SIZE;
                 }
 
                 /*Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
@@ -233,6 +243,12 @@ void Memory::Add_to_memory(Process process){
 
 }
 
+/* Method:Remove_from_memory
+ * Usage:Remove_from_memory(process)
+ * --------------------------------------
+ * If there are no such a process inside the memory, print error message.
+ * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+ * Free_memory, Current_Process, All_Process_Status will be modified.*/
 void Memory::Remove_from_memory(Process process){
         string App_name = process.App_name;
 //        int process_index = process.process;
@@ -261,18 +277,26 @@ void Memory::Remove_from_memory(Process process){
 
 }
 
+/* Method:Get_address
+ * Usage:Get_address(process)
+ * --------------------------------------
+ * If there are no such a process inside the memory, print error message.
+ * If nothing goes wrong, then the function will return the memory location of the process
+ * in the form of memory blocks.*/
 Vector<Block> Memory::Get_address(Process process){
     // Check whether the input process is still in the memory or not.
-    for (int i = 0; i<=Current_Process.size();i++){
-        if (i == Current_Process.size()) error("There is no such a process");
-        else if (Current_Process[i] == process) break;
-    }
+    if (!All_Process_Status.containsKey(process)) error("There is no such a process");
 
     // If there is such a process, then we can get the address(blocks) of the process.
     Vector<Block> process_block = All_Process_Status[process];
     return process_block;
 }
 
+/* Method:Get_App_memory
+ * Usage:Get_App_memory(App_name)
+ * --------------------------------------
+ * This function will return the total memory occupied by the App.
+ * The input is the string App_name.*/
 int Memory::Get_App_memory(string App_name){
     Vector<int> App_memory_vector;
     for (Process processes : Current_Process){
@@ -293,7 +317,10 @@ int Memory::Get_App_memory(string App_name){
         }
     }
 
-
+/* Method:Get_process_memory
+ * Usage:Get_process_memory(process)
+ * --------------------------------------
+ * This function will return the memory occupied by the process specified.*/
 int Memory::Get_process_memory(Process process){
     if (! All_Process_Status.containsKey(process)) error("There is no such process in the memory.");
     else{
@@ -302,21 +329,45 @@ int Memory::Get_process_memory(Process process){
     }
 }
 
+/* Method:Get_Free_Memory_Size
+ * Usage:Get_Free_Memory_Size()
+ * --------------------------------------
+ * This function will return the total space of free memory.(The unit is kb)*/
 int Memory::Get_Free_Memory_Size(){
     return Free_size;
 }
 
+/* Method:Get_Occupied_Memory_Size
+ * Usage:Get_Occupied_Memory_Size()
+ * --------------------------------------
+ * This function will return the total space of occupied memory.(The unit is kb)*/
 int Memory::Get_Occupied_Memory_Size(){
     return Occupied_size;
 }
 
+/* Method:Get_Current_Process
+ * Usage:Get_Current_Process()
+ * --------------------------------------
+ * This function will return all the processes in the memory right now. Information include
+ * App_name, process index and memory declared inside each process.*/
 Vector<Process> Memory::Get_Current_Process(){
     return Current_Process;
 }
 
+/* Method:Get_Free_memory
+ * Usage:Get_Free_memory()
+ * --------------------------------------
+ * This function will return all the free memory location in the memory right now.
+ * The location information will be represented as blocks in the memory.*/
 Vector<Block> Memory::Get_Free_memory(){
     return Free_memory;
 }
+
+/* Method:Get_Occupied_memory
+ * Usage:Get_Occupied_memory()
+ * --------------------------------------
+ * This function will return all the occupied memory location in the memory right now.
+ * The location information will be represented as blocks in the memory.*/
 Vector<Block> Memory::Get_Occupied_memory(){
     return Occupied_memory;
 }

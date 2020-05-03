@@ -60,42 +60,84 @@ public:
     /* Constructor with specified total size of the memory*/
     Memory(int size);
 
-    /* Method to add a specific process into the memory, the allocate algorithm will allocate the memory to this process*/
+
+    /* Method:Add_to_memory
+     * Usage:Add_to_memory(process)
+     * --------------------------------------
+     * If there the process has already been added into the memory, print error message.
+     * If the memory space is not enough for the process, print error message.
+     * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+     * Free_memory, Current_Process, All_Process_Status will be modified.*/
     void Add_to_memory(Process process);
 
-    /* Method to remove a specific process out of the memory, also will free the memory*/
+    /* Method:Remove_from_memory
+     * Usage:Remove_from_memory(process)
+     * --------------------------------------
+     * If there are no such a process inside the memory, print error message.
+     * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+     * Free_memory, Current_Process, All_Process_Status will be modified.*/
     void Remove_from_memory(Process process);
 
-    /* Method to get a specific process's address location in the memory*/
+    /* Method:Get_address
+     * Usage:Get_address(process)
+     * --------------------------------------
+     * If there are no such a process inside the memory, print error message.
+     * If nothing goes wrong, then the function will return the memory location of the process
+     * in the form of memory blocks.*/
     Vector<Block> Get_address(Process process);
 
-    /* Method to get a specific App's total memory size inside the memory currently*/
+    /* Method:Get_App_memory
+     * Usage:Get_App_memory(App_name)
+     * --------------------------------------
+     * This function will return the total memory occupied by the App.
+     * The input is the string App_name.*/
     int Get_App_memory(string App_Name);
 
-    /* Method to get a specific process's memory size inside the memory currently*/
+    /* Method:Get_process_memory
+     * Usage:Get_process_memory(process)
+     * --------------------------------------
+     * This function will return the memory occupied by the process specified.*/
     int Get_process_memory(Process process);
 
-    /* Method to get the size of total free space inside the memory currently*/
+    /* Method:Get_Free_Memory_Size
+     * Usage:Get_Free_Memory_Size()
+     * --------------------------------------
+     * This function will return the total space of free memory.(The unit is kb)*/
     int Get_Free_Memory_Size();
 
-    /* Method to get the size of total occupied space inside the memory currently*/
+    /* Method:Get_Occupied_Memory_Size
+     * Usage:Get_Occupied_Memory_Size()
+     * --------------------------------------
+     * This function will return the total space of occupied memory.(The unit is kb)*/
     int Get_Occupied_Memory_Size();
 
-    /* Method to get all the current process inside the mememory right currently*/
+    /* Method:Get_Current_Process
+     * Usage:Get_Current_Process()
+     * --------------------------------------
+     * This function will return all the processes in the memory right now. Information include
+     * App_name, process index and memory declared inside each process.*/
     Vector<Process> Get_Current_Process();
 
-    /* Method to get the free space fragments(blocks) inside the memory right now*/
+    /* Method:Get_Free_memory
+     * Usage:Get_Free_memory()
+     * --------------------------------------
+     * This function will return all the free memory location in the memory right now.
+     * The location information will be represented as blocks in the memory.*/
     Vector<Block> Get_Free_memory();
 
-    /* Method to get the occupied space fragments(blocks) inside the memory right now*/
+    /* Method:Get_Occupied_memory
+     * Usage:Get_Occupied_memory()
+     * --------------------------------------
+     * This function will return all the occupied memory location in the memory right now.
+     * The location information will be represented as blocks in the memory.*/
     Vector<Block> Get_Occupied_memory();
 
 
 
 private:
-    const int Initial_total_size = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
-    const int single_page_size = 4;
-    const int out_page_total = 1024;
+    static const int INITIAL_TOTAL_SIZE = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
+    static const int SINGLE_PAGE_SIZE = 4;
+    static const int OUT_PAGE_TOTAL = 1024;
     int inner_page_total;
     int size;
     int Free_size;
