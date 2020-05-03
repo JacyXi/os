@@ -37,7 +37,7 @@ bool sFileSystem::checkuser(string user) {
 
 
 
-int sFileSystem::touch(string filename, string content,int mod,sPath* operation_path) {
+int sFileSystem::touch(string filename, string content,int mod, sPath* operation_path) {
     int key = hashfunc(filename,false);
     bpt::bplus_tree database("storage.db");
     sPath* target[TREESIZE];
