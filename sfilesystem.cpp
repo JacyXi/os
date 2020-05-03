@@ -27,8 +27,6 @@ sFileSystem::sFileSystem(string user){
 
 
 
-
-
 bool sFileSystem::checkuser(string user) {
     return (alluser.find(user) != alluser.end()) ? true : false;
 }
@@ -39,7 +37,7 @@ bool sFileSystem::checkuser(string user) {
 
 
 
-int sFileSystem::touch(string filename, string content){
+int sFileSystem::touch(string filename, string content,int mod,sPath* operation_path) {
     int key = hashfunc(filename,false);
     bpt::bplus_tree database("storage.db");
     sPath* target[TREESIZE];
@@ -49,23 +47,23 @@ int sFileSystem::touch(string filename, string content){
         if (target[i] != nullptr) is_empty = true;
     }
     if (is_empty) {
-        target[0] = current_path;
+        target[0] = operation_path;
         database.insert(key, target);
-        sFile nfile = sFile(current_user, 7, filename, content);
-        current_path -> addFile(nfile);
+        sFile nfile = sFile(current_user, mod, filename, content);
+        operation_path -> addFile(nfile);
     } else {
-        bool has_inseart = false;
+        bool has_insert = false;
         for (int i = 0; i < TREESIZE; i++) {
             if (target[i] == nullptr) {
-                target[i] = current_path;
+                target[i] = operation_path;
                 database.update(key, target);
-                has_inseart = true;
-                sFile nfile = sFile(current_user, 7, filename, content);
-                current_path -> addFile(nfile);
+                has_insert = true;
+                sFile nfile = sFile(current_user, mod, filename, content);
+                operation_path -> addFile(nfile);
                 break;
             }
         }
-        if (!has_inseart) error("The duplicated file are too much.");
+        if (!has_insert) error("The duplicated files are too much. Please change the name.");
     }
     return 2;
 }
@@ -77,10 +75,12 @@ int sFileSystem::touch(string filename, string content){
 
 
 
-int sFileSystem::mkdir(string pathname) {
-    if (current_path -> is_subset(pathname)) error("The path already exists.");
 
-    int key = hashfunc(pathname,true);
+int sFileSystem::mkdir(string pathname, sPath * operating_path) {
+    if (operating_path -> is_subset(pathname)) error("The path already exists.");
+
+    int key = hashfunc(pathname, true);
+    string absolute_address = pathname.append("/").append(operating_path -> get_absolute());
     bpt::bplus_tree database("storage.db");
     sPath* target[TREESIZE];
     database.search(key, &target);
@@ -89,25 +89,25 @@ int sFileSystem::mkdir(string pathname) {
         if (target[i] != nullptr) is_empty = true;
     }
     if (is_empty) {
-        target[0] = current_path;
+        target[0] = operating_path;
         database.insert(key, target);
-        current_path -> addPath(pathname.append(current_path -> get_absolute()));
+        operating_path -> addPath(absolute_address);
         path_amount += 1;
-        allpath[path_amount - 1] = new sPath(pathname.append(current_path->get_absolute()), current_path);
+        allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
     } else {
-        bool has_inseart = false;
+        bool has_insert = false;
         for (int i = 0; i < TREESIZE; i++) {
             if (target[i] == nullptr) {
-                target[i] = current_path;
+                target[i] = operating_path;
                 database.update(key, target);
-                has_inseart = true;
-                current_path -> addPath(pathname.append(current_path -> get_absolute()));
+                has_insert = true;
+                operating_path -> addPath(absolute_address);
                 path_amount += 1;
-                allpath[path_amount - 1] = new sPath(pathname.append(current_path->get_absolute()), current_path);
+                allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
                 break;
             }
         }
-        if (!has_inseart) error("The duplicated file are too much.");
+        if (!has_insert) error("The duplicated file are too much.");
     }
     return 2;
 }
@@ -121,7 +121,7 @@ int sFileSystem::mkdir(string pathname) {
 
 
 int sFileSystem::rm(string goalfile) {
-    rm(goalfile, current_path);
+    rmFile(goalfile, current_path);
     return 2;
 }
 
@@ -132,11 +132,22 @@ int sFileSystem::rm(string goalfile) {
 
 
 
-void sFileSystem::rm(string goalfile, sPath* operationPath){
-    operationPath -> removeFile(goalfile);
-    bpt::bplus_tree database("storage.db");
-    //需要改一下
-    database.remove(hashfunc(goalfile,false));
+void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
+    if (operationPath -> has_file(goalfile)) {
+        operationPath -> removeFile(goalfile);
+        bpt::bplus_tree database("storage.db");
+        sPath* target[TREESIZE];
+        database.search(hashfunc(goalfile,false), &target);
+        for (int i = 0; i < TREESIZE; i++) {
+            if (target[i] == operationPath) {
+                target[i] = nullptr;
+                database.update(hashfunc(goalfile,false),target);
+            }
+        }
+    } else {
+        error("No such file to delect.");
+    }
+
 }
 
 
@@ -146,7 +157,15 @@ void sFileSystem::rm(string goalfile, sPath* operationPath){
 
 
 int sFileSystem::rm(string goal, string operants){
-    rm(goal,operants,current_path);
+    if (!operants.compare("-r")) {
+        if (current_path -> get_name().compare(goal) == 0) {
+            error("Could not delect your current path.");
+        } else if (current_path->is_subset(goal)) {
+            rmDir(goal, current_path);
+        }
+    } else {
+        rmFile(goal, current_path);
+    }
     return 2;
 }
 
@@ -157,43 +176,33 @@ int sFileSystem::rm(string goal, string operants){
 
 
 
-void sFileSystem::rm(string goal, string operants, sPath* operationPath) {
-    if (operants.compare("-r") == 0) {
-        if (operationPath -> get_name().compare(goal) == 0) error("Could not delect your current path.");
-        if (operationPath -> is_subset(goal)) {
-            operationPath -> removePath(goal);
-            int location = get_location(goal);
-            sPath * path_to_remove = allpath[location];
-            for (string files : path_to_remove->get_files()) rm(files, path_to_remove);
-            for (string subsets : path_to_remove->get_subsets()) rm(subsets, "-r",path_to_remove);
-            allpath[location] -> ~sPath();
-            allpath[location] = nullptr;
-        } else {
-            Set<string> parent_book;
-            operationPath->get_all_parent(current_path->get_parent(), parent_book);
-            if (parent_book.contains(goal)) {
-                error("Could not delete super path.");
-            } else {
-                int location = get_location(goal);
-                if (location > 1) {
-                    sPath* path_to_remove = allpath[location];
-                    sPath* its_parent = path_to_remove -> get_parent();
-                    its_parent -> removePath(goal);
-                    for (string files : path_to_remove->get_files()) rm(files, path_to_remove);
-                    for (string subsets : path_to_remove->get_subsets()) rm(subsets, "-r", path_to_remove);
-                    allpath[location] -> ~sPath();
-                    allpath[location] = nullptr;
-                }
-            }
+void sFileSystem::rmDir(string goal, sPath* operationPath) {
+    if (!goal.compare("*")) {
+        for (string files : current_path->get_files()) rmFile(files, current_path);
+        for (string subsets : current_path->get_subsets()) rmDir(subsets, current_path);
+
+    } else if (operationPath -> is_subset(goal)) {
+        operationPath -> removePath(goal);
+        string absolute_goal = goal.append("/").append(operationPath->get_absolute());
+        int location = get_location(absolute_goal);
+        sPath * path_to_remove = allpath[location];
+        for (string files : path_to_remove->get_files()) rmFile(files, path_to_remove);
+        for (string subsets : path_to_remove->get_subsets_absolute()) rmDir(subsets,path_to_remove);
+
+        bpt::bplus_tree database("storage.db");
+        sPath* target[TREESIZE];
+        database.search(hashfunc(goal,true),&target);
+        for (int i = 0; i < TREESIZE; i++) {
+            if (target[i] == allpath[location]) target[i] = nullptr;
         }
+        database.update(hashfunc(goal,true),target);
+        allpath[location] -> ~sPath();
+        allpath[location] = nullptr;
     } else {
-        rm(goal);
+        error("Could not find the target directory.");
     }
+
 }
-
-
-
-
 
 
 
@@ -209,34 +218,38 @@ int sFileSystem::cat(string filename) {
 
 
 
+void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
+    string absolute_name = name.append("/").append(targetPath->get_absolute());
+    mkdir(absolute_name, targetPath);
+    string origin_absolute = name.append("/").append(currentPath->get_absolute());
+    sPath * origin_path = allpath[get_location(origin_absolute)];
+    for (string file : origin_path->get_files()) cpFile(file, origin_path, allpath[get_location(absolute_name)]);
+    for (string path : origin_path->get_subsets()) cpDir(path, origin_path, allpath[get_location(absolute_name)]);
+}
 
+void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
+    sFile* origin_file = currentPath -> get_file(name);
+    touch(name, origin_file -> get_content(),origin_file -> get_mod(current_user), targetPath);
+
+}
 
 
 
 int sFileSystem::cp(string from, string to, string operants) {
-    //判断是否存在目标文件夹，判断是否是当前文件夹
-    if (!current_path->get_name().compare(to)) error("Could not copy to the current directory.");
-    int location = get_location(to);
-    if (location < 0) error("Could not find the target directory.");
-    sPath* operation_path = allpath[location];
-    //复制文件夹
-    if (!operants.compare("-r")) {
-        if (current_path->is_subset(from)) {
-
-
-        } else {
-            error("No such directory exists.");
+    if (operants.compare("-r")) {
+        if (current_path->is_subset(from) & (get_location(to) >= 0)){
+            cpDir(from, current_path, allpath[get_location(to)]);
         }
 
-
-    } else if (!operants.compare("-p")) {
-        //复制文件
+    } else if (operants.compare("-p")) {
+        if (current_path -> has_file(from) & (get_location(to) >= 0)) {
+            cpFile(from, current_path, allpath[get_location(to)]);
+        }
     } else {
         error("Wrong operants.");
     }
 
-
-    return 0;
+    return 2;
 }
 
 
@@ -248,7 +261,7 @@ int sFileSystem::cp(string from, string to, string operants) {
 int sFileSystem::get_location(string pathname){
     int location = -1;
     for (int i = 0; i < path_amount; i++) {
-        if (!allpath[i]->get_name().compare(pathname)) location = i; break;
+        if (!allpath[i]->get_absolute().compare(pathname)) location = i; break;
     }
     return location;
 }
@@ -264,7 +277,7 @@ int sFileSystem::get_location(string pathname){
 
 int sFileSystem::mv(string from, string to, string operants){
     cp(from, to, operants);
-    rm(from,operants);
+    rm(from, operants);
     return 2;
 }
 
@@ -311,16 +324,19 @@ int  sFileSystem::pwd(sPath * thislevel){
 
 
 
-
+int sFileSystem::cd(string goalpath, sPath* operating_path){
+    string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
+    int i = get_location(absolute_address);
+    if (i >= 0) {
+        current_path = allpath[i];
+        return 2;
+    } else {
+        error("No such exist path.");
+    }
+}
 
 int sFileSystem::cd(string goalpath){
-    for (int i = 0; i< path_amount; i++) {
-        if  (!allpath[i]->get_name().compare(goalpath)) {
-            current_path = allpath[i];
-            return 2;
-        }
-    }
-    error("No such exist path.");
+    return cd(goalpath, current_path);
 }
 
 

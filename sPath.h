@@ -37,6 +37,7 @@ public:
     bool check_almost_full();
     std::string toString();
     Set<string> get_subsets();
+    Set<string> get_subsets_absolute();
     Set<string> get_files();
     bool is_subset(string name);
     bool is_root();
@@ -59,6 +60,7 @@ private:
     const static int INIT_SIZE = 10;
     Set<string> subsets;
     Set<string> files;
+    Set<string> subsets_absolute;
 };
 
 #endif

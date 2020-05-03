@@ -34,6 +34,7 @@ sPath::sPath(string name, sPath * previous_path) {
     pathname = name;
     isRoot = false;
 }
+
 sPath::sPath(string name, bool is_root) {
     isRoot = is_root;
     filegory = new sFile * [INIT_SIZE];
@@ -123,6 +124,9 @@ string sPath::get_absolute(){
 Set<string> sPath::get_subsets(){
     return subsets;
 }
+Set<string> sPath::get_subsets_absolute(){
+    return subsets_absolute;
+}
 
 Set<string> sPath::get_files(){
     return files;
@@ -136,7 +140,8 @@ Set<string> sPath::get_files(){
  */
 void sPath::addPath(string sub_path_name){
     int position = sub_path_name.find("/");
-    subsets.add(sub_path_name.substr(0,position));
+    subsets.add(sub_path_name.substr(0, position));
+    subsets_absolute.add(sub_path_name);
 }
 
 /*
@@ -182,8 +187,7 @@ void sPath::removeFile(string filename){
  * Delete the path in the subsets
  */
 void sPath::removePath(string path){
-    int position = path.find("/");
-    subsets.remove(path.substr(0,position));
+    subsets.remove(path);
 }
 
 /*
@@ -240,7 +244,7 @@ int sPath::read_file(string filename) {
  */
 void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
-        string name = get_name().substr(0,get_name().find("/"));
+        string name = get_name();
         pwd_road.push(name);
         get_pwd(thisLevel->get_parent(), pwd_road);
     } else {

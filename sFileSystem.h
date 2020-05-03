@@ -18,11 +18,11 @@ public:
     sFileSystem();
     sFileSystem(string user);
     int touch(string goalPath, string filename, string content);
-    int touch(string filename, string content);
+    int touch(string filename, string content, int mod, sPath* operating_path);
     int mkdir(string goalPath, string pathname);
-    int mkdir(string pathname);
-    void rm(string goalfile,sPath* operationPath);
-    void rm(string goalpath, string operants,sPath* operationPath);
+    int mkdir(string pathname, sPath * operating_path);
+    void rmFile(string goalfile,sPath* operationPath);
+    void rmDir(string goalpath, sPath* operationPath);
     int rm(string goalfile);
     int rm(string goalpath, string operants);
     int cat(string filename);
@@ -36,6 +36,9 @@ public:
     int revoke(string file);
     void ch_user(string user);
     int pwd(sPath * thislevel);
+    void cpFile(string name, sPath* currentPath,sPath* targetPath);
+    void cpDir(string name, sPath* currentPath, sPath* targetPath);
+    int cd(string goal_path, sPath * operating_path);
 
 
 private:
