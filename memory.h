@@ -1,35 +1,42 @@
 #ifndef MEMORY_H
 #define MEMORY_H
-#include<string>
-#include"vector.h"
-#include"map.h"
-#include"strlib.h"
+#include <string>
+#include "vector.h"
+#include "map.h"
+#include "strlib.h"
 using namespace std;
 
-/* Struct Process: Here, the process has 3 data fields.
-   For each App, we assume it has multiple possible processes.
-   And for each process of a specific App, it has its own declared memory.
-*/
-struct Process{
+/*
+ * Struct Process
+ * -----------------------------------
+ * Here, the process has 3 data fields.
+ * For each App, we assume it has multiple possible processes.
+ * And for each process of a specific App, it has its own declared memory.
+ */
+struct Process {
     string App_name;
     int process;
     int memory_declared;
 };
 
-/* Struct page index: Here, the page index has 2 data fields.
-   For each page index, it is located by its outer page index and inner page index.
-   For detailed principle please refer to OS design textbook.
-*/
-struct page_index{
+/* Struct page index
+ * -----------------------------------
+ * Here, the page index has 2 data fields.
+ * For each page index, it is located by its outer page index and inner page index.
+ * For detailed principle please refer to OS design textbook.
+ */
+struct page_index {
     int outer_page_index;
     int inner_page_index;
 };
 
-/* Struct Block: Here, the Block has 3 data fields.
-   For each Block, it is refered to a continuous memory block in the memory.
-   We describe it by its start and terminate location using page index as well as its size.
-*/
-struct Block{
+/* Struct Block
+ * -----------------------------------
+ * Here, the Block has 3 data fields.
+ * For each Block, it is refered to a continuous memory block in the memory.
+ * We describe it by its start and terminate location using page index as well as its size.
+ */
+struct Block {
     page_index start;
     page_index terminate;
     int Block_size;
@@ -41,11 +48,11 @@ ostream & operator<<(ostream & os, Block block);
 ostream & operator<<(ostream & os, Process process);
 
 
-bool operator==(Process A,Process B);
-bool operator!=(Process A,Process B);
+bool operator==(Process A, Process B);
+bool operator!=(Process A, Process B);
 bool operator< (const Process& lhs, const Process& rhs);
-bool operator==(page_index A,page_index B);
-bool operator==(Block A,Block B);
+bool operator==(page_index A, page_index B);
+bool operator==(Block A, Block B);
 
 
 
@@ -54,6 +61,7 @@ bool operator==(Block A,Block B);
 class Memory
 {
 public:
+
     /* Default constructor with 4GB memory*/
     Memory();
 
@@ -135,6 +143,7 @@ public:
 
 
 private:
+
     static const int INITIAL_TOTAL_SIZE = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
     static const int SINGLE_PAGE_SIZE = 4;
     static const int OUT_PAGE_TOTAL = 1024;
@@ -142,14 +151,15 @@ private:
     int size;
     int Free_size;
     int Occupied_size;
+
     /* These two vectors are used to record the use of physical memory*/
     Vector<Block> Occupied_memory;
+
     Vector<Block> Free_memory;
     /*This vector is used to record the process in the memory*/
     Vector<Process> Current_Process;
     /*This map is used to record the process in the memory and its according page_table in the form of vec<Block>*/
     Map<Process,Vector<Block>> All_Process_Status;
-
 
 };
 
