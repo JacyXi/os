@@ -56,9 +56,9 @@ public:
 
 
 private:
-    const int Initial_total_size = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
-    const int single_page_size = 4;
-    const int out_page_total = 1024;
+    static const int INITIAL_TOTAL_SIZE = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
+    static const int SINGLE_PAGE_SIZE = 4;
+    static const int OUT_PAGE_TOTAL = 1024;
     int inner_page_total;
     int size;
     int Free_size;
