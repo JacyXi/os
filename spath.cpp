@@ -214,11 +214,11 @@ void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
  * If there is such file in the filegory, print the content of thefile, and return the size of the file(i.e. "50kb")
  * if there is no such file, print "No such file."
  */
-int sPath::read_file(string filename){
+int sPath::read_file(string filename) {
     int location = findLocation(filename);
     if (location != -1) {
         cout << filegory[location] -> get_content() << endl;
-        return filegory[location]->get_size();
+        return filegory[location] -> get_size();
     } else {
         error("No such  file.");
     }
