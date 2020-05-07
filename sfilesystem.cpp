@@ -8,6 +8,7 @@
 #include "stack.h"
 #include "foreach.h"
 #include "bpt.h"
+#include "vector.h"
 
 sFileSystem::sFileSystem()
 {
@@ -40,7 +41,7 @@ bool sFileSystem::checkuser(string user) {
 int sFileSystem::touch(string filename, string content,int mod, sPath* operation_path) {
     int key = hashfunc(filename,false);
     bpt::bplus_tree database("storage.db");
-    sPath* target[TREESIZE];
+    vector<sPath*> target;
     database.search(key, &target);
     bool is_empty = true;
     for (int i = 0; i < TREESIZE; i++) {
@@ -82,7 +83,7 @@ int sFileSystem::mkdir(string pathname, sPath * operating_path) {
     int key = hashfunc(pathname, true);
     string absolute_address = pathname.append("/").append(operating_path -> get_absolute());
     bpt::bplus_tree database("storage.db");
-    sPath* target[TREESIZE];
+    vector<sPath*> target;
     database.search(key, &target);
     bool is_empty = true;
     for (int i = 0; i < TREESIZE; i++) {
@@ -136,7 +137,7 @@ void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
     if (operationPath -> has_file(goalfile)) {
         operationPath -> removeFile(goalfile);
         bpt::bplus_tree database("storage.db");
-        sPath* target[TREESIZE];
+        vector<sPath*> target;
         database.search(hashfunc(goalfile,false), &target);
         for (int i = 0; i < TREESIZE; i++) {
             if (target[i] == operationPath) {
@@ -190,7 +191,7 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
         for (string subsets : path_to_remove->get_subsets_absolute()) rmDir(subsets,path_to_remove);
 
         bpt::bplus_tree database("storage.db");
-        sPath* target[TREESIZE];
+        vector<sPath*> target;
         database.search(hashfunc(goal,true),&target);
         for (int i = 0; i < TREESIZE; i++) {
             if (target[i] == allpath[location]) target[i] = nullptr;
@@ -391,7 +392,7 @@ int sFileSystem::chmod(string file, int mod) {
 
 int sFileSystem::find(string file) {
     bpt::bplus_tree database("storage.db");
-    sPath* target[TREESIZE];
+    vector<sPath*> target;
     if (database.search(hashfunc(file, false), &target) != 0){
         cout << "No such file."<<endl;
     } else {

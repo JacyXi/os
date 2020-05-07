@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include "sPath.h"
+#include "vector.h"
 
 namespace bpt {
 
@@ -10,7 +11,7 @@ namespace bpt {
 #define BP_ORDER 20
 
 /* key/value type */
-typedef sPath* value_t[10];
+typedef vector<sPath*> value_t;
 
 typedef int key_t;
 
