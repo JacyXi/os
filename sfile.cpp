@@ -25,7 +25,8 @@ sFile::sFile(string user, int mod, string name, string content) {
     filename = name;
     contents = content;
     mod_category[user] = mod;
-    struct tm *timeinfo;
+    create_time = time(0);
+    modified_time = time(0);
 }
 
 /*
@@ -48,7 +49,7 @@ sFile::~sFile(){
  * Find a key in a map and return the value if the key could be found
  * The return is the sum of all rights for the user
  */
-int sFile::get_mod(string user){
+int sFile::get_mod(string user) {
     if (mod_category.containsKey(user)) return mod_category[user]; else error("No such user.");
 }
 
@@ -58,7 +59,7 @@ int sFile::get_mod(string user){
  * --------------------------------------
  * Returns the string of the content in the file
  */
-string sFile::get_content(){
+string sFile::get_content() {
     string output;
     output = contents;
     return output;
@@ -71,7 +72,7 @@ string sFile::get_content(){
  * Returns the information of certain file
  * The information includes file name, file type, file size, file location, file create time, file modified time, file user rights
  */
-string sFile::get_info(){
+string sFile::get_info() {
     string output;
     output.append("File name: ");
     output.append(filename);
@@ -103,7 +104,7 @@ string sFile::get_info(){
  * ----------------------------------
  * Returns a string of the filename
  */
-string sFile::get_name(){
+string sFile::get_name() {
     return filename;
 }
 
@@ -113,7 +114,7 @@ string sFile::get_name(){
  * -------------------------------
  * Returns a string of the type of this file
  */
-string sFile::get_type(){
+string sFile::get_type() {
     return type;
 }
 
@@ -123,7 +124,7 @@ string sFile::get_type(){
  * -------------------------------
  * Returns a string of the size of this file (i.e. "200kb")
  */
-int sFile::get_size(){
+int sFile::get_size() {
     return size;
 }
 
@@ -133,11 +134,11 @@ int sFile::get_size(){
  * --------------------------------------
  * Returns a string of the location of this file
  */
-string sFile::get_location(){
+string sFile::get_location() {
     string output;
     foreach (string i in location) {
         output.append(i);
-        output.append("/");  //   这个斜杠是不是反了？
+        output.append("/");
     }
     return output;
 }
@@ -148,8 +149,8 @@ string sFile::get_location(){
  * -------------------------------------
  * Returns the string of the time when the file is created
  */
-string sFile::get_create_time(){
-    return "";
+string sFile::get_create_time() {
+    return ctime(&create_time);
 }
 
 /*
@@ -158,8 +159,8 @@ string sFile::get_create_time(){
  * -----------------------------------------
  * Returns the string of time when the file was modified by the last user
  */
-string sFile::get_modified_time(){
-    return "";
+string sFile::get_modified_time() {
+    return ctime(&modified_time);
 }
 
 /*
@@ -168,7 +169,7 @@ string sFile::get_modified_time(){
  * ---------------------------------------
  * Returns the string describing the rights of the user
  */
-string sFile::get_mod_info(){
+string sFile::get_mod_info() {
     string output;
     foreach(string user in mod_category.keys()) {
         output.append("User ");
@@ -186,9 +187,11 @@ string sFile::get_mod_info(){
  * ---------------------------------
  * Add a string (representing the new content) to the and of the previous content
  */
-void sFile::add_content(string content){
+void sFile::add_content(string content) {
+    modified_time = time(0);
     contents.append(content);
 }
+
 /*
  * Method: change_mod
  * Usage: cstk.change_mod(user, right);
@@ -196,7 +199,12 @@ void sFile::add_content(string content){
  * Change the user's right if the input right is different from the old right
  * Print "No right has to change if the new right is the same as the old one
  */
-void sFile::change_mod(string user, int right){
-    if (get_mod(user) != right) mod_category[user] = right; else error("No right has to change.");
+void sFile::change_mod(string user, int right) {
+    if (get_mod(user) != right) {
+        modified_time = time(0);
+        mod_category[user] = right;
+    } else {
+        error("No right has to change.");
+    }
 }
 

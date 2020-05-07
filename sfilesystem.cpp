@@ -23,7 +23,7 @@ sFileSystem::sFileSystem(string user){
     allpath[0] = root;
     current_path = root;
     path_amount = 1;
-    bpt::bplus_tree database("storage.db",true);
+    bpt::bplus_tree database("storage.db", true);
 }
 
 

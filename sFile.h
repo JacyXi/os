@@ -41,7 +41,7 @@ private:
     string type;
     int size;
     vector<string> location;
-    const static time_t create_time;
+    time_t create_time;
     time_t modified_time;
     bool visible;
     string previous_version;
