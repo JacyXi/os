@@ -1,34 +1,58 @@
 #include "spthread.h"
 #include <string>
 using namespace std;
-
+/*
+ * Constructor: spthread
+ * Usage: spthread thread;
+ * -------------------------------
+ * Initialize a new empty spthread.
+ */
 spthread::spthread()
 {
-
 }
+
+/*
+ * Constructor: spthread
+ * Usage: spthread thread = spthread(user, write, read);
+ * -----------------------------------------------------
+ * Initialize a new spthread with one thread for a user.
+ */
 spthread::spthread(string user, bool write, bool read) {
     lock *rw_lock = new lock;
-    rw_lock->is_rd = read;
-    rw_lock->is_wt = write;
+    rw_lock -> is_rd = read;
+    rw_lock -> is_wt = write;
     user_map.add(user, rw_lock);
 }
-int spthread::init_lock(string user){
+
+/*
+ * Method: init_lock
+ * Usage: init_lock(user);
+ * ----------------------
+ * Initialize a new thread for a user.
+ */
+int spthread::init_lock(string user) {
     if (user_map.keys().contains(user)) {
         error("The thread exists already.");
     } else {
         lock *rw_lock = new lock;
-        rw_lock->is_rd = false;
-        rw_lock->is_wt = false;
+        rw_lock -> is_rd = false;
+        rw_lock -> is_wt = false;
         user_map.add(user, rw_lock);
     }
     return 1;
 }
 
-int spthread::rdlock(string user){
+/*
+ * Method: rdlock
+ * Usage: rdlock(user);
+ * ----------------------
+ * Add reader lock to a user's thread.
+ */
+int spthread::rdlock(string user) {
     if (user_map.keys().contains(user)) {
         if (!global_wt) {
             global_rd = true;
-            user_map.get(user)->is_rd = true;
+            user_map.get(user) -> is_rd = true;
             return 1;
         } else {
             error("Cannot add read lock, since write lock exists.");
@@ -39,6 +63,12 @@ int spthread::rdlock(string user){
     }
 }
 
+/*
+ * Method: wtlock
+ * Usage: wtlock(user);
+ * ----------------------
+ * Add writer lock to a user's thread.
+ */
 int spthread::wrlock(string user){
     if (user_map.keys().contains(user)){
         if ((!global_rd) && (!global_wt)) {
@@ -54,6 +84,12 @@ int spthread::wrlock(string user){
     }
 }
 
+/*
+ * Method: unlock
+ * Usage: unlock(user);
+ * ----------------------
+ * Release lock for the user's thread.
+ */
 int spthread::unlock(string user){
     if (user_map.get(user)->is_wt) {
         global_wt = false;
