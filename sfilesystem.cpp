@@ -10,12 +10,24 @@
 #include "bpt.h"
 #include "vector.h"
 
+
+/*
+ * Constructor: sFileSystem
+ * Usage: sFileSystem system;
+ * ---------------------------------
+ * Initialize a new empty sFileSystem.
+ */
 sFileSystem::sFileSystem()
 {
 }
 
 
-
+/*
+ * Constructor: sFileSystem
+ * Usage: sFileSystem system = sFileSystem(user);
+ * ----------------------------------------------
+ * Initialize a new empty sFileSystem, set a user.
+ */
 sFileSystem::sFileSystem(string user){
     if (checkuser(user)) current_user = user; else error ("No such user.");
     allpath = new sPath * [STORAGE];
@@ -27,19 +39,26 @@ sFileSystem::sFileSystem(string user){
 }
 
 
-
+/*
+ * Method: checkuser
+ * Usage: checkuser(user);
+ * ----------------------
+ * Check if the user is valid.
+ */
 bool sFileSystem::checkuser(string user) {
-    return (alluser.find(user) != alluser.end()) ? true : false;
+    return alluser.find(user) != alluser.end();
 }
 
 
 
-
-
-
-
+/*
+ * Method: touch
+ * Usage: touch(filename, content, mod, operation_path);
+ * -----------------------------------------------------
+ * Create a file. Assign filename, content, mode, from the operation path.
+ */
 int sFileSystem::touch(string filename, string content,int mod, sPath* operation_path) {
-    int key = hashfunc(filename,false);
+    int key = hashfunc(filename, false);
     bpt::bplus_tree database("storage.db");
     vector<sPath*> target;
     database.search(key, &target);
@@ -70,13 +89,12 @@ int sFileSystem::touch(string filename, string content,int mod, sPath* operation
 }
 
 
-
-
-
-
-
-
-
+/*
+ * Method: mkdir
+ * Usage: mkdir(pathname, operation_path);
+ * -----------------------------------------------------
+ * Create a path. Assign pathname from the operation path.
+ */
 int sFileSystem::mkdir(string pathname, sPath * operating_path) {
     if (operating_path -> is_subset(pathname)) error("The path already exists.");
 
@@ -113,26 +131,23 @@ int sFileSystem::mkdir(string pathname, sPath * operating_path) {
     return 2;
 }
 
-
-
-
-
-
-
-
-
+/*
+ * Method: rm
+ * Usage: rm(goalfile);
+ * ----------------------------------
+ * A helper function to remove a file.
+ */
 int sFileSystem::rm(string goalfile) {
     rmFile(goalfile, current_path);
     return 2;
 }
 
-
-
-
-
-
-
-
+/*
+ * Method: rmFile
+ * Usage: rmFile(goalfile, operationPath);
+ * ----------------------------------
+ * A helper function to remove a file.
+ */
 void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
     if (operationPath -> has_file(goalfile)) {
         operationPath -> removeFile(goalfile);
@@ -151,12 +166,12 @@ void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
 
 }
 
-
-
-
-
-
-
+/*
+ * Method: rm
+ * Usage: rm(goalfile, operationPath);
+ * ----------------------------------
+ * A helper function to remove a file.
+ */
 int sFileSystem::rm(string goal, string operants){
     if (!operants.compare("-r")) {
         if (current_path -> get_name().compare(goal) == 0) {
@@ -170,13 +185,12 @@ int sFileSystem::rm(string goal, string operants){
     return 2;
 }
 
-
-
-
-
-
-
-
+/*
+ * Method: rmDir
+ * Usage: rmDir(goal, operationPath);
+ * ----------------------------------
+ * A helper function to remove a path.
+ */
 void sFileSystem::rmDir(string goal, sPath* operationPath) {
     if (!goal.compare("*")) {
         for (string files : current_path->get_files()) rmFile(files, current_path);
@@ -205,20 +219,22 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
 
 }
 
-
-
-
-
-
-
+/*
+ * Method: cat
+ * Usage: cat(filename);
+ * ----------------------------
+ * Show the content of the file.
+ */
 int sFileSystem::cat(string filename) {
     return current_path -> read_file(filename);
 }
 
-
-
-
-
+/*
+ * Method: cpDir
+ * Usage: cpDir(name, currentPath, targetPath);
+ * --------------------------------------------
+ * A helper function to copy a path.
+ */
 void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
     string absolute_name = name.append("/").append(targetPath->get_absolute());
     mkdir(absolute_name, targetPath);
@@ -228,6 +244,12 @@ void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
     for (string path : origin_path->get_subsets()) cpDir(path, origin_path, allpath[get_location(absolute_name)]);
 }
 
+/*
+ * Method: cpFile
+ * Usage: cpFile(name, currentPath, targetPath);
+ * --------------------------------------------
+ * A helper function to copy a file.
+ */
 void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
     sFile* origin_file = currentPath -> get_file(name);
     touch(name, origin_file -> get_content(),origin_file -> get_mod(current_user), targetPath);
@@ -235,7 +257,12 @@ void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
 }
 
 
-
+/*
+ * Method: cp
+ * Usage: cp(from, to, operants);
+ * --------------------------------------------
+ * Copy a file or directory to another location.
+ */
 int sFileSystem::cp(string from, string to, string operants) {
     if (operants.compare("-r")) {
         if (current_path->is_subset(from) & (get_location(to) >= 0)){
@@ -253,29 +280,26 @@ int sFileSystem::cp(string from, string to, string operants) {
     return 2;
 }
 
-
-
-
-
-
-
-int sFileSystem::get_location(string pathname){
+/*
+ * Method: get_location
+ * Usage: get_location(pathname);
+ * ------------------------------
+ * Return the path location in a pathgory.
+ */
+int sFileSystem::get_location(string pathname) {
     int location = -1;
     for (int i = 0; i < path_amount; i++) {
-        if (!allpath[i]->get_absolute().compare(pathname)) location = i; break;
+        if (!allpath[i] -> get_absolute().compare(pathname)) location = i; break;
     }
     return location;
 }
 
-
-
-
-
-
-
-
-
-
+/*
+ * Method: mv
+ * Usage: mv(from, to, operants);
+ * ------------------------------
+ * Move a file or path to another place.
+ */
 int sFileSystem::mv(string from, string to, string operants){
     cp(from, to, operants);
     rm(from, operants);
@@ -283,29 +307,24 @@ int sFileSystem::mv(string from, string to, string operants){
 }
 
 
-
-
-
-
-
-
-
-
-
+/*
+ * Method: pwd
+ * Usage: pwd();
+ * ------------------------------
+ * Get current directory absolute address.
+ */
 int sFileSystem::pwd(){
     return pwd(current_path);
 }
 
 
 
-
-
-
-
-
-
-
-
+/*
+ * Method: pwd
+ * Usage: pwd(thislevel);
+ * ------------------------------
+ * Get target directory absolute address.
+ */
 int  sFileSystem::pwd(sPath * thislevel){
     Stack<string> parents_book;
     thislevel -> get_pwd(thislevel, parents_book);
@@ -319,12 +338,12 @@ int  sFileSystem::pwd(sPath * thislevel){
 }
 
 
-
-
-
-
-
-
+/*
+ * Method: cd
+ * Usage: cd(goalpath, operating_path);
+ * -------------------------------------
+ * A helper function to change current path.
+ */
 int sFileSystem::cd(string goalpath, sPath* operating_path){
     string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
     int i = get_location(absolute_address);
@@ -336,20 +355,23 @@ int sFileSystem::cd(string goalpath, sPath* operating_path){
     }
 }
 
+/*
+ * Method: cd
+ * Usage: cd(goalpath);
+ * -------------------------------------
+ * Change current path to target path.
+ */
 int sFileSystem::cd(string goalpath){
     return cd(goalpath, current_path);
 }
 
 
-
-
-
-
-
-
-
-
-
+/*
+ * Method: ls
+ * Usage: ls();
+ * -------------------------------------
+ * List all files and paths in the current path.
+ */
 int sFileSystem::ls(){
     Set<string> subsets = current_path->get_subsets();
     cout << "subfolders:" << endl;
@@ -368,28 +390,25 @@ int sFileSystem::ls(){
 }
 
 
-
-
-
-
-
-
-
-
+/*
+ * Method: chmod
+ * Usage: chmod();
+ * ----------------------------
+ * Change the mode for the file.
+ */
 int sFileSystem::chmod(string file, int mod) {
     current_path -> chmod(current_user, file, mod);
     return 2;
 }
 
 
-
-
-
-
-
-
-
-
+/*
+ * Method: find
+ * Usage: find(file);
+ * -----------------------------------
+ * Find the file's absolute address. There maybe some duplicated name files.
+ * Also duplicated name paths together.
+ */
 int sFileSystem::find(string file) {
     bpt::bplus_tree database("storage.db");
     vector<sPath*> target;
@@ -406,13 +425,12 @@ int sFileSystem::find(string file) {
 
 
 
-
-
-
-
-
-
-
+/*
+ * Method: revoke
+ * Usage: revoke(file);
+ * -----------------------------------
+ * Revoke the file to the previous version.
+ */
 int sFileSystem::revoke(string file) {
     if (current_path->has_file(file)) {
         sFile * thisfile = current_path->get_file(file);
@@ -424,14 +442,12 @@ int sFileSystem::revoke(string file) {
 }
 
 
-
-
-
-
-
-
-
-
+/*
+ * Method: hashfunc
+ * Usage: hashfunc(filename, is_path);
+ * -----------------------------------
+ * Hash function to convert file or path into a 16-digits hashcode.
+ */
 int sFileSystem::hashfunc(string filename, bool is_path){
     if (!is_path){
         int length = filename.length();
