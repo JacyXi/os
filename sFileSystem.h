@@ -17,7 +17,7 @@ class sFileSystem
 public:
     sFileSystem();
     sFileSystem(string user);
-    int touch(string goalPath, string filename, string content);
+    int touch(string filename, string content, int mod);
     int touch(string filename, string content, int mod, sPath* operating_path);
     int mkdir(string goalPath, string pathname);
     int mkdir(string pathname, sPath * operating_path);

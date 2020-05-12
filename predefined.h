@@ -11,7 +11,7 @@ namespace bpt {
 #define BP_ORDER 20
 
 /* key/value type */
-typedef vector<sPath*> value_t;
+typedef Vector<sPath*> value_t;
 
 typedef int key_t;
 

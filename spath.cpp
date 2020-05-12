@@ -57,6 +57,9 @@ sPath::sPath(string name, sPath * previous_path) {
 sPath::sPath(string name, bool is_root) {
     isRoot = is_root;
     filegory = new sFile * [INIT_SIZE];
+    for (int i = 0; i < INIT_SIZE; i++) {
+        filegory[i] = nullptr;
+    }
     size = 0;
     capacity = INIT_SIZE;
     pathname = name;
@@ -172,6 +175,20 @@ Set<string> sPath::get_subsets_absolute() {
  */
 Set<string> sPath::get_files() {
     return files;
+}
+
+/*
+ * Method: get_file
+ * Usage: get_file(filename);
+ * ------------------------------
+ * Return filename set of files in this path.
+ */
+sFile * sPath::get_file(string filename) {
+    if (has_file(filename)) {
+        return filegory[findLocation(filename)];
+    } else {
+        error("No such file.");
+    }
 }
 
 /*

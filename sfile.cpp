@@ -227,3 +227,19 @@ void sFile::change_mod(string user, int right) {
     }
 }
 
+/*
+ * Method: revoke
+ * Usage: revoke();
+ * -------------------------------------
+ * Change the user's right if the input right is different from
+ * the old right. Raise error "No right has to change if the new
+ * right is the same as the old one.
+ */
+void sFile::revoke() {
+    if (previous_version.length() > 0) {
+        contents = previous_version;
+    } else {
+        error("Could only revoke once");
+    }
+}
+
