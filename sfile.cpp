@@ -13,14 +13,24 @@
 
 /*
  * Constructor: sFile
- * Usage: sFile cstk;
- * Initializes a new file that has specific mode (the qualification for the user), filename, and content
+ * Usage: sFile(string user, int mod);
+ * ---------------------------------------------------------------
+ * Initializes a new file that has specific mode (the qualification for the user),
+ * filename, and content.
  */
 sFile::sFile(string user, int mod)
 {
     mod_category[user] = mod;
 
 }
+
+/*
+ * Constructor: sFile
+ * Usage: sFile(user, mod, name, content);
+ * ---------------------------------------------------------------
+ * Initializes a new file that has specific mode (the qualification for the user),
+ * filename, and content.
+ */
 sFile::sFile(string user, int mod, string name, string content) {
     filename = name;
     contents = content;
@@ -32,32 +42,36 @@ sFile::sFile(string user, int mod, string name, string content) {
 /*
  * Destructor: ~sFile
  * Usage: (Usually implicit)
- * -------------------------
+ * ----------------------------------
  * Deallocates storage associated with this cstk. This method is called
- * whenever a sFile instance variable is deallocated
+ * whenever a sFile instance variable is deallocated.
  */
-sFile::~sFile(){
+sFile::~sFile() {
 
 }
 
 /*
  * Method: get_mod
  * Usage: user_Mod = cstk.get_mod(user);
- * ------------------------------------
+ * ----------------------------------
  * Returns the integer represents the mod (rights) for the user
  * read:4; write:2; execute:1
  * Find a key in a map and return the value if the key could be found
  * The return is the sum of all rights for the user
  */
 int sFile::get_mod(string user) {
-    if (mod_category.containsKey(user)) return mod_category[user]; else error("No such user.");
+    if (mod_category.containsKey(user)) {
+        return mod_category[user];
+    } else {
+        error("No such user.");
+    }
 }
 
 /*
  * Method: get_content
- * Usage: contents = cstk.get_content();
- * --------------------------------------
- * Returns the string of the content in the file
+ * Usage: get_content();
+ * ----------------------------------
+ * Returns the string of the content in the file.
  */
 string sFile::get_content() {
     string output;
@@ -67,10 +81,12 @@ string sFile::get_content() {
 
 /*
  * Method: get_info
- * Usage: info = cstk.get_info();
- * ------------------------------
- * Returns the information of certain file
- * The information includes file name, file type, file size, file location, file create time, file modified time, file user rights
+ * Usage: get_info();
+ * ----------------------------------
+ * Returns the information of certain file.
+ * The information includes file name, file type, file size,
+ * file location, file create time, file modified time, file
+ * user rights.
  */
 string sFile::get_info() {
     string output;
@@ -100,9 +116,9 @@ string sFile::get_info() {
 
 /*
  * Method: get_name
- * Usage: filename = cstk.get_name();
+ * Usage: get_name();
  * ----------------------------------
- * Returns a string of the filename
+ * Returns a string of the filename.
  */
 string sFile::get_name() {
     return filename;
@@ -110,9 +126,9 @@ string sFile::get_name() {
 
 /*
  * Method: get_type
- * Usage: type = cstk.get_type();
- * -------------------------------
- * Returns a string of the type of this file
+ * Usage: get_type();
+ * ----------------------------------
+ * Returns a string of the type of this file.
  */
 string sFile::get_type() {
     return type;
@@ -120,9 +136,9 @@ string sFile::get_type() {
 
 /*
  * Method: get_size
- * Usage: size = cstk.get_size();
- * -------------------------------
- * Returns a string of the size of this file (i.e. "200kb")
+ * Usage: get_size();
+ * ----------------------------------
+ * Returns a string of the size of this file (i.e. "200kb").
  */
 int sFile::get_size() {
     return size;
@@ -130,9 +146,9 @@ int sFile::get_size() {
 
 /*
  * Method: get_location
- * Usage: location = cstk.get_location();
- * --------------------------------------
- * Returns a string of the location of this file
+ * Usage: get_location();
+ * ----------------------------------
+ * Returns a string of the location of this file.
  */
 string sFile::get_location() {
     string output;
@@ -145,9 +161,9 @@ string sFile::get_location() {
 
 /*
  * Method: get_create_time
- * Usage: c_time = cstk.get_create_time();
+ * Usage: get_create_time();
  * -------------------------------------
- * Returns the string of the time when the file is created
+ * Returns the string of the time when the file is created.
  */
 string sFile::get_create_time() {
     return ctime(&create_time);
@@ -155,9 +171,10 @@ string sFile::get_create_time() {
 
 /*
  * Method: get_modified_time
- * Usage: m_time = cstk.get_modified_time();
+ * Usage: get_modified_time();
  * -----------------------------------------
- * Returns the string of time when the file was modified by the last user
+ * Returns the string of time when the file was modified
+ * by the last user.
  */
 string sFile::get_modified_time() {
     return ctime(&modified_time);
@@ -165,9 +182,9 @@ string sFile::get_modified_time() {
 
 /*
  * Method: get_mod_info
- * Usage: mod_info = cstk.get_mod_info();
+ * Usage: get_mod_info();
  * ---------------------------------------
- * Returns the string describing the rights of the user
+ * Returns the string describing the rights of the user.
  */
 string sFile::get_mod_info() {
     string output;
@@ -183,9 +200,10 @@ string sFile::get_mod_info() {
 
 /*
  * Method: add_content
- * Usage: cstk.add_content(content);
+ * Usage: add_content(content);
  * ---------------------------------
- * Add a string (representing the new content) to the and of the previous content
+ * Add a string (representing the new content) to the and of
+ * the previous content.
  */
 void sFile::add_content(string content) {
     modified_time = time(0);
@@ -194,10 +212,11 @@ void sFile::add_content(string content) {
 
 /*
  * Method: change_mod
- * Usage: cstk.change_mod(user, right);
+ * Usage: change_mod(user, right);
  * -------------------------------------
- * Change the user's right if the input right is different from the old right
- * Print "No right has to change if the new right is the same as the old one
+ * Change the user's right if the input right is different from
+ * the old right. Raise error "No right has to change if the new
+ * right is the same as the old one.
  */
 void sFile::change_mod(string user, int right) {
     if (get_mod(user) != right) {
