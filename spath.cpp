@@ -294,11 +294,23 @@ void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     }
 }
 
+/*
+ * Method: has_file
+ * Usage: has_file(filename);
+ * ---------------------------------------------
+ * Check if file exists.
+ */
 bool sPath::has_file(string filename) {
     return files.contains(filename);
 }
 
-void sPath::chmod(string user, string filename, int mod){
+/*
+ * Method: chmod
+ * Usage: chmod(user, filename, mod);
+ * ---------------------------------------------
+ * Change the mode of file.
+ */
+void sPath::chmod(string user, string filename, int mod) {
     int location = findLocation(filename);
     if (location != -1) {
         filegory[location] -> change_mod(user, mod);
