@@ -54,4 +54,20 @@ int spthread::wrlock(string user){
     }
 }
 
-
+int spthread::unlock(string user){
+    if (user_map.get(user)->is_wt) {
+        global_wt = false;
+        user_map.get(user)->is_wt = false;
+        return 1;
+    } else if(user_map.get(user)->is_rd) {
+        int num_rdlock = 0;
+        for (lock * rwlock : user_map.values()) {
+            if (rwlock->is_rd) num_rdlock += 1;
+        }
+        global_rd = !(num_rdlock == 1);
+        user_map.get(user)->is_rd = false;
+        return 1;
+    } else {
+        return 1;
+    }
+}
