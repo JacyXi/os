@@ -12,9 +12,9 @@ using namespace std;
 
 /*
  * Constructor: sPath
- * Usage: sPath cstk;
- * -------------------
- * Initializes a new empty sPath
+ * Usage: sPath path;
+ * ---------------------------------
+ * Initialize a new empty sPath.
  */
 sPath::sPath()
 {
@@ -22,10 +22,23 @@ sPath::sPath()
     capacity = INIT_SIZE;
 }
 
+/*
+ * Destructor: ~sPath
+ * Usage: (Usually implicit)
+ * ----------------------------------
+ * Deallocate storage associated with this path. This method
+ * is called whenever a sPath instance variable is deallocated.
+ */
 sPath::~sPath(){
     delete[] filegory;
 }
 
+/*
+ * Constructor: sPath
+ * Usage: sPath path = sPath(name, previous_path)
+ * ----------------------------------
+ * Initialize a new sPath with name and parent path pointer.
+ */
 sPath::sPath(string name, sPath * previous_path) {
     parent = previous_path;
     filegory = new sFile*[INIT_SIZE];
@@ -35,6 +48,12 @@ sPath::sPath(string name, sPath * previous_path) {
     isRoot = false;
 }
 
+/*
+ * Constructor: sPath
+ * Usage: sPath path = sPath(name, is_root)
+ * ----------------------------------
+ * Initialize root sPath with name.
+ */
 sPath::sPath(string name, bool is_root) {
     isRoot = is_root;
     filegory = new sFile * [INIT_SIZE];
@@ -46,20 +65,21 @@ sPath::sPath(string name, bool is_root) {
 
 /*
  * Method: is_root
- * Usage: cstk.is_root();
+ * Usage: is_root();
  * ----------------------
- * Returns true if this path is the root path (has no parent)
+ * Return true if this path is the root path (has no parent).
  */
-bool sPath::is_root(){
+bool sPath::is_root() {
     return isRoot;
 }
 
 /*
  * Method: addFile
- * Usage: cstk.addFile(& file);
+ * Usage: addFile(& file);
  * -----------------------------
  * Add the address of the new file to the end of the array (filegory)
- * Add the new file into the map (files), the key is the file name, and the value is its size (i.e. "50kb")
+ * Add the new file into the map (files), the key is the file name,
+ * and the value is its size (i.e. "50kb").
  */
 void sPath::addFile(sFile & file) {
     size = size + 1;
@@ -72,19 +92,19 @@ void sPath::addFile(sFile & file) {
  * Method: check_almost_full
  * Usage: cstk.check_almost_full();
  * ----------------------------------
- * Returns true if the size is equal to the capacity, and false otherwise
+ * Return true if the size is equal to the capacity, or false otherwise.
  */
-bool sPath::check_almost_full(){
-    return (size) == capacity? true:false;
+bool sPath::check_almost_full() {
+    return (size) == capacity ? true : false;
 }
 
 /*
  * Method: expandCapacity
- * Usage: cstk.expandCapacity();
+ * Usage: expandCapacity();
  * -------------------------------
- * Doubles the size of the sPath
+ * Double the size of the sPath.
  */
-void sPath::expandCapacity(){
+void sPath::expandCapacity() {
     capacity = 2 * capacity;
     sFile ** array = new sFile*[capacity];
     for (int i = 0; i < size; i++) {
@@ -95,48 +115,70 @@ void sPath::expandCapacity(){
 }
 
 /*
- * Change the data type sPath to string
+ * Method: toString
+ * Usage: toString();
+ * ---------------------------
+ * Get string name of sPath.
  */
-std::string sPath::toString(){
+std::string sPath::toString() {
     return pathname;
 }
 
 /*
  * Method: get_parent
- * Usage: cstk.get_parent();
+ * Usage: get_parent();
  * ---------------------------
- * Returns the parent this file
+ * Return the parent path pointer.
  */
-sPath * sPath::get_parent(){
+sPath * sPath::get_parent() {
     return parent;
 }
 
-string sPath::get_absolute(){
+/*
+ * Method: get_absolute
+ * Usage: get_absolute();
+ * ---------------------------
+ * Return the absolute path address.
+ */
+string sPath::get_absolute() {
     return pathname;
 }
 
 /*
  * Method: get_subsets
- * Usage: cstk.get_subsets();
+ * Usage: get_subsets();
  * ---------------------------
- * Returns the subsets this file
+ * Return name set of subsets in this path.
  */
-Set<string> sPath::get_subsets(){
+Set<string> sPath::get_subsets() {
     return subsets;
 }
-Set<string> sPath::get_subsets_absolute(){
+
+/*
+ * Method: get_subsets_absolute
+ * Usage: get_subsets_absolute();
+ * ------------------------------
+ * Return absolute address set of subsets in this path.
+ */
+Set<string> sPath::get_subsets_absolute() {
     return subsets_absolute;
 }
 
-Set<string> sPath::get_files(){
+/*
+ * Method: get_files
+ * Usage: get_files();
+ * ------------------------------
+ * Return filename set of files in this path.
+ */
+Set<string> sPath::get_files() {
     return files;
 }
 
 /*
  * Method: addPath
- * Usage: cstk.addPath(sub_path_name);
+ * Usage: addPath(sub_path_name);
  * -----------------------------------
- * Add the sub_path_name into the set(subsets)
+ * Add a subset into the path, by absolute address.
  */
 void sPath::addPath(string sub_path_name){
     int position = sub_path_name.find("/");
@@ -146,9 +188,9 @@ void sPath::addPath(string sub_path_name){
 
 /*
  * Method: is_subset
- * Usage: cstk.is_subset(name);
+ * Usage: is_subset(name);
  * ----------------------------
- * Returns true if this path is in the subset of another sPath (name)
+ * Return if is a subset in this path.
  */
 bool sPath::is_subset(string name){
     return subsets.contains(name);
@@ -156,58 +198,57 @@ bool sPath::is_subset(string name){
 
 /*
  * Method: findLocation
- * Usage: cstk.findLocation(filename);
+ * Usage: findLocation(filename);
  * -----------------------------------
- * return the location is the array(filegory) if the filename is in the array; else return -1
+ * Find the location of the file in filegory. Otherwise return -1.
  */
-int sPath::findLocation(string filename){
-    for (int i=0;i<capacity;i++){
-        if (filegory[i]->get_name().compare(filename) == 0) return i;
+int sPath::findLocation(string filename) {
+    for (int i = 0; i < capacity; i++) {
+        if (filegory[i] -> get_name().compare(filename) == 0) return i;
     }
     return -1;
 }
 
 /*
  * Method: removeFile
- * Usage: cstk.removeFile(filename)
+ * Usage: removeFile(filename)
  * -----------------------------------
- * If such file is in the array(filegory), this function first deallocate such class, then delete the pointer to such class.
+ * Delect the file. Otherwise raise error.
  */
-void sPath::removeFile(string filename){
+void sPath::removeFile(string filename) {
     int location = findLocation(filename);
     if (location == -1) error("No such file.");
-    filegory[location]->~sFile();
+    filegory[location] -> ~sFile();
     filegory[location] = nullptr;
 }
 
 /*
  * Method: removePath
- * Usage: cstk.removePath(path);
+ * Usage: removePath(path);
  * ------------------------------
- * Delete the path in the subsets
+ * Delete the subset of path.
  */
-void sPath::removePath(string path){
+void sPath::removePath(string path) {
     subsets.remove(path);
 }
 
 /*
- * Method:get_name
- * Usage: cstk.get_name();
+ * Method: get_name
+ * Usage: get_name();
  * -------------------------
- * Return the pathname
+ * Return the path short name.
  */
-string sPath::get_name(){
+string sPath::get_name() {
     int position = pathname.find("/");
-    return pathname.substr(0,position);
+    return pathname.substr(0, position);
 }
 
 
 /*
  * Method: get_all_parent
- * Usage: cstk.get_all_parent(* thisLevel, &parents_book);
+ * Usage: get_all_parent(* thisLevel, &parents_book);
  * -------------------------------------------------------
- * get the parents of this path if it is not the root;
- * if it has no parents(it is a root), then add it to parents_book as a root
+ * Get parents of this path stored in a set.
  */
 void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
     if (!thisLevel->is_root()) {
@@ -220,10 +261,11 @@ void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
 
 /*
  * Method: read_file
- * Usage: cstk.read_file(filename);
+ * Usage: read_file(filename);
  * --------------------------------
- * If there is such file in the filegory, print the content of thefile, and return the size of the file(i.e. "50kb")
- * if there is no such file, print "No such file."
+ * If there is such file in the filegory, print the content of the file,
+ * and return memory used in this process(i.e. "50kb").
+ * Raise error "No such file." if there is no such file.
  */
 int sPath::read_file(string filename) {
     int location = findLocation(filename);
@@ -238,9 +280,9 @@ int sPath::read_file(string filename) {
 
 /*
  * Method: get_pwd
- * Usage: cstk.get_pwd(*thisLevel, & pwd_road);
+ * Usage: cstk.get_pwd(*thisLevel, &pwd_road);
  * ---------------------------------------------
- * 获取当前文件绝对路径
+ * Return the absolute address of this path as a set.
  */
 void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
