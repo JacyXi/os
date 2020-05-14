@@ -22,7 +22,7 @@ public:
     int rm(string goalfile);
     int rm(string goalpath, string operants);
     int cat(string filename);
-    int vim(string filename);
+    int file_info(string filename);
     int cp(string from, string to, string operants);
     int mv(string from, string to, string operants);
     int pwd();
@@ -38,7 +38,7 @@ private:
     int mkdir(string pathname, sPath * operating_path);
     void rmFile(string goalfile,sPath* operationPath);
     void rmDir(string goalpath, sPath* operationPath);
-    int pwd(sPath * thislevel);
+    string pwd(sPath * thislevel);
     void cpFile(string name, sPath* currentPath,sPath* targetPath);
     void cpDir(string name, sPath* currentPath, sPath* targetPath);
     int cd(string goal_path, sPath * operating_path);

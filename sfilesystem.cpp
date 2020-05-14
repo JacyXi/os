@@ -68,18 +68,28 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
         Set<sPath*> target= tree.select(key,EQ).front();
         target.add(operation_path);
         tree.insert(key, target);
-        sFile* nfile = new sFile(current_user, mod, filename, content);
+        sFile* nfile = new sFile(current_user, mod, filename, content, pwd(operation_path));
         operation_path -> addFile(nfile);
     } else {
         Set<sPath*> target;
         target.add(operation_path);
         tree.insert(key, target);
-        sFile* nfile = new sFile(current_user, mod, filename, content);
+        sFile* nfile = new sFile(current_user, mod, filename, content, pwd(operation_path));
         operation_path -> addFile(nfile);
     }
     return 2;
 }
 
+int sFileSystem::file_info(string filename){
+    if (current_path -> has_file(filename)) {
+        sFile* thisfile = current_path->get_file(filename);
+        string info = thisfile->get_info();
+        cout << info << endl;
+        return thisfile->size;
+    } else {
+        error("No such file to delect.");
+    }
+}
 
 /*
  * Method: mkdir
@@ -253,12 +263,14 @@ void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
  * Copy a file or directory to another location.
  */
 int sFileSystem::cp(string from, string to, string operants) {
-    if (operants.compare("-r")) {
+    if (!operants.compare("-r")) {
         if (current_path -> is_subset(from) & (get_location(to) >= 0)){
             cpDir(from, current_path, allpath[get_location(to)]);
         }
 
-    } else if (operants.compare("-p")) {
+    } else if (!operants.compare("-p")) {
+        bool a = current_path -> has_file(from);
+        bool b = (get_location(to) >= 0);
         if (current_path -> has_file(from) & (get_location(to) >= 0)) {
             cpFile(from, current_path, allpath[get_location(to)]);
         }
@@ -306,7 +318,8 @@ int sFileSystem::mv(string from, string to, string operants){
  * Get current directory absolute address.
  */
 int sFileSystem::pwd() {
-    return pwd(current_path);
+    cout << pwd(current_path) << endl;
+    return 2;
 }
 
 
@@ -317,16 +330,15 @@ int sFileSystem::pwd() {
  * ------------------------------
  * Get target directory absolute address.
  */
-int  sFileSystem::pwd(sPath * thislevel){
+string sFileSystem::pwd(sPath * thislevel){
     Stack<string> parents_book;
     thislevel -> get_pwd(thislevel, parents_book);
-    string output;
-    for (string i; !parents_book.isEmpty(); i = parents_book.pop()) {
-        output.append(i);
+    string output = "/";
+    while (!parents_book.isEmpty()) {
+        output.append(parents_book.pop());
         output.append("/");
     }
-    cout << output << endl;
-    return 2;
+    return output;
 }
 
 
@@ -423,8 +435,9 @@ int sFileSystem::find(string file) {
     } else {
         target = tree.select(hashfunc(file, false),EQ).front();
         try {
+            cout << "Try to find the file with name "<< file << " by using B+ tree search." << endl;
             for (sPath * path : target) {
-                pwd(path);
+                cout << pwd(path) << endl;
             }
         } catch (ErrorException) {
             cout << "Failed in find"<<endl;
@@ -493,17 +506,28 @@ void main(){
     system.touch("foo2.txt","Hello world",4);
     system.touch("hello.txt","NoNoNo.",7);
     system.mkdir("dev1");
+    system.mkdir("dev2");
     cout << "************************" << endl;
-    system.ls();
+    //system.ls();
     system.cd("dev1");
-    system.touch("foo2.txt","aaaaaaaa",7);
+    system.touch("foo.txt","aaaaaaaa",7);
     cout << "************************" << endl;
-    system.ls();
+    //system.ls();
+    //system.cd("root");
+    cout << "************************" << endl;
+    //system.ls();
+    //system.rm("foo.txt");
+    cout << "************************" << endl;
+    //system.ls();
+    //system.file_info("foo2.txt");
+    system.find("foo.txt");
+    system.mv("foo.txt","dev2/root","-p");
+    cout << "************************" << endl;
     system.cd("root");
-    cout << "************************" << endl;
+    system.cd("dev2");
     system.ls();
-    system.rm("foo.txt");
+    system.find("foo.txt");
     cout << "************************" << endl;
-    system.ls();
+
 
 }
