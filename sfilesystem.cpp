@@ -6,10 +6,12 @@
 #include <error.h>
 #include "set.h"
 #include "stack.h"
-#include "foreach.h"
 #include "bpt.h"
 #include "vector.h"
+#include "predefined.h"
+#include "BPlus_tree.h"
 
+using bpt::bplus_tree;
 
 /*
  * Constructor: sFileSystem
@@ -31,14 +33,12 @@ sFileSystem::sFileSystem()
 sFileSystem::sFileSystem(string user){
     if (checkuser(user)) current_user = user; else error ("No such user.");
     allpath = new sPath * [STORAGE];
-    for (int i = 0; i < STORAGE; i++) {
-        allpath[i] = nullptr;
-    }
     root = new sPath("root", true);
     allpath[0] = root;
     current_path = root;
     path_amount = 1;
-    bpt::bplus_tree database("storage.db", true);
+    bplus_tree tree("./storage.db", true);
+
 }
 
 
@@ -69,42 +69,19 @@ int sFileSystem::touch(string filename, string content, int mod){
  * Helper function to create a file. Assign filename, content, mode, from the operation path.
  */
 int sFileSystem::touch(string filename, string content,int mod, sPath * operation_path) {
-    int key = hashfunc(filename, false);
-    bpt::bplus_tree database("storage.db");
-    Vector<sPath*> target;
-    database.search(key, &target);
-    bool is_empty = true;
-    for (int i = 0; i < TREESIZE; i++) {
-        try {
-            if(target[i] != nullptr) {
-                is_empty = false;
-            }
-        } catch (ErrorException) {
-            continue;
-        }
-    }
-    if (is_empty) {
+    string key = hashfunc(filename, false);
+    if (tree.search(key)) {
+        Set<sPath*> target= tree.select(key,EQ).front();
         target.add(operation_path);
-        database.insert(key, target);
+        tree.insert(key, target);
         sFile nfile = sFile(current_user, mod, filename, content);
         operation_path -> addFile(nfile);
     } else {
-        bool has_insert = false;
-        for (int i = 0; i < TREESIZE; i++) {
-            try {
-                if (target[i] == nullptr) {
-                    target[i] = operation_path;
-                    database.update(key, target);
-                    has_insert = true;
-                    sFile nfile = sFile(current_user, mod, filename, content);
-                    operation_path -> addFile(nfile);
-                    break;
-                }
-            } catch (ErrorException) {
-                continue;
-            }
-        }
-        if (!has_insert) error("The duplicated files are too much. Please change the name.");
+        Set<sPath*> target;
+        target.add(operation_path);
+        tree.insert(key, target);
+        sFile nfile = sFile(current_user, mod, filename, content);
+        operation_path -> addFile(nfile);
     }
     return 2;
 }
@@ -119,43 +96,22 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
 int sFileSystem::mkdir(string pathname, sPath * operating_path) {
     if (operating_path -> is_subset(pathname)) error("The path already exists.");
 
-    int key = hashfunc(pathname, true);
+    string key = hashfunc(pathname, true);
     string absolute_address = pathname.append("/").append(operating_path -> get_absolute());
-    bpt::bplus_tree database("storage.db");
-    Vector<sPath*> target;
-    database.search(key, &target);
-    bool is_empty = true;
-    for (int i = 0; i < TREESIZE; i++) {
-        try {
-            if (target[i] != nullptr) is_empty = true;
-        } catch (ErrorException) {
-            continue;
-        }
-    }
-    if (is_empty) {
-        target[0] = operating_path;
-        database.insert(key, target);
+    Set<sPath*> target;
+    if (!tree.search(key)) {
+        target.insert(operating_path);
+        tree.insert(key, target);
         operating_path -> addPath(absolute_address);
         path_amount += 1;
         allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
     } else {
-        bool has_insert = false;
-        for (int i = 0; i < TREESIZE; i++) {
-            try {
-                if (target[i] == nullptr) {
-                    target[i] = operating_path;
-                    database.update(key, target);
-                    has_insert = true;
-                    operating_path -> addPath(absolute_address);
-                    path_amount += 1;
-                    allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
-                    break;
-                }
-            } catch (ErrorException) {
-                continue;
-            }
-        }
-        if (!has_insert) error("The duplicated file are too much.");
+        Set<sPath*> target = tree.select(key,EQ).front();
+        target.add(operating_path);
+        tree.insert(key, target);
+        operating_path -> addPath(absolute_address);
+        path_amount += 1;
+        allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
     }
     return 2;
 }
@@ -180,24 +136,19 @@ int sFileSystem::rm(string goalfile) {
 void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
     if (operationPath -> has_file(goalfile)) {
         operationPath -> removeFile(goalfile);
-        bpt::bplus_tree database("storage.db");
-        Vector<sPath*> target;
-        database.search(hashfunc(goalfile,false), &target);
-        for (int i = 0; i < TREESIZE; i++) {
-            try {
-                if (target[i] == operationPath) {
-                    target[i] = nullptr;
-                    database.update(hashfunc(goalfile, false), target);
-                }
-            } catch (ErrorException) {
-                continue;
-            }
+        Set<sPath*> target;
+        string key = hashfunc(goalfile,false);
+        if(tree.search(key)) {
+            target = tree.select(key, EQ).front();
+            target.remove(operationPath);
+            tree.insert(key,target);
         }
     } else {
         error("No such file to delect.");
     }
 
 }
+
 
 /*
  * Method: rm
@@ -237,17 +188,14 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
         for (string files : path_to_remove->get_files()) rmFile(files, path_to_remove);
         for (string subsets : path_to_remove->get_subsets_absolute()) rmDir(subsets,path_to_remove);
 
-        bpt::bplus_tree database("storage.db");
-        Vector<sPath*> target;
-        database.search(hashfunc(goal,true),&target);
-        for (int i = 0; i < TREESIZE; i++) {
-            try {
-                if (target[i] == allpath[location]) target[i] = nullptr;
-            } catch (ErrorException) {
-                continue;
-            }
+        Set<sPath*> target;
+        target = tree.select(hashfunc(goal,true),EQ).front();
+        try {
+            if (target.contains(allpath[location])) target.remove(allpath[location]);
+        } catch (ErrorException) {
+            cout << "Failed to rmDir." << endl;
         }
-        database.update(hashfunc(goal,true),target);
+        tree.insert(hashfunc(goal,true), target);
         allpath[location] -> ~sPath();
         allpath[location] = nullptr;
     } else {
@@ -447,17 +395,17 @@ int sFileSystem::chmod(string file, int mod) {
  * Also duplicated name paths together.
  */
 int sFileSystem::find(string file) {
-    bpt::bplus_tree database("storage.db");
-    Vector<sPath*> target;
-    if (database.search(hashfunc(file, false), &target) != 0){
-        cout << "No such file."<<endl;
+    Set<sPath*> target;
+    if (!tree.search(hashfunc(file, false))){
+        cout << "No such file."<< endl;
     } else {
-        for (int i = 0; i < TREESIZE; i++) {
-            try {
-                if (target[i]!=nullptr) pwd(target[i]);
-            } catch (ErrorException) {
-                continue;
+        target = tree.select(hashfunc(file, false),EQ).front();
+        try {
+            for (sPath * path : target) {
+                pwd(path);
             }
+        } catch (ErrorException) {
+            cout << "Failed in find"<<endl;
         }
     }
     return 2;
@@ -489,7 +437,7 @@ int sFileSystem::revoke(string file) {
  * -----------------------------------
  * Hash function to convert file or path into a 16-digits hashcode.
  */
-int sFileSystem::hashfunc(string filename, bool is_path){
+string sFileSystem::hashfunc(string filename, bool is_path){
     if (!is_path){
         int length = filename.length();
         const char *y = filename.c_str();
@@ -498,7 +446,7 @@ int sFileSystem::hashfunc(string filename, bool is_path){
             code.append(to_string((int)y[i]));
         }
         code.append("0000000000000000");
-        return atoi(code.substr(0,16).c_str());
+        return code.substr(0,16);
     } else {
         int length = filename.length();
         const char *y = filename.c_str();
@@ -508,7 +456,7 @@ int sFileSystem::hashfunc(string filename, bool is_path){
             code.append(to_string((int)y[i]));
         }
         code.append("000000000000000");
-        return atoi(code.substr(0,16).c_str());
+        return code.substr(0,16);
     }
 }
 
@@ -519,7 +467,7 @@ void main(){
     sFileSystem system = sFileSystem("Jacy");
     system.pwd();
     system.touch("foo.txt","foo",7);
-    system.touch("foo2.txt","Hello world!",4);
     system.cat("foo.txt");
+    system.touch("foo2.txt","Hello world",4);
     system.cat("foo2.txt");
 }

@@ -8,6 +8,7 @@
 #include <set>
 #include "map.h"
 #include "bpt.h"
+#include "BPlus_tree.h"
 
 
 using namespace std;
@@ -46,12 +47,13 @@ private:
     sPath ** allpath;
     string current_user;
     sPath * root;
+    CBPlusTree tree;
     bool checkuser(string user);
     static set<string> alluser;
     int path_amount;
     static const int STORAGE = 100;
     static const int TREESIZE = 10;
-    int hashfunc(string filename, bool is_path);
+    string hashfunc(string filename, bool is_path);
     int get_location(string pathname);
     void copyDirHelper(sPath* current, sPath* operation_path, string operants);
 
