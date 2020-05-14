@@ -7,6 +7,7 @@
 #include "sPath.h"
 #include "sFile.h"
 #include "set.h"
+#include <vector.h>
 #include <iostream>
 using namespace std;
 
@@ -18,7 +19,6 @@ using namespace std;
  */
 sPath::sPath()
 {
-    filegory = new sFile*[INIT_SIZE];
     capacity = INIT_SIZE;
 }
 
@@ -29,8 +29,12 @@ sPath::sPath()
  * Deallocate storage associated with this path. This method
  * is called whenever a sPath instance variable is deallocated.
  */
-sPath::~sPath(){
-    delete[] filegory;
+sPath::~sPath() {
+    filegory.clear();
+    parent = nullptr;
+    size = 0;
+    pathname = "";
+
 }
 
 /*
@@ -41,7 +45,6 @@ sPath::~sPath(){
  */
 sPath::sPath(string name, sPath * previous_path) {
     parent = previous_path;
-    filegory = new sFile*[INIT_SIZE];
     size = 0;
     capacity = INIT_SIZE;
     pathname = name;
@@ -56,10 +59,6 @@ sPath::sPath(string name, sPath * previous_path) {
  */
 sPath::sPath(string name, bool is_root) {
     isRoot = is_root;
-    filegory = new sFile * [INIT_SIZE];
-    for (int i = 0; i < INIT_SIZE; i++) {
-        filegory[i] = nullptr;
-    }
     size = 0;
     capacity = INIT_SIZE;
     pathname = name;
@@ -84,38 +83,12 @@ bool sPath::is_root() {
  * Add the new file into the map (files), the key is the file name,
  * and the value is its size (i.e. "50kb").
  */
-void sPath::addFile(sFile & file) {
+void sPath::addFile(sFile* file) {
     size = size + 1;
-    filegory[size - 1] = &file;
-    files.add(file.get_name());
-    if (check_almost_full()) expandCapacity();
+    filegory.add(file);
+    files.add(file->get_name());
 }
 
-/*
- * Method: check_almost_full
- * Usage: cstk.check_almost_full();
- * ----------------------------------
- * Return true if the size is equal to the capacity, or false otherwise.
- */
-bool sPath::check_almost_full() {
-    return (size) == capacity ? true : false;
-}
-
-/*
- * Method: expandCapacity
- * Usage: expandCapacity();
- * -------------------------------
- * Double the size of the sPath.
- */
-void sPath::expandCapacity() {
-    capacity = 2 * capacity;
-    sFile ** array = new sFile*[capacity];
-    for (int i = 0; i < size; i++) {
-        array[i] = filegory[i];
-    }
-    delete [] filegory;
-    filegory = array;
-}
 
 /*
  * Method: toString
@@ -220,8 +193,14 @@ bool sPath::is_subset(string name){
  * Find the location of the file in filegory. Otherwise return -1.
  */
 int sPath::findLocation(string filename) {
-    for (int i = 0; i < capacity; i++) {
-        if (filegory[i] -> get_name().compare(filename) == 0) return i;
+    for (int i = 0; i < filegory.size(); i++) {
+        try {
+            if (filegory[i] -> get_name().compare(filename) == 0){
+                return i;
+            }
+        } catch (ErrorException) {
+            continue;
+        }
     }
     return -1;
 }
@@ -236,7 +215,8 @@ void sPath::removeFile(string filename) {
     int location = findLocation(filename);
     if (location == -1) error("No such file.");
     filegory[location] -> ~sFile();
-    filegory[location] = nullptr;
+    filegory.remove(location);
+    files.remove(filename);
 }
 
 /*

@@ -47,7 +47,9 @@ sFile::sFile(string user, int mod, string name, string content) {
  * whenever a sFile instance variable is deallocated.
  */
 sFile::~sFile() {
-
+    filename = "";
+    contents = "";
+    mod_category.clear();
 }
 
 /*

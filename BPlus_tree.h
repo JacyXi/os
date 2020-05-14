@@ -9,7 +9,7 @@
 using namespace std;
 
 enum COMPARE_OPERATOR{LT, LE, EQ, BE, BT, BETWEEN}; // 比较操作符：<、<=、=、>=、>、<>
-Set<sPath*> INVALID_INDEX;
+
 
 struct SelectResult
 {

@@ -13,12 +13,16 @@ CBPlusTree::~CBPlusTree(){
 }
 
 bool CBPlusTree::insert(KeyType key, const DataType& data) {
+    if (data.size() == 0){
+        remove(key);
+        return true;
+    }
     // 是否已经存在
     if (search(key))
     {
         remove(key);
-        insert(key, data);
     }
+
     // 找到可以插入的叶子结点，否则创建新的叶子结点
     if(m_Root==NULL)
     {
@@ -243,14 +247,8 @@ bool CBPlusTree::update(KeyType oldKey, KeyType newKey)
     {
         Set<sPath*> dataValue;
         remove(oldKey, dataValue);
-        if (dataValue==INVALID_INDEX)
-        {
-            return false;
-        }
-        else
-        {
-            return insert(newKey, dataValue);
-        }
+        return insert(newKey, dataValue);
+
     }
 }
 
@@ -258,7 +256,6 @@ void CBPlusTree::remove(KeyType key, DataType dataValue)
 {
     if (!search(key))  //不存在
     {
-        dataValue = INVALID_INDEX;
         return;
     }
     if (m_Root->getKeyNum()==1)//特殊情况处理

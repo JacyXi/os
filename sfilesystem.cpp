@@ -6,12 +6,9 @@
 #include <error.h>
 #include "set.h"
 #include "stack.h"
-#include "bpt.h"
 #include "vector.h"
-#include "predefined.h"
 #include "BPlus_tree.h"
 
-using bpt::bplus_tree;
 
 /*
  * Constructor: sFileSystem
@@ -32,13 +29,10 @@ sFileSystem::sFileSystem()
  */
 sFileSystem::sFileSystem(string user){
     if (checkuser(user)) current_user = user; else error ("No such user.");
-    allpath = new sPath * [STORAGE];
     root = new sPath("root", true);
-    allpath[0] = root;
+    allpath.add(root);
     current_path = root;
     path_amount = 1;
-    bplus_tree tree("./storage.db", true);
-
 }
 
 
@@ -74,13 +68,13 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
         Set<sPath*> target= tree.select(key,EQ).front();
         target.add(operation_path);
         tree.insert(key, target);
-        sFile nfile = sFile(current_user, mod, filename, content);
+        sFile* nfile = new sFile(current_user, mod, filename, content);
         operation_path -> addFile(nfile);
     } else {
         Set<sPath*> target;
         target.add(operation_path);
         tree.insert(key, target);
-        sFile nfile = sFile(current_user, mod, filename, content);
+        sFile* nfile = new sFile(current_user, mod, filename, content);
         operation_path -> addFile(nfile);
     }
     return 2;
@@ -104,16 +98,26 @@ int sFileSystem::mkdir(string pathname, sPath * operating_path) {
         tree.insert(key, target);
         operating_path -> addPath(absolute_address);
         path_amount += 1;
-        allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
+        allpath.add(new sPath(absolute_address, operating_path));
     } else {
         Set<sPath*> target = tree.select(key,EQ).front();
         target.add(operating_path);
         tree.insert(key, target);
         operating_path -> addPath(absolute_address);
         path_amount += 1;
-        allpath[path_amount - 1] = new sPath(absolute_address, operating_path);
+        allpath.add(new sPath(absolute_address, operating_path));
     }
     return 2;
+}
+
+/*
+ * Method: mkdir
+ * Usage: mkdir(pathname);
+ * -----------------------------------------------------
+ * Create a path at the current directory.
+ */
+int sFileSystem::mkdir(string pathname){
+    return mkdir(pathname, current_path);
 }
 
 /*
@@ -160,7 +164,7 @@ int sFileSystem::rm(string goal, string operants){
     if (!operants.compare("-r")) {
         if (current_path -> get_name().compare(goal) == 0) {
             error("Could not delect your current path.");
-        } else if (current_path->is_subset(goal)) {
+        } else if (current_path -> is_subset(goal)) {
             rmDir(goal, current_path);
         }
     } else {
@@ -189,7 +193,7 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
         for (string subsets : path_to_remove->get_subsets_absolute()) rmDir(subsets,path_to_remove);
 
         Set<sPath*> target;
-        target = tree.select(hashfunc(goal,true),EQ).front();
+        target = tree.select(hashfunc(goal,true), EQ).front();
         try {
             if (target.contains(allpath[location])) target.remove(allpath[location]);
         } catch (ErrorException) {
@@ -197,7 +201,7 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
         }
         tree.insert(hashfunc(goal,true), target);
         allpath[location] -> ~sPath();
-        allpath[location] = nullptr;
+        allpath.remove(location);
     } else {
         error("Could not find the target directory.");
     }
@@ -221,12 +225,12 @@ int sFileSystem::cat(string filename) {
  * A helper function to copy a path.
  */
 void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
-    string absolute_name = name.append("/").append(targetPath->get_absolute());
+    string absolute_name = name.append("/").append(targetPath -> get_absolute());
     mkdir(absolute_name, targetPath);
-    string origin_absolute = name.append("/").append(currentPath->get_absolute());
+    string origin_absolute = name.append("/").append(currentPath -> get_absolute());
     sPath * origin_path = allpath[get_location(origin_absolute)];
-    for (string file : origin_path->get_files()) cpFile(file, origin_path, allpath[get_location(absolute_name)]);
-    for (string path : origin_path->get_subsets()) cpDir(path, origin_path, allpath[get_location(absolute_name)]);
+    for (string file : origin_path -> get_files()) cpFile(file, origin_path, allpath[get_location(absolute_name)]);
+    for (string path : origin_path -> get_subsets()) cpDir(path, origin_path, allpath[get_location(absolute_name)]);
 }
 
 /*
@@ -237,7 +241,7 @@ void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
  */
 void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
     sFile* origin_file = currentPath -> get_file(name);
-    touch(name, origin_file -> get_content(),origin_file -> get_mod(current_user), targetPath);
+    touch(name, origin_file -> get_content(), origin_file -> get_mod(current_user), targetPath);
 
 }
 
@@ -250,7 +254,7 @@ void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
  */
 int sFileSystem::cp(string from, string to, string operants) {
     if (operants.compare("-r")) {
-        if (current_path->is_subset(from) & (get_location(to) >= 0)){
+        if (current_path -> is_subset(from) & (get_location(to) >= 0)){
             cpDir(from, current_path, allpath[get_location(to)]);
         }
 
@@ -273,8 +277,11 @@ int sFileSystem::cp(string from, string to, string operants) {
  */
 int sFileSystem::get_location(string pathname) {
     int location = -1;
-    for (int i = 0; i < path_amount; i++) {
-        if (!allpath[i] -> get_absolute().compare(pathname)) location = i; break;
+    for (int i = 0; i < allpath.size(); i++) {
+        if ((allpath[i] -> get_absolute().compare(pathname)) == 0) {
+            location = i;
+            break;
+        }
     }
     return location;
 }
@@ -298,7 +305,7 @@ int sFileSystem::mv(string from, string to, string operants){
  * ------------------------------
  * Get current directory absolute address.
  */
-int sFileSystem::pwd(){
+int sFileSystem::pwd() {
     return pwd(current_path);
 }
 
@@ -330,13 +337,27 @@ int  sFileSystem::pwd(sPath * thislevel){
  * A helper function to change current path.
  */
 int sFileSystem::cd(string goalpath, sPath* operating_path){
-    string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
-    int i = get_location(absolute_address);
-    if (i >= 0) {
-        current_path = allpath[i];
+    if (operating_path->is_root()) {
+        string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
+        int i = get_location(absolute_address);
+        if (i >= 0) {
+            current_path = allpath[i];
+            return 2;
+        } else {
+            error("No such exist path.");
+        }
+    } else if (!goalpath.compare(operating_path->get_parent()->get_name())) {
+        current_path = operating_path->get_parent();
         return 2;
     } else {
-        error("No such exist path.");
+        string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
+        int i = get_location(absolute_address);
+        if (i >= 0) {
+            current_path = allpath[i];
+            return 2;
+        } else {
+            error("No such exist path.");
+        }
     }
 }
 
@@ -346,7 +367,7 @@ int sFileSystem::cd(string goalpath, sPath* operating_path){
  * -------------------------------------
  * Change current path to target path.
  */
-int sFileSystem::cd(string goalpath){
+int sFileSystem::cd(string goalpath) {
     return cd(goalpath, current_path);
 }
 
@@ -357,13 +378,14 @@ int sFileSystem::cd(string goalpath){
  * -------------------------------------
  * List all files and paths in the current path.
  */
-int sFileSystem::ls(){
+int sFileSystem::ls() {
     Set<string> subsets = current_path->get_subsets();
     cout << "subfolders:" << endl;
     cout << "------------" << endl;
     for (string p : subsets) {
         cout << p << endl;
     }
+    cout << "------------" << endl;
     Set<string> files = current_path->get_files();
     cout << "files:"<< endl;
     cout << "------------" << endl;
@@ -465,9 +487,23 @@ set<string> sFileSystem::alluser = {"Jacy", "Yanzhang", "Xiaojie", "Yuhao", "Yuh
 
 void main(){
     sFileSystem system = sFileSystem("Jacy");
+    cout << "************************" << endl;
     system.pwd();
     system.touch("foo.txt","foo",7);
-    system.cat("foo.txt");
     system.touch("foo2.txt","Hello world",4);
-    system.cat("foo2.txt");
+    system.touch("hello.txt","NoNoNo.",7);
+    system.mkdir("dev1");
+    cout << "************************" << endl;
+    system.ls();
+    system.cd("dev1");
+    system.touch("foo2.txt","aaaaaaaa",7);
+    cout << "************************" << endl;
+    system.ls();
+    system.cd("root");
+    cout << "************************" << endl;
+    system.ls();
+    system.rm("foo.txt");
+    cout << "************************" << endl;
+    system.ls();
+
 }

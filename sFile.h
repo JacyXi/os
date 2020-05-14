@@ -33,7 +33,7 @@ public:
     void change_mod(string user, int right);
     void revoke();
 
-private:
+
     string filename;
     string contents;
     Map<string,int> mod_category;

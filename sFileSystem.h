@@ -7,7 +7,6 @@
 #include <error.h>
 #include <set>
 #include "map.h"
-#include "bpt.h"
 #include "BPlus_tree.h"
 
 
@@ -19,14 +18,11 @@ public:
     sFileSystem();
     sFileSystem(string user);
     int touch(string filename, string content, int mod);
-    int touch(string filename, string content, int mod, sPath* operating_path);
-    int mkdir(string goalPath, string pathname);
-    int mkdir(string pathname, sPath * operating_path);
-    void rmFile(string goalfile,sPath* operationPath);
-    void rmDir(string goalpath, sPath* operationPath);
+    int mkdir(string goalPath);
     int rm(string goalfile);
     int rm(string goalpath, string operants);
     int cat(string filename);
+    int vim(string filename);
     int cp(string from, string to, string operants);
     int mv(string from, string to, string operants);
     int pwd();
@@ -36,15 +32,19 @@ public:
     int find(string file);
     int revoke(string file);
     void ch_user(string user);
+
+private:
+    int touch(string filename, string content, int mod, sPath* operating_path);
+    int mkdir(string pathname, sPath * operating_path);
+    void rmFile(string goalfile,sPath* operationPath);
+    void rmDir(string goalpath, sPath* operationPath);
     int pwd(sPath * thislevel);
     void cpFile(string name, sPath* currentPath,sPath* targetPath);
     void cpDir(string name, sPath* currentPath, sPath* targetPath);
     int cd(string goal_path, sPath * operating_path);
 
-
-private:
     sPath * current_path;
-    sPath ** allpath;
+    Vector<sPath*> allpath;
     string current_user;
     sPath * root;
     CBPlusTree tree;

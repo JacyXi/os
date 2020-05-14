@@ -28,13 +28,11 @@ public:
     ~sPath();
     sPath(string name, sPath * previous_path);
     sPath(string name, bool is_root);
-    void addFile(sFile & file);
+    void addFile(sFile * file);
     void addPath(string sub_path_name);
     void removePath(string path);
     void removeFile(string filename);
     sPath * get_parent();
-    void expandCapacity();
-    bool check_almost_full();
     std::string toString();
     Set<string> get_subsets();
     Set<string> get_subsets_absolute();
@@ -51,7 +49,7 @@ public:
     string get_absolute();
 private:
     int findLocation(string filename);
-    sFile ** filegory;
+    Vector<sFile*> filegory;
     sPath * parent;
     int size;
     bool isRoot;
