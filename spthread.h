@@ -2,6 +2,8 @@
 #define SPTHREAD_H
 #include <map.h>
 #include <string>
+#include <queue.h>
+
 using namespace std;
 
 class spthread
@@ -24,6 +26,8 @@ private:
     bool global_wt = false;
     bool global_rd = false;
     Map<string, lock*> user_map;
+    Queue<string> rd_queue;
+    Queue<string> wt_queue;
 
 };
 

@@ -3,32 +3,34 @@
 #include <iostream>
 #include <error.h>
 #include "console.h"
-
+#include "spthread.h"
+using namespace std;
+/*
 void main() {
     sFileSystem system = sFileSystem("Jacy");
     cout << "************************" << endl;
-    system.pwd();
+    //system.pwd();
+
     system.touch("foo.txt","foo",7);
+
     system.touch("foo2.txt","Hello world",4);
     system.touch("hello.txt","NoNoNo.",7);
     system.mkdir("dev1");
     system.mkdir("dev2");
     cout << "************************" << endl;
-    system.ls();
     system.cd("dev1");
     system.touch("foo.txt","aaaaaaaa",7);
     cout << "************************" << endl;
-    system.ls();
+    //system.ls();
     system.cd("root");
     cout << "************************" << endl;
-    system.ls();
-    system.rm("foo.txt");
+    //system.ls();
     cout << "************************" << endl;
     system.ls();
-    system.file_info("foo2.txt");
     system.find("foo.txt");
     system.cd("dev1");
     system.mv("foo.txt","dev2/root","-p");
+    system.find("foo.txt");
     cout << "************************" << endl;
     system.cd("root");
     system.cd("dev2");
@@ -36,4 +38,20 @@ void main() {
     system.find("foo.txt");
     cout << "************************" << endl;
 
+}
+*/
+void main(){
+    spthread sp = spthread("Jacy",false,false);
+    sp.init_lock("Chenpi");
+    sp.init_lock("Eric");
+    sp.init_lock("Haoge");
+    sp.rdlock("Jacy");
+    sp.rdlock("Eric");
+    sp.wrlock("Jacy");
+    sp.wrlock("Haoge");
+    sp.rdlock("Chenpi");
+    sp.unlock("Jacy");
+    sp.unlock("Eric");
+    sp.unlock("Jacy");
+    sp.unlock("Haoge");
 }
