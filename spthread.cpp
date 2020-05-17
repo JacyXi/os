@@ -61,15 +61,22 @@ int spthread::init_lock(string user) {
  */
 int spthread::rdlock(string user) {
     if (user_map.keys().contains(user)) {
-        if (wt_queue.isEmpty()){
+        if (wt_queue.isEmpty()) {
             if (!global_wt) {
                 global_rd = true;
                 user_map.get(user) -> is_rd = true;
                 cout << "Successfully assign a reader lock for " << user << endl;
                 return 1;
-            } else {
+            } else if (!user_map.get(user)->is_wt){
                 rd_queue.enqueue(user);
                 cout << "Cannot add read lock for "<< user<<", since write lock exists. Already put into waiting line." << endl;
+                return 1;
+            } else {
+                global_wt = false;
+                user_map.get(user) -> is_wt = false;
+                global_rd = true;
+                user_map.get(user) -> is_rd = true;
+                cout << "Successfully back writer lock for " << user << " to reader lock." << endl;
                 return 1;
             }
         } else {

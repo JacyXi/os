@@ -45,13 +45,7 @@ void main(){
     sp.init_lock("Chenpi");
     sp.init_lock("Eric");
     sp.init_lock("Haoge");
-    sp.rdlock("Jacy");
-    sp.rdlock("Eric");
     sp.wrlock("Jacy");
-    sp.wrlock("Haoge");
-    sp.rdlock("Chenpi");
-    sp.unlock("Jacy");
-    sp.unlock("Eric");
-    sp.unlock("Jacy");
-    sp.unlock("Haoge");
+    sp.rdlock("Jacy");
+
 }
