@@ -269,8 +269,6 @@ int sFileSystem::cp(string from, string to, string operants) {
         }
 
     } else if (!operants.compare("-p")) {
-        bool a = current_path -> has_file(from);
-        bool b = (get_location(to) >= 0);
         if (current_path -> has_file(from) & (get_location(to) >= 0)) {
             cpFile(from, current_path, allpath[get_location(to)]);
         }
