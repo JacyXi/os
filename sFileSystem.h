@@ -49,7 +49,7 @@ private:
     sPath * root;
     CBPlusTree tree;
     bool checkuser(string user);
-    static set<string> alluser;
+    static Set<string> alluser;
     int path_amount;
     static const int STORAGE = 100;
     static const int TREESIZE = 10;

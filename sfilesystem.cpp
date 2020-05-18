@@ -43,7 +43,7 @@ sFileSystem::sFileSystem(string user){
  * Check if the user is valid.
  */
 bool sFileSystem::checkuser(string user) {
-    return alluser.find(user) != alluser.end();
+    return alluser.contains(user);
 }
 
 /*
@@ -494,6 +494,6 @@ string sFileSystem::hashfunc(string filename, bool is_path){
 }
 
 
-set<string> sFileSystem::alluser = {"Jacy", "Yanzhang", "Xiaojie", "Yuhao", "Yuheng"};
+Set<string> sFileSystem::alluser = {"Jacy", "Yanzhang", "Xiaojie", "Yuhao", "Yuheng"};
 
 
