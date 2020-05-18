@@ -2,17 +2,20 @@
 #include <string>
 #include <iostream>
 #include <error.h>
-#include "console.h"
 #include "spthread.h"
+#include <gwindow.h>
+#include <gbutton.h>
+#include <gtextfield.h>
+#include "guicontroller.h"
+
 using namespace std;
 /*
 void main() {
+
     sFileSystem system = sFileSystem("Jacy");
     cout << "************************" << endl;
     //system.pwd();
-
     system.touch("foo.txt","foo",7);
-
     system.touch("foo2.txt","Hello world",4);
     system.touch("hello.txt","NoNoNo.",7);
     system.mkdir("dev1");
@@ -40,7 +43,8 @@ void main() {
 
 }
 */
-void main(){
+/*
+void main() {
     spthread sp = spthread("Jacy",false,false);
     sp.init_lock("Chenpi");
     sp.init_lock("Eric");
@@ -48,4 +52,11 @@ void main(){
     sp.wrlock("Jacy");
     sp.rdlock("Jacy");
 
+}
+*/
+void main(){
+    GUIcontroller control;
+    while (!control.isStop()) {
+        control.run();
+    }
 }
