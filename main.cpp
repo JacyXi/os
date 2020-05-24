@@ -7,6 +7,8 @@
 #include <gbutton.h>
 #include <gtextfield.h>
 #include "guicontroller.h"
+#include "console.h"
+#include "Calculator.h"
 
 using namespace std;
 /*
@@ -49,14 +51,26 @@ void main() {
     sp.init_lock("Chenpi");
     sp.init_lock("Eric");
     sp.init_lock("Haoge");
+    sp.rdlock("haoge");
     sp.wrlock("Jacy");
+    sp.unlock("haoge");
     sp.rdlock("Jacy");
 
 }
 */
+void main() {
+    string a;
+    cout<<"Please enter the expressions you want to calculate:"<<endl;
+    getline(cin,a);
+    Calculator *cal = new Calculator();
+    cal->run(a);
+}
+
+/*
 void main(){
     GUIcontroller control;
     while (!control.isStop()) {
         control.run();
     }
 }
+*/
