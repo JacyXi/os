@@ -30,12 +30,19 @@ private:
     void _widget();
     void initCalendar(GWindow * gw);
     void initCalculator(GWindow * gw);
+    void init_login();
+    void user_login();
 
 
     bool runnable;
     GWindow * gw;
     int X;
     int Y;
+
+    int user_login_x;
+    int user_login_y;
+    int user_login_w;
+    int user_login_h;
     string current_user;
     spthread * thread;
     GLabel * thread_log;

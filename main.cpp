@@ -7,7 +7,6 @@
 #include <gbutton.h>
 #include <gtextfield.h>
 #include "guicontroller.h"
-#include "console.h"
 #include "Calculator.h"
 
 using namespace std;
@@ -58,6 +57,7 @@ void main() {
 
 }
 */
+/*
 void main() {
     string a;
     cout<<"Please enter the expressions you want to calculate:"<<endl;
@@ -65,12 +65,10 @@ void main() {
     Calculator *cal = new Calculator();
     cal->run(a);
 }
-
-/*
-void main(){
-    GUIcontroller control;
-    while (!control.isStop()) {
-        control.run();
-    }
-}
 */
+void main(){
+    GUIcontroller contr("Jacy");
+
+    contr.update();
+
+}
