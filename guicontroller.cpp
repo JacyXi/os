@@ -28,13 +28,12 @@ GUIcontroller::GUIcontroller(string user)
     _widget();
 
     initThread();
-    initMemory();
+    //initMemory();
     initMain();
-    initFileSystem();
+    init_login();
+    //initFileSystem();
 
     run(gw);
-
-
 
 
 }
@@ -47,9 +46,15 @@ void GUIcontroller::run(GWindow * gw) {
 
      while (true) {
         GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
-        if (e.getEventType() == MOUSE_CLICKED) break;
+        if (e.getEventType() == MOUSE_CLICKED) {
+            e.getX();
+            e.getY();
+
+            break;
+        }
         cout << "Please do not press this button again." << endl;
      }
+
 
 
 }
@@ -64,6 +69,7 @@ void GUIcontroller::_widget(){
     gw->setTitle("Simulated Operating System");
 
 }
+
 void GUIcontroller::initThread() {
 
 
@@ -77,6 +83,8 @@ void GUIcontroller::initThread() {
     GTextField * input_name = new GTextField();
     GLabel *password = new GLabel("password:");
     GTextField * input_word = new GTextField();
+
+
 
     thread_lay0->add(name);
     thread_lay0->add(input_name);
@@ -111,6 +119,9 @@ void GUIcontroller::initThread() {
     thread_lay1->add(read);
 
 
+
+
+    //r-w-reporter
     GContainer * thread_lay2 = new GContainer();
     GTextArea * reporter_wrlock = new GTextArea();
     thread_lay2->setBounds(0.208*X,Y/5*3.99,X*0.287,1.07*Y/6);
@@ -120,6 +131,15 @@ void GUIcontroller::initThread() {
     wrinfo = "Initialize the reader-writer lock reporter.\n";
     reporter_wrlock->setText(wrinfo);
     thread_lay2->add(reporter_wrlock);
+
+
+    //thread pool reporter
+    GContainer * thread_lay3 = new GContainer();
+    thread_lay3->setBounds(X/2,Y/2,100,70);
+    thread_lay3->setBackground("Black");
+    GLabel * l = new  GLabel("aaaa");
+    l->setColor("White");
+    thread_lay3->add(l);
 
 
 
