@@ -1,3 +1,4 @@
+
 #ifndef MEMORY_H
 #define MEMORY_H
 #include<string>
@@ -35,10 +36,22 @@ struct Block{
     int Block_size;
 };
 
+/* Struct process_status: Here, the process_status has 2 data fields.
+   For each process, it contains two partitions of memory to store.
+   The first part is TLB, which is the usually-accessed data in the memory.
+   The second part is SPT, which denotes the Slow Page Table. It is the rare-accessed data in the memory.
+   The TLB data will not be mutated unless the process is terminated.
+   The SPT data might be swapped if virtual memory is invoked.
+*/
+struct process_status{
+    Vector<Block> TLB;
+    Vector<Block> SPT;
+};
+
 
 
 ostream & operator<<(ostream & os, Block block);
-ostream & operator<<(ostream & os, Process process);
+ostream & operator<<(ostream & os, Process & process);
 
 
 bool operator==(Process A,Process B);
@@ -84,7 +97,7 @@ public:
      * If there are no such a process inside the memory, print error message.
      * If nothing goes wrong, then the function will return the memory location of the process
      * in the form of memory blocks.*/
-    Vector<Block> Get_address(Process process);
+    Vector<Block> Get_address(const Process & process);
 
     /* Method:Get_App_memory
      * Usage:Get_App_memory(App_name)
@@ -97,7 +110,7 @@ public:
      * Usage:Get_process_memory(process)
      * --------------------------------------
      * This function will return the memory occupied by the process specified.*/
-    int Get_process_memory(Process process);
+    int Get_process_memory(const Process & process);
 
     /* Method:Get_Free_Memory_Size
      * Usage:Get_Free_Memory_Size()
@@ -110,6 +123,18 @@ public:
      * --------------------------------------
      * This function will return the total space of occupied memory.(The unit is kb)*/
     int Get_Occupied_Memory_Size();
+
+    /* Method:Get_TLB_Size
+     * Usage:Get_TLB_Size()
+     * --------------------------------------
+     * This function will return the space of TLB memory, which is one of the partition of the occupied memory.(The unit is kb)*/
+    int Get_TLB_Size();
+
+    /* Method:Get_SPT_Size
+     * Usage:Get_SPT_Size()
+     * --------------------------------------
+     * This function will return the space of SPT memory, which is another partition of the occupied memory.(The unit is kb)*/
+    int Get_SPT_Size();
 
     /* Method:Get_Current_Process
      * Usage:Get_Current_Process()
@@ -138,17 +163,34 @@ private:
     static const int INITIAL_TOTAL_SIZE = 4194304;// The unit is 'kb'; 4*1024*1024 = 4GB
     static const int SINGLE_PAGE_SIZE = 4;
     static const int OUT_PAGE_TOTAL = 1024;
+    static const double TLB_PROPORTION;
     int inner_page_total;
     int size;
     int Free_size;
     int Occupied_size;
-    /* These two vectors are used to record the use of physical memory*/
+    int TLB_size;
+    int SPT_size;
+    /* These are the vectors that are used to record the occupied space of physical memory
+       TLB denotes 快表, SPT denotes 慢表。TLB union SPT = Occupied_memory.
+    */
     Vector<Block> Occupied_memory;
+
+    /*This map is used to record the processes' TLB and SPT memory size.*/
+    Map<Process,Vector<int>> All_Process_Size;
+    /* This is the vector that is used to record the free space of physical memory*/
     Vector<Block> Free_memory;
     /*This vector is used to record the process in the memory*/
     Vector<Process> Current_Process;
     /*This map is used to record the process in the memory and its according page_table in the form of vec<Block>*/
-    Map<Process,Vector<Block>> All_Process_Status;
+    Map<Process,process_status> All_Process_Status;
+    /*This function is used to add the TLB and SPT part of the process into the memory seperately*/
+    Vector<Block> Partition_add_to_memory(int memory_declared);
+    /* This function is used to judge whether two blocks are next to each other*/
+    bool Is_neighbor(const Block & b1,const Block & b2);
+    /* This function is used to invoke virtual memory*/
+    void Virtual_memory(Process process,int TLB_declared);
+    /* This function is used to make a correction on the true size occupied or freed*/
+    int Correction_on_size(int input_size);
 
 
 };
