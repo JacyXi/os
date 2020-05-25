@@ -13,6 +13,7 @@
 #include "gslider.h"
 #include "math.h"
 #include <iostream>
+#include "gtextarea.h"
 
 
 using namespace std;
@@ -57,37 +58,75 @@ void GUIcontroller::_widget(){
     X = gw->getWidth();
     Y = gw->getHeight();
     gw->setResizable(true);
-    GImage * back_ground = new GImage("background.jpg");
+    GImage * back_ground = new GImage("background.png");
     back_ground->sendToBack();
     gw->add(back_ground);
     gw->setTitle("Simulated Operating System");
 
 }
 void GUIcontroller::initThread() {
-    int line_space = Y/50;
-    int x1 = X/4;
-    int y1 = 4*Y/5+2*line_space;
+
+
+    //log in
+    GContainer * thread_lay0 = new GContainer;
+    thread_lay0->setX(1.3*X/200);
+    thread_lay0->setY(Y/5*4.03);
+    thread_lay0->setWidth(0.98*X/5);
+    thread_lay0->setHeight(Y/18);
+    GLabel *name = new GLabel("name:");
+    GTextField * input_name = new GTextField();
+    GLabel *password = new GLabel("password:");
+    GTextField * input_word = new GTextField();
+
+    thread_lay0->add(name);
+    thread_lay0->add(input_name);
+    thread_lay0->add(password);
+    thread_lay0->add(input_word);
+
+    GContainer * thread_lay01 = new GContainer;
+    thread_lay01->setX(1.3*X/200);
+    thread_lay01->setY(Y/5*4.2);
+    thread_lay01->setWidth(0.98*X/5);
+    thread_lay01->setHeight(1.4*Y/18);
+    confirm_user = new GButton("Confirm");
+    thread_lay01->add(confirm_user);
+
+    thread_lay0->add(name);
+    thread_lay0->add(input_name);
+    thread_lay0->add(password);
+    thread_lay0->add(input_word);
+
+    //w r lock
+    GContainer * thread_lay1 = new GContainer;
+    thread_lay1->setBounds(1.3*X/200,Y*0.919,0.98*X/5,1*Y/18);
+    pick_user = new GChooser();
+    pick_user->setBounds(X/144,Y,1.3*X/20,Y/20);
+    pick_user->addItem("Jacy");
+
+    write = new GButton("write");
+    read = new GButton("read");
+
+    thread_lay1->add(pick_user);
+    thread_lay1->add(write);
+    thread_lay1->add(read);
+
+
+    GContainer * thread_lay2 = new GContainer();
+    GTextArea * reporter_wrlock = new GTextArea();
+    thread_lay2->setBounds(0.208*X,Y/5*3.99,X*0.287,1.07*Y/6);
+    reporter_wrlock->setRows(10);
+    reporter_wrlock->setEditable(false);
+    reporter_wrlock->setWidth(X*0.284);
+    wrinfo = "Initialize the reader-writer lock reporter.\n";
+    reporter_wrlock->setText(wrinfo);
+    thread_lay2->add(reporter_wrlock);
+
+
 
     thread = new spthread(current_user, true, false);
     string information = "Initialize a thread for user : ";
     information.append(current_user);
 
-    GContainer * con = new GContainer;
-    GSlider * sl = new GSlider(0,100,50);
-    sl->setBounds(x1,y1+10,100,50);
-    con->add(sl);
-    con->setBounds(x1,y1,x1,y1);
-    con->setX(100);
-    con->setY(100);
-    pick_user = new GChooser();
-    pick_user->setBounds(x1,y1,100,10);
-    pick_user->addItem("Jacy");
-    pick_user->addItem("Eric");
-    pick_user->addItem("Blaine");
-    pick_user->addItem("Chenpi");
-    //gw->add(pick_user,10,10);
-    pick_user->setName("AAA");
-    con->add(pick_user);
 }
 
 void GUIcontroller::initFileSystem() {

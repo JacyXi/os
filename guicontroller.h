@@ -6,6 +6,7 @@
 #include "spthread.h"
 #include "glabel.h"
 #include "gchooser.h"
+#include "gbutton.h"
 
 using namespace std;
 
@@ -48,6 +49,10 @@ private:
     GLabel * thread_log;
     GLabel * thread_user;
     GChooser * pick_user;
+    GButton * write;
+    GButton * read;
+    GButton * confirm_user;
+    string wrinfo;
 
 
 };
