@@ -55,6 +55,18 @@ struct process_status{
     Vector<Block> SPT;
 };
 
+/* Struct process_status: Here, the process_status has 2 data fields.
+   For each process, it contains two partitions of memory to store.
+   The first part is TLB, which is the usually-accessed data in the memory.
+   The second part is SPT, which denotes the Slow Page Table. It is the rare-accessed data in the memory.
+   The TLB data will not be mutated unless the process is terminated.
+   The SPT data might be swapped if virtual memory is invoked.
+*/
+struct process_status{
+    Vector<Block> TLB;
+    Vector<Block> SPT;
+};
+
 
 
 ostream & operator<<(ostream & os, Block block);
@@ -106,6 +118,7 @@ public:
      * If nothing goes wrong, then the function will return the memory location of the process
      * in the form of memory blocks.*/
 <<<<<<< HEAD
+<<<<<<< HEAD
     Vector<Block> get_address(Process process);
 =======
     Vector<Block> Get_address(const Process & process);
@@ -113,6 +126,12 @@ public:
 
     /* Method:get_app_memory
      * Usage:get_app_memory(app_name)
+=======
+    Vector<Block> Get_address(const Process & process);
+
+    /* Method:Get_App_memory
+     * Usage:Get_App_memory(App_name)
+>>>>>>> ChenYuheng
      * --------------------------------------
      * This function will return the total memory occupied by the App.
      * The input is the string app_name.*/
@@ -123,6 +142,7 @@ public:
      * --------------------------------------
      * This function will return the memory occupied by the process specified.*/
 <<<<<<< HEAD
+<<<<<<< HEAD
     int get_process_memory(Process process);
 =======
     int Get_process_memory(const Process & process);
@@ -130,6 +150,12 @@ public:
 
     /* Method:get_free_memory_size
      * Usage:get_free_memory_size()
+=======
+    int Get_process_memory(const Process & process);
+
+    /* Method:Get_Free_Memory_Size
+     * Usage:Get_Free_Memory_Size()
+>>>>>>> ChenYuheng
      * --------------------------------------
      * This function will return the total space of free memory.(The unit is kb)*/
     int get_free_memory_size();
@@ -144,6 +170,18 @@ public:
     /* Method:get_current_process
      * Usage:get_current_process()
 =======
+    /* Method:Get_TLB_Size
+     * Usage:Get_TLB_Size()
+     * --------------------------------------
+     * This function will return the space of TLB memory, which is one of the partition of the occupied memory.(The unit is kb)*/
+    int Get_TLB_Size();
+
+    /* Method:Get_SPT_Size
+     * Usage:Get_SPT_Size()
+     * --------------------------------------
+     * This function will return the space of SPT memory, which is another partition of the occupied memory.(The unit is kb)*/
+    int Get_SPT_Size();
+
     /* Method:Get_TLB_Size
      * Usage:Get_TLB_Size()
      * --------------------------------------
@@ -215,8 +253,11 @@ private:
     Vector<Process> current_process;
     /*This map is used to record the process in the memory and its according page_table in the form of vec<Block>*/
 <<<<<<< HEAD
+<<<<<<< HEAD
     Map<Process, Vector<Block>> all_process_status;
 =======
+=======
+>>>>>>> ChenYuheng
     Map<Process,process_status> All_Process_Status;
     /*This function is used to add the TLB and SPT part of the process into the memory seperately*/
     Vector<Block> Partition_add_to_memory(int memory_declared);
@@ -227,6 +268,9 @@ private:
     /* This function is used to make a correction on the true size occupied or freed*/
     int Correction_on_size(int input_size);
 
+<<<<<<< HEAD
+>>>>>>> ChenYuheng
+=======
 >>>>>>> ChenYuheng
 
 };

@@ -158,6 +158,7 @@ void Memory::add_to_memory(Process process) {
  * Free_memory, Current_Process, All_Process_Status will be modified.*/
 void Memory::Add_to_memory(Process process){
 
+<<<<<<< HEAD
 >>>>>>> ChenYuheng
     int memory_declared = process.memory_declared;
     int TLB_declared = memory_declared * TLB_PROPORTION;
@@ -176,11 +177,25 @@ void Memory::Add_to_memory(Process process){
     if (Actual_memory_declared>Free_size){
         Virtual_memory(process,TLB_declared);
 >>>>>>> ChenYuheng
+=======
+    int memory_declared = process.memory_declared;
+    int TLB_declared = memory_declared * TLB_PROPORTION;
+    int SPT_declared = memory_declared - TLB_declared;
+
+    int Actual_TLB_declared = Correction_on_size(TLB_declared);
+    int Actual_SPT_declared = Correction_on_size(SPT_declared);
+    int Actual_memory_declared = Actual_SPT_declared + Actual_TLB_declared;
+
+    // Check whether the memory is full. If it's full, then invoke virtual memory.
+    if (Actual_memory_declared>Free_size){
+        Virtual_memory(process,TLB_declared);
+>>>>>>> ChenYuheng
     }
     // Check whether you are adding the same process for the second times.
     else if (all_process_status.containsKey(process)) {
         error("There is already such a process in the memory.");
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
     else {
@@ -194,6 +209,8 @@ void Memory::Add_to_memory(Process process){
         // Do a deep copy of free_memory for iteration
         Vector<Block> free_memory_copy = free_memory;
 =======
+=======
+>>>>>>> ChenYuheng
     // This is the case when we don't have to invoke virtual memory.
     else{
         // Remark: TLB_size is the first element, SPT_size is the second!
@@ -410,6 +427,9 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
         // Do a deep copy of Free_memory for iteration
         Vector<Block> Free_memory_copy = Free_memory;
         Vector<Block> table;
+<<<<<<< HEAD
+>>>>>>> ChenYuheng
+=======
 >>>>>>> ChenYuheng
         // Start the for loop iteration
         for (Block Free_Blocks : free_memory_copy) {
@@ -492,8 +512,12 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 Occupied.start = Free_Block_Start;
                 Occupied.terminate = divide_occupied;
 <<<<<<< HEAD
+<<<<<<< HEAD
                 Occupied.block_size = Free_Blocks.block_size - remaining_memory;
 
+=======
+                Occupied.Block_size = Free_Blocks.Block_size - remaining_memory;
+>>>>>>> ChenYuheng
 =======
                 Occupied.Block_size = Free_Blocks.Block_size - remaining_memory;
 >>>>>>> ChenYuheng
@@ -506,10 +530,14 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 occupied_memory.add(Occupied);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                 page_table.add(Occupied);
 
                 // Update the map. Construct linkage between process and its coressponding page table.
                 all_process_status.put(process,page_table);
+=======
+                table.add(Occupied);
+>>>>>>> ChenYuheng
 =======
                 table.add(Occupied);
 >>>>>>> ChenYuheng
@@ -542,6 +570,7 @@ bool Memory::Is_neighbor(const Block & b1, const Block & b2){
     else return false;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /*
  * Method:remove_from_memory
@@ -588,6 +617,20 @@ void Memory::Virtual_memory(Process process,int TLB_decalred){
     // The case when there is no enough TLB space for the new process.
     if ((TLB_size + Actual_TLB_declared) > size) error("There is no enough space for the process!");
 
+=======
+/* This function is used to invoke virtual memory*/
+void Memory::Virtual_memory(Process process,int TLB_decalred){
+    int memory_declared = process.memory_declared;
+    int SPT_declared = memory_declared - TLB_decalred;
+
+    int Actual_TLB_declared = Correction_on_size(TLB_decalred);
+    int Actual_SPT_declared = Correction_on_size(SPT_declared);
+//    int Actual_memory_declared = Actual_TLB_declared + Actual_SPT_declared;
+
+    // The case when there is no enough TLB space for the new process.
+    if ((TLB_size + Actual_TLB_declared) > size) error("There is no enough space for the process!");
+
+>>>>>>> ChenYuheng
     // The case when virtual memory is able to be invoked.
     else{
         Vector<Block> Temporary_Free_Memory;
@@ -607,12 +650,16 @@ void Memory::Virtual_memory(Process process,int TLB_decalred){
         for(int i = 0;i < Free_memory.size();i++){
             Free_memory.remove(i);
         }
+<<<<<<< HEAD
+>>>>>>> ChenYuheng
+=======
 >>>>>>> ChenYuheng
         }
 
         // Handle Block situation for virtual memory
         int SPT_need_remove_size = Previous_SPT_Size + Actual_SPT_declared - SPT_size;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /*
  * Method:get_address
@@ -773,6 +820,448 @@ bool operator==(page_index A, page_index B) {
 bool operator==(Block A, Block B) {
     return (A.start == B.start && A.terminate == B.terminate);
 }
+=======
+        // Situation when the new process requires all the SPT to be removed.
+        if (SPT_need_remove_size > Previous_SPT_Size){
+            for (Process process:Process_Queue){
+
+
+                // Modify All_Process_Size
+                Vector<int> process_size = All_Process_Size[process];
+                // Here is to modify the SPT size of the exist processes.
+                process_size[1] = 0;
+                All_Process_Size[process] = process_size;
+
+            // Modify Occupied_memory and All_Process_Status
+            // Step1: Remove the original processes' SPT blocks in Occupied_memory and Assign empty SPT block vector to them in All_Process_Status.
+
+                process_status ps = All_Process_Status[process];
+                Vector<Block> SPT = ps.SPT;
+                // Remove the corresponding blocks in the occupied_memory.
+                for (Block block : SPT){
+                Occupied_memory.removeValue(block);
+                Temporary_Free_Memory.add(block);
+                }
+                // Assign an empty vector of block to SPT and then assign the new process status back to the map.
+                Vector<Block> Empty;
+                ps.SPT = Empty;
+                All_Process_Status[process] = ps;
+            }
+            // Step2: Assign New space for the new process in the Occupied_memory and A_P_St.
+
+            int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
+
+            // Do a deep copy of Temporary_Free_memory for iteration
+                Vector<Block> Free_memory_copy = Temporary_Free_Memory;
+                Vector<Block> TLB_blocks;
+
+
+            // Start the for loop iteration to arrange space for TLB of the new process.
+              for (Block Free_Blocks : Free_memory_copy){
+                    free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
+
+                    if (free_accumulated_memory < Actual_TLB_declared) {
+                        // Get the address for the free block at this iteration
+                        page_index Free_Block_Start = Free_Blocks.start;
+                        page_index Free_Block_Terminate = Free_Blocks.terminate;
+
+
+                        // Remove the block in temporary free memory
+                        Temporary_Free_Memory.remove(0);
+
+
+                        // Add occupation on the Occupied_memory
+                        Block new_occupied;
+                        new_occupied.start = Free_Block_Start;
+                        new_occupied.terminate = Free_Block_Terminate;
+                        new_occupied.Block_size = Free_Blocks.Block_size;
+                        Occupied_memory.add(new_occupied);
+
+                        TLB_blocks.add(new_occupied);
+                        continue;
+                    }
+                    else{
+
+                        int remaining_memory = free_accumulated_memory - Actual_TLB_declared;
+
+                        /*This is to check whether the remaining memory is 0 modulo 4.
+                          Eg. The remaining memory = 5kb, then 5kb/4 = 1; then 1*4<5, we should return 1 page.
+                              However, the reamaining memory should be 1*4  = 4kb as in this situation there will be fragments.
+                            */
+
+                        // This variable counts the number of pages needed to free from the buttom.
+                        int pages_from_bottom = remaining_memory/SINGLE_PAGE_SIZE;
+
+                        if (pages_from_bottom * SINGLE_PAGE_SIZE < remaining_memory) {
+                            remaining_memory = pages_from_bottom*SINGLE_PAGE_SIZE;
+                        }
+
+                        /*Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
+                         * inner_page_index_pre = 2, out_page_number_from_bottom = 1
+                         * Hence, we can use this to calculate the index needed.
+                        .*/
+                        int inner_page_index_pre = pages_from_bottom % inner_page_total;
+                        int out_page_number_from_bottom = (pages_from_bottom-inner_page_index_pre)/inner_page_total;
+
+                        page_index Free_Block_Start = Free_Blocks.start;
+                        page_index Free_Block_Terminate = Free_Blocks.terminate;
+
+                        page_index divide_free;
+                        divide_free.inner_page_index = Free_Block_Terminate.inner_page_index - inner_page_index_pre + 1;
+                        divide_free.outer_page_index = Free_Block_Terminate.outer_page_index - out_page_number_from_bottom;
+                        if (divide_free.inner_page_index < 0) {
+                            divide_free.inner_page_index += inner_page_total;
+                            divide_free.outer_page_index -= 1;}
+
+                        if (divide_free.inner_page_index > 1023) {
+                            divide_free.inner_page_index -= inner_page_total;
+                            divide_free.outer_page_index += 1;}
+
+
+
+                        page_index divide_occupied;
+                        divide_occupied.inner_page_index = divide_free.inner_page_index - 1;
+                        divide_occupied.outer_page_index = divide_free.outer_page_index;
+                        if (divide_occupied.inner_page_index <0){
+                            divide_occupied.inner_page_index += inner_page_total;
+                            divide_occupied.outer_page_index -= 1;
+                        }
+
+                        if (divide_occupied.inner_page_index >1023){
+                            divide_occupied.inner_page_index -= inner_page_total;
+                            divide_occupied.outer_page_index += 1;
+                        }
+
+
+                        Block Occupied;
+                        Block Free;
+
+                        Occupied.start = Free_Block_Start;
+                        Occupied.terminate = divide_occupied;
+                        Occupied.Block_size = Free_Blocks.Block_size - remaining_memory;
+
+
+
+                        Free.start = divide_free;
+                        Free.terminate = Free_Block_Terminate;
+                        Free.Block_size = remaining_memory;
+
+                        Temporary_Free_Memory[0] = Free;
+                        Occupied_memory.add(Occupied);
+
+                        TLB_blocks.add(Occupied);
+                        // This makes sure that if going into this else statement, the for loop will terminate.
+                        break;
+                    }
+
+                }
+              Vector<Block> SPT_blocks;
+              // Put all the remaining free space as occupied SPT_blocks for the new process.
+              for (Block spt : Temporary_Free_Memory){
+                  SPT_blocks.add(spt);
+                  Occupied_memory.add(spt);
+              }
+              process_status new_process_status;
+              new_process_status.SPT = SPT_blocks;
+              new_process_status.TLB = TLB_blocks;
+              All_Process_Status[process] = new_process_status;
+
+
+        }
+
+
+
+
+        // Situation when we have to move partial SPT from exist processes.
+        else{
+
+            int Accumulated_Exist_Process_SPT_Size = 0;
+            int Process_Queue_index = 0;
+            for (Process process : Process_Queue){
+
+                Vector<int> Process_size = All_Process_Size[process];
+                int Process_SPT_Size = Process_size[1];
+                Accumulated_Exist_Process_SPT_Size += Process_SPT_Size;
+
+                if (Accumulated_Exist_Process_SPT_Size > SPT_need_remove_size) break;
+
+                Process_Queue_index += 1;
+
+                // Below are the situation when we have to remove the complete SPT part of one of the exist process.
+                // Here is to modify the SPT size of the exist processes.
+                Process_size[1] = 0;
+                All_Process_Size[process] = Process_size;
+
+                // Modify Occupied_memory and All_Process_Status
+                // Step1: Remove the original processes' SPT blocks in Occupied_memory and Assign empty SPT block vector to them in All_Process_Status.
+
+                process_status ps = All_Process_Status[process];
+                Vector<Block> SPT = ps.SPT;
+                // Remove the corresponding blocks in the occupied_memory.
+                for (Block block : SPT){
+                Occupied_memory.removeValue(block);
+                Temporary_Free_Memory.add(block);
+                }
+                // Assign an empty vector of block to SPT and then assign the new process status back to the map.
+                Vector<Block> Empty;
+                ps.SPT = Empty;
+                All_Process_Status[process] = ps;
+            }
+
+
+                // Jump out of the for loop and deal with the specific SPT block we need.
+                int remaining_SPT_size = Accumulated_Exist_Process_SPT_Size - SPT_need_remove_size;
+                // Retrieve the specific process that we need to modify.
+                Process Specific_Process = Process_Queue[Process_Queue_index];
+                // Deal with the process' blocks that is not specific
+                process_status ps = All_Process_Status[Specific_Process];
+                int Specific_Process_SPT_size = All_Process_Size[Specific_Process][1];
+                int Single_SPT_need_remove_size = Specific_Process_SPT_size - remaining_SPT_size;
+                Vector<Block> SPT = ps.SPT;
+                int accumulated_block_size = 0;
+                int block_index = 0;
+                for (Block block:(ps.SPT)){
+                    int block_size = block.Block_size;
+                    accumulated_block_size += block_size;
+                    if (accumulated_block_size > Single_SPT_need_remove_size) break;
+                    block_index += 1;
+                    Occupied_memory.removeValue(block);
+                    SPT.removeValue(block);
+                    Temporary_Free_Memory.add(block);
+                }
+
+
+                // The specific block and start to cut
+                Block Specific_Block = ps.SPT[block_index];
+
+
+                // ************ copy from previous ************
+                int remaining_memory = accumulated_block_size - Single_SPT_need_remove_size;
+
+
+                // This variable counts the number of pages needed to free from the buttom.
+                int pages_from_bottom = remaining_memory/SINGLE_PAGE_SIZE;
+
+                if (pages_from_bottom * SINGLE_PAGE_SIZE < remaining_memory) {
+                    remaining_memory = pages_from_bottom*SINGLE_PAGE_SIZE;
+                }
+
+                /*Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
+                 * inner_page_index_pre = 2, out_page_number_from_bottom = 1
+                 * Hence, we can use this to calculate the index needed.
+                .*/
+                int inner_page_index_pre = pages_from_bottom % inner_page_total;
+                int out_page_number_from_bottom = (pages_from_bottom-inner_page_index_pre)/inner_page_total;
+
+                page_index Free_Block_Start = Specific_Block.start;
+                page_index Free_Block_Terminate = Specific_Block.terminate;
+
+                page_index divide_free;
+                divide_free.inner_page_index = Free_Block_Terminate.inner_page_index - inner_page_index_pre + 1;
+                divide_free.outer_page_index = Free_Block_Terminate.outer_page_index - out_page_number_from_bottom;
+                if (divide_free.inner_page_index < 0) {
+                    divide_free.inner_page_index += inner_page_total;
+                    divide_free.outer_page_index -= 1;}
+
+                if (divide_free.inner_page_index > 1023) {
+                    divide_free.inner_page_index -= inner_page_total;
+                    divide_free.outer_page_index += 1;}
+
+
+
+                page_index divide_occupied;
+                divide_occupied.inner_page_index = divide_free.inner_page_index - 1;
+                divide_occupied.outer_page_index = divide_free.outer_page_index;
+                if (divide_occupied.inner_page_index <0){
+                    divide_occupied.inner_page_index += inner_page_total;
+                    divide_occupied.outer_page_index -= 1;
+                }
+
+                if (divide_occupied.inner_page_index >1023){
+                    divide_occupied.inner_page_index -= inner_page_total;
+                    divide_occupied.outer_page_index += 1;
+                }
+
+
+                Block Removed;
+                Block Reserved;
+
+                Removed.start = Free_Block_Start;
+                Removed.terminate = divide_occupied;
+                Removed.Block_size = Specific_Block.Block_size - remaining_memory;
+
+                Reserved.start = divide_free;
+                Reserved.terminate = Free_Block_Terminate;
+                Reserved.Block_size = remaining_memory;
+
+                //************** End copy ***************
+
+                Occupied_memory.removeValue(Specific_Block);
+                Occupied_memory.add(Reserved);
+                SPT.removeValue(Specific_Block);
+                SPT.add(Reserved);
+                Temporary_Free_Memory.add(Removed);
+
+                // Renew the SPT table for the process.
+                ps.SPT = SPT;
+                All_Process_Status[Specific_Process] = ps;
+
+                // ALL PROCESS SIZE modification towards this specific process.
+                Vector<int> Specific_Process_Size = All_Process_Size[Specific_Process];
+                Specific_Process_Size[1] = remaining_SPT_size;
+                All_Process_Size[Specific_Process] = Specific_Process_Size;
+
+
+
+                // Arrange new space for the new input process.
+                // STEP2!!!!!!!!!!!!!
+
+
+
+
+                int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
+
+                // Do a deep copy of Temporary_Free_memory for iteration
+                    Vector<Block> Free_memory_copy = Temporary_Free_Memory;
+                    Vector<Block> TLB_blocks;
+
+
+                // Start the for loop iteration to arrange space for TLB of the new process.
+                  for (Block Free_Blocks : Free_memory_copy){
+                        free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
+
+                        if (free_accumulated_memory < Actual_TLB_declared) {
+                            // Get the address for the free block at this iteration
+                            page_index Free_Block_Start = Free_Blocks.start;
+                            page_index Free_Block_Terminate = Free_Blocks.terminate;
+
+
+                            // Remove the block in temporary free memory
+                            Temporary_Free_Memory.remove(0);
+
+
+                            // Add occupation on the Occupied_memory
+                            Block new_occupied;
+                            new_occupied.start = Free_Block_Start;
+                            new_occupied.terminate = Free_Block_Terminate;
+                            new_occupied.Block_size = Free_Blocks.Block_size;
+                            Occupied_memory.add(new_occupied);
+
+                            TLB_blocks.add(new_occupied);
+                            continue;
+                        }
+                        else{
+
+                            int remaining_memory = free_accumulated_memory - Actual_TLB_declared;
+
+                            /*This is to check whether the remaining memory is 0 modulo 4.
+                              Eg. The remaining memory = 5kb, then 5kb/4 = 1; then 1*4<5, we should return 1 page.
+                                  However, the reamaining memory should be 1*4  = 4kb as in this situation there will be fragments.
+                                */
+
+                            // This variable counts the number of pages needed to free from the buttom.
+                            int pages_from_bottom = remaining_memory/SINGLE_PAGE_SIZE;
+
+                            if (pages_from_bottom * SINGLE_PAGE_SIZE < remaining_memory) {
+                                remaining_memory = pages_from_bottom*SINGLE_PAGE_SIZE;
+                            }
+
+                            /*Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
+                             * inner_page_index_pre = 2, out_page_number_from_bottom = 1
+                             * Hence, we can use this to calculate the index needed.
+                            .*/
+                            int inner_page_index_pre = pages_from_bottom % inner_page_total;
+                            int out_page_number_from_bottom = (pages_from_bottom-inner_page_index_pre)/inner_page_total;
+
+                            page_index Free_Block_Start = Free_Blocks.start;
+                            page_index Free_Block_Terminate = Free_Blocks.terminate;
+
+                            page_index divide_free;
+                            divide_free.inner_page_index = Free_Block_Terminate.inner_page_index - inner_page_index_pre + 1;
+                            divide_free.outer_page_index = Free_Block_Terminate.outer_page_index - out_page_number_from_bottom;
+                            if (divide_free.inner_page_index < 0) {
+                                divide_free.inner_page_index += inner_page_total;
+                                divide_free.outer_page_index -= 1;}
+
+                            if (divide_free.inner_page_index > 1023) {
+                                divide_free.inner_page_index -= inner_page_total;
+                                divide_free.outer_page_index += 1;}
+
+
+
+                            page_index divide_occupied;
+                            divide_occupied.inner_page_index = divide_free.inner_page_index - 1;
+                            divide_occupied.outer_page_index = divide_free.outer_page_index;
+                            if (divide_occupied.inner_page_index <0){
+                                divide_occupied.inner_page_index += inner_page_total;
+                                divide_occupied.outer_page_index -= 1;
+                            }
+
+                            if (divide_occupied.inner_page_index >1023){
+                                divide_occupied.inner_page_index -= inner_page_total;
+                                divide_occupied.outer_page_index += 1;
+                            }
+
+
+                            Block Occupied;
+                            Block Free;
+
+                            Occupied.start = Free_Block_Start;
+                            Occupied.terminate = divide_occupied;
+                            Occupied.Block_size = Free_Blocks.Block_size - remaining_memory;
+
+
+
+                            Free.start = divide_free;
+                            Free.terminate = Free_Block_Terminate;
+                            Free.Block_size = remaining_memory;
+
+                            Temporary_Free_Memory[0] = Free;
+                            Occupied_memory.add(Occupied);
+
+                            TLB_blocks.add(Occupied);
+                            // This makes sure that if going into this else statement, the for loop will terminate.
+                            break;
+                        }
+
+                    }
+                  Vector<Block> SPT_blocks;
+                  // Put all the remaining free space as occupied SPT_blocks for the new process.
+                  for (Block spt : Temporary_Free_Memory){
+                      SPT_blocks.add(spt);
+                      Occupied_memory.add(spt);
+                  }
+                  process_status new_process_status;
+                  new_process_status.SPT = SPT_blocks;
+                  new_process_status.TLB = TLB_blocks;
+                  All_Process_Status[process] = new_process_status;
+            }
+        }
+
+        // Handle All_Process_size
+        Vector<int> Process_size;
+        Process_size.add(Actual_TLB_declared);
+
+        // This is the case when the input new process is extremely large.
+        if (Actual_SPT_declared > SPT_size){
+            Actual_SPT_declared = SPT_size;
+        }
+        Process_size.add(Actual_SPT_declared);
+        All_Process_Size.add(process,Process_size);
+
+    }
+
+
+int Memory::Correction_on_size(int input_size){
+    if (input_size % SINGLE_PAGE_SIZE == 0) return input_size;
+    else{
+        int page_needed = input_size/SINGLE_PAGE_SIZE + 1;
+        int actual_memory = page_needed * SINGLE_PAGE_SIZE;
+        return actual_memory;
+    }
+}
+
+>>>>>>> ChenYuheng
 =======
         // Situation when the new process requires all the SPT to be removed.
         if (SPT_need_remove_size > Previous_SPT_Size){
