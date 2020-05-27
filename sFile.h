@@ -18,7 +18,7 @@ public:
     sFile();
     ~sFile();
     sFile(string user, int mod);
-    sFile(string user, int mod, string name, string content);
+    sFile(string user, int mod, string name, string content,string location);
     string get_content();
     string get_name();
     string get_info();
@@ -32,15 +32,17 @@ public:
     void add_content(string content);
     void change_mod(string user, int right);
     void revoke();
+    void assign_location(string loca);
+    void change_content(string user, string content);
 
-private:
+
     string filename;
     string contents;
     Map<string,int> mod_category;
     //文件种类
     string type;
     int size;
-    vector<string> location;
+    string location;
     time_t create_time;
     time_t modified_time;
     bool visible;

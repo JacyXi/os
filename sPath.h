@@ -28,13 +28,11 @@ public:
     ~sPath();
     sPath(string name, sPath * previous_path);
     sPath(string name, bool is_root);
-    void addFile(sFile & file);
+    void addFile(sFile * file);
     void addPath(string sub_path_name);
     void removePath(string path);
     void removeFile(string filename);
     sPath * get_parent();
-    void expandCapacity();
-    bool check_almost_full();
     std::string toString();
     Set<string> get_subsets();
     Set<string> get_subsets_absolute();
@@ -43,15 +41,16 @@ public:
     bool is_root();
     string get_name();
     void get_all_parent(sPath * thisLevel, Set<string> & parents_book);
-    int read_file(string filename);
+    string read_file(string filename);
     void get_pwd(sPath * thisLevel, Stack<string> & pwd_road);
     bool has_file(string filename);
     sFile * get_file(string filename);
     void chmod(string user, string filename, int mod);
+    void chcontent(string user, string filename, string content);
     string get_absolute();
 private:
     int findLocation(string filename);
-    sFile ** filegory;
+    Vector<sFile*> filegory;
     sPath * parent;
     int size;
     bool isRoot;

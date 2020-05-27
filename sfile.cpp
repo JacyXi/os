@@ -6,9 +6,7 @@
 #include "map.h"
 #include "stdio.h"
 #include <time.h>
-#include <lexicon.h>
 #include <error.h>
-#include <foreach.h>
 #include <ctime>
 
 /*
@@ -31,12 +29,14 @@ sFile::sFile(string user, int mod)
  * Initializes a new file that has specific mode (the qualification for the user),
  * filename, and content.
  */
-sFile::sFile(string user, int mod, string name, string content) {
+sFile::sFile(string user, int mod, string name, string content,string loca) {
     filename = name;
     contents = content;
     mod_category[user] = mod;
     create_time = time(0);
     modified_time = time(0);
+    type = filename.substr(filename.rfind("."));
+    location = loca;
 }
 
 /*
@@ -47,7 +47,9 @@ sFile::sFile(string user, int mod, string name, string content) {
  * whenever a sFile instance variable is deallocated.
  */
 sFile::~sFile() {
-
+    filename = "";
+    contents = "";
+    mod_category.clear();
 }
 
 /*
@@ -65,6 +67,16 @@ int sFile::get_mod(string user) {
     } else {
         error("No such user.");
     }
+}
+
+/*
+ * Method: assign_location
+ * Usage: assign_location();
+ * ----------------------------------
+ * Give file the location information.
+ */
+void sFile::assign_location(string loca) {
+    location = loca;
 }
 
 /*
@@ -104,10 +116,8 @@ string sFile::get_info() {
     output.append("\n");
     output.append("File create time: ");
     output.append(get_create_time());
-    output.append("\n");
     output.append("File modified time: ");
     output.append(get_modified_time());
-    output.append("\n");
     output.append("File user rights: ");
     output.append(get_mod_info());
     output.append("\n");
@@ -141,7 +151,7 @@ string sFile::get_type() {
  * Returns a string of the size of this file (i.e. "200kb").
  */
 int sFile::get_size() {
-    return size;
+    return contents.length();
 }
 
 /*
@@ -151,12 +161,7 @@ int sFile::get_size() {
  * Returns a string of the location of this file.
  */
 string sFile::get_location() {
-    string output;
-    foreach (string i in location) {
-        output.append(i);
-        output.append("/");
-    }
-    return output;
+    return location;
 }
 
 /*
@@ -188,7 +193,7 @@ string sFile::get_modified_time() {
  */
 string sFile::get_mod_info() {
     string output;
-    foreach(string user in mod_category.keys()) {
+    for (string user : mod_category.keys()) {
         output.append("User ");
         output.append(user);
         output.append(": ");
@@ -225,6 +230,11 @@ void sFile::change_mod(string user, int right) {
     } else {
         error("No right has to change.");
     }
+}
+void sFile::change_content(string user, string content){
+    modified_time = time(0);
+    previous_version = contents;
+    contents = content;
 }
 
 /*
