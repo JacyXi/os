@@ -15,7 +15,10 @@
 #include <iostream>
 #include "gtextarea.h"
 #include "gtable.h"
-
+#include "memory.h"
+#include "Calculator.h"
+#include "calendar.h"
+#include "set.h"
 
 
 using namespace std;
@@ -36,8 +39,8 @@ GUIcontroller::GUIcontroller(string user)
     run(gw);
 
 
-
 }
+
 GUIcontroller::~GUIcontroller() {
     runnable = false;
     gw->close();
@@ -57,6 +60,7 @@ void GUIcontroller::run(GWindow * gw) {
         string user_name = input_name->getText();
         string user_password =  input_word->getText();
         if (!login.get(user_name).compare(user_password)) {
+
             current_user = user_name;
             pick_user->addItem(user_name);
             pick_user->setSelectedItem(user_name);
@@ -95,10 +99,12 @@ void GUIcontroller::run(GWindow * gw) {
     }
     case 7:{
         //calculator
+        runCalculator();
         break;
     }
     case 8:{
         //calendar
+        runCalendar();
         break;
     }
 
@@ -106,8 +112,165 @@ void GUIcontroller::run(GWindow * gw) {
         cout << "No matches" << endl;
     }
 
-
     gw->pause(10);
+
+}
+
+void GUIcontroller::runCalendar(){
+    GImage * cal = new GImage("calculator.png",1.3*X/5,Y/60);
+    gw->add(cal);
+    GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID,1,4);
+    con_cal0->setX(1.53*X/5);
+    con_cal0->setY(Y/17);
+    con_cal0->setHeight(0.05*Y);
+    con_cal0->setWidth(X/4);
+    GButton * previous = new GButton("prev");
+    previous->setActionCommand("prev");
+    GButton * next = new GButton("next");
+    next->setActionCommand("next");
+    GChooser * yearc = new GChooser();
+    GChooser * monthc = new GChooser();
+    yearc->addItems({"2020","2019","2018","2017","2016","2015"});
+    monthc->addItems({"1","2","3","4","5","6","7","8","9","10","11","12"});
+    con_cal0->add(previous);
+    con_cal0->add(yearc);
+    con_cal0->add(monthc);
+    con_cal0->add(next);
+
+
+
+
+
+
+
+
+
+
+}
+
+void GUIcontroller::runCalculator() {
+    GImage * calculator = new GImage("calculator.png",1.3*X/5,Y/60);
+    gw->add(calculator);
+    GContainer * con_cal0 = new GContainer();
+    con_cal0->setX(1.53*X/5);
+    con_cal0->setY(Y/17);
+    con_cal0->setHeight(0.05*Y);
+    con_cal0->setWidth(X/4);
+    GContainer * con_cal = new GContainer(GContainer::LAYOUT_GRID,5,4);
+    con_cal->setX(1.53*X/5);
+    con_cal->setY(Y/6);
+    con_cal->setHeight(0.6*Y);
+    con_cal->setWidth(X/4);
+
+    GLabel * window = new GLabel();
+    QFont font;
+    font.setBold(true);
+    font.setPointSize(20);
+    window->setFont(font);
+    window->setBounds(1.3*X/5,Y/17,X/4,Y/20);
+    con_cal0->add(window);
+
+    GButton * bac = new GButton("ac","ac.png");
+    bac->setActionCommand("reset");
+    GButton * blb = new GButton("","left.png");
+    blb->setActionCommand("(");
+    GButton * brb = new GButton("","right.png");
+    brb->setActionCommand(")");
+    GButton * bre = new GButton("","re.png");
+    bre->setActionCommand("regret");
+    GButton * b7 = new GButton("","7.png");
+    b7->setActionCommand("7");
+    GButton * b8 = new GButton("","8.png");
+    b8->setActionCommand("8");
+    GButton * b9 = new GButton("","9.png");
+    b9->setActionCommand("9");
+    GButton * bdi = new GButton("","divide.png");
+    bdi->setActionCommand("/");
+    GButton * b4 = new GButton("","4.png");
+    b4->setActionCommand("4");
+    GButton * b5 = new GButton("","5.png");
+    b5->setActionCommand("5");
+    GButton * b6 = new GButton("","6.png");
+    b6->setActionCommand("6");
+    GButton * bml = new GButton("","multi.png");
+    bml->setActionCommand("*");
+    GButton * b1 = new GButton("","1.png");
+    b1->setActionCommand("1");
+    GButton * b2 = new GButton("","2.png");
+    b2->setActionCommand("2");
+    GButton * b3 = new GButton("","3.png");
+    b3->setActionCommand("3");
+    GButton * bmi = new GButton("","minus.png");
+    bmi->setActionCommand("-");
+    GButton * b0= new GButton("","0.png");
+    b0->setActionCommand("0");
+    GButton * bdo = new GButton("","dot.png");
+    bdo->setActionCommand(".");
+    GButton * beq = new GButton("","equal.png");
+    beq->setActionCommand("solve");
+    GButton * bad = new GButton("","sum.png");
+    bad->setActionCommand("+");
+    con_cal->add(bac);
+    con_cal->add(blb);
+    con_cal->add(brb);
+    con_cal->add(bre);
+    con_cal->add(b7);
+    con_cal->add(b8);
+    con_cal->add(b9);
+    con_cal->add(bdi);
+    con_cal->add(b4);
+    con_cal->add(b5);
+    con_cal->add(b6);
+    con_cal->add(bml);
+    con_cal->add(b1);
+    con_cal->add(b2);
+    con_cal->add(b3);
+    con_cal->add(bmi);
+    con_cal->add(b0);
+    con_cal->add(bdo);
+    con_cal->add(beq);
+    con_cal->add(bad);
+    GButton * exit = new GButton("exit");
+    con_cal->addToRegion(exit,GContainer::REGION_SOUTH);
+
+    Calculator * cal = new Calculator();
+    Set<string> nums = {"0","1","2","3","4","5","6","7","8","9","+","-","*","/",".","(",")"};
+    string operation;
+    while(true) {
+        string command = "";
+        GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+        command = e.getActionCommand();
+        if (command.length()>0) {
+            if (!command.compare("reset")){
+                window->setText("");
+                operation = "";
+            } else if (!command.compare("regret")){
+                operation = operation.substr(0,operation.length()-1);
+                window->setText(operation);
+            } else if (!command.compare("solve")){
+
+                string result = "=";
+                result = cal->run(operation);
+                window->setText(result);
+                operation = "";
+            } else if (nums.contains(command)){
+                operation.append(command);
+                window->setText(operation);
+            } else if (!command.compare("exit")) {
+                calculator->setVisible(false);
+                con_cal->setVisible(false);
+                con_cal0->setVisible(false);
+                window->setVisible(false);
+                return;
+            }
+        }
+    }
+
+
+
+
+
+
 }
 
 void GUIcontroller::dealFileSystem() {
@@ -551,12 +714,13 @@ void GUIcontroller::initMain(){
     con_main->setHeight(Y/2);
     con_main->setSpacing(Y/60);
     fileb = new GButton("","file.png");
+    fileb->setSize(X/10,Y/10);
     fileb->setActionCommand("openfs");
-    memoryb = new GButton("","memory.ico");
+    memoryb = new GButton("","memory_icon.png");
     memoryb->setActionCommand("openmemory");
-    calculatorb = new GButton("","calculator.png");
+    calculatorb = new GButton("","calculator_icon.png");
     calculatorb->setActionCommand("opencalculator");
-    calendarb = new GButton("","calendar.png");
+    calendarb = new GButton("","calendar_icon.png");
     calendarb->setActionCommand("opencalendar");
     con_main->add(calendarb);
     con_main->add(calculatorb);
@@ -688,22 +852,101 @@ void GUIcontroller::initMemory() {
 
     GContainer * memory_table = new GContainer;
 
-    GTable *MT = new GTable(16,4);
-    MT->set(1,1,"HAHAHA");
-    MT->setY(Y*23/90);
-//    MT->setColumnHeaderStyle(COLUMN_HEADER_NONE);
+    GTable *mt = new GTable(16,4);
+    mt->setColumnHeaderStyle(GTable::COLUMN_HEADER_NONE);
+    mt->set(1,1,"HAHAHA");
+    mt->setY(Y*23/90);
     memory_table->setX(4*X/5);
     memory_table->setY(Y*23/90);
     memory_table->setWidth(X/5);
     memory_table->setHeight(Linespace*12.5);
-    memory_table->add(MT);
+    memory_table->add(mt);
 
+    // APP Name ; Process name ; memory decalred ; memory occupied (HEADER)
 //    GContainer * header = new GContainer;
 //    header->setX(4*X/5);
 //    header->setY(Y*23/90);
 //    header->setWidth(X/5);
 //    header->setHeight(Linespace*12.5);
 //    header->setColor("Black");
+
+
+    // The bottom part of the memory
+    int start_x = 4*X/5*1.008;
+    int start_y = Y/200*165;
+    int length = X/5*0.9;
+    int height = Y/18+Linespace*1.5;
+
+
+    GRect * memory_bar = new GRect(start_x,start_y,length,height);
+    memory_bar->sendToBack();
+    memory_bar->setFilled(1);
+    memory_bar->setFillColor(255,255,255);
+    memory_bar->setColor(255,255,255);
+    gw->add(memory_bar);
+
+    GRect * APP_bar1 = new GRect(start_x,start_y,length/5,height);
+    APP_bar1->sendToFront();
+    APP_bar1->setFilled(1);
+    APP_bar1->setFillColor(255,165,0);
+    APP_bar1->setColor(255,255,255);
+    gw->add(APP_bar1);
+
+    // Legend.
+
+    // File System
+    GRect * APP_legend1 = new GRect(start_x,start_y+height+0.5*Linespace,length/20,length/20);
+    APP_legend1->sendToFront();
+    APP_legend1->setFilled(1);
+    APP_legend1->setFillColor(255,165,0);
+    APP_legend1->setColor(255,165,0);
+    gw->add(APP_legend1);
+    GContainer * LL1 = new GContainer;
+    LL1->setBounds(start_x+length/20,start_y+height*0.9,length/5,length/5);
+    GLabel * LabelLegend1 = new GLabel("File\nSystem");
+    LabelLegend1->setSize(length/5,length/5);
+    LL1->add(LabelLegend1);
+
+    // Calculator
+    int horizontal = length/20+length/4;
+    GRect * APP_legend2 = new GRect(start_x+horizontal,start_y+height+0.5*Linespace,length/20,length/20);
+    APP_legend2->sendToFront();
+    APP_legend2->setFilled(1);
+    APP_legend2->setFillColor(0,156,255);
+    APP_legend2->setColor(0,156,255);
+    gw->add(APP_legend2);
+    GContainer * LL2 = new GContainer;
+    LL2->setBounds(start_x+horizontal+length/20,start_y+height*0.9,length/5,length/5);
+    GLabel * LabelLegend2 = new GLabel("Calc");
+    LabelLegend2->setSize(length/5,length/5);
+    LL2->add(LabelLegend2);
+
+    // Canlandar
+    GRect * APP_legend3 = new GRect(start_x+horizontal*1.7,start_y+height+0.5*Linespace,length/20,length/20);
+    APP_legend3->sendToFront();
+    APP_legend3->setFilled(1);
+    APP_legend3->setFillColor(36,110,0);
+    APP_legend3->setColor(36,110,0);
+    gw->add(APP_legend3);
+    GContainer * LL3 = new GContainer;
+    LL3->setBounds(start_x+horizontal*1.7+length/15,start_y+height*0.9,length/4,length/5);
+    GLabel * LabelLegend3 = new GLabel("Calandar");
+    LabelLegend3->setSize(length/4,length/5);
+    LL3->add(LabelLegend3);
+
+    // OS
+    GRect * APP_legend4 = new GRect(start_x+horizontal*2.8,start_y+height+0.5*Linespace,length/20,length/20);
+    APP_legend4->sendToFront();
+    APP_legend4->setFilled(1);
+    APP_legend4->setFillColor(166,0,200);
+    APP_legend4->setColor(166,0,200);
+    gw->add(APP_legend4);
+    GContainer * LL4 = new GContainer;
+    LL4->setBounds(start_x+horizontal*2.8+length/15,start_y+height*0.9,length/4,length/5);
+    GLabel * LabelLegend4 = new GLabel("OS");
+    LabelLegend4->setSize(length/4,length/5);
+    LL4->add(LabelLegend4);
+
 
 
 }

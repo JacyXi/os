@@ -6,12 +6,16 @@
 #include<iomanip>
 #include <string>
 #include <stdlib.h>
+using namespace std;
+
 class calendar{
 
 public:
     calendar();
     ~calendar();
     void printMonth(int year,int month);
+
+private:
     void printMonthName(int year,int month);
     void printCalBody(int year,int month);
     int getStartDay(int year,int month);

@@ -10,6 +10,7 @@
 #include "gtextarea.h"
 #include "sFileSystem.h"
 #include "gtextfield.h"
+#include "memory.h"
 #include "map.h"
 
 using namespace std;
@@ -38,6 +39,9 @@ private:
     void init_login();
     void user_login();
     void dealFileSystem();
+    void runCalculator();
+    void runCalendar();
+
 
     string set_reporter(GTextArea * reporter, string toadd, string info);
     bool runnable;
@@ -83,6 +87,8 @@ private:
     GImage * table;
     Map<string,int> command;
     Map<string, string> login;
+    Memory * mo;
+
 
 
 

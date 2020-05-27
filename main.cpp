@@ -48,9 +48,10 @@ void main() {
     cout<<"Please enter the expressions you want to calculate:"<<endl;
     getline(cin,a);
     Calculator *cal = new Calculator();
-    cal->run(a);
+    cout << cal->run(a);
 }
 */
+
 
 int main() {
     GUIcontroller control("Jacy");
