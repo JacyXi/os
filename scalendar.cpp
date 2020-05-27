@@ -92,119 +92,6 @@ bool sCalendar::isLeapYear(int year) // 闰年
 }
 
 
-void sCalendar::printCalBody(int year,int month)
-{
-    int startDay = getStartDay(year,month);
-    int numberofDaysinMonth = getDaysinMonth(year,month);
-    int i = 0;
-    int j = 1;
-
-    for(i=0; i<startDay; i++)
-    {
-        cout <<setw(4)<<" ";
-    }
-    for(i=1, j =startDay +1; i<=numberofDaysinMonth;i++,j++)
-    {
-        cout <<setw(4)<< i;
-        if (j%7 ==0)
-            cout <<endl;
-    }
-
-    cout<<"\n";
-    cout<<"-----------------------------"<<endl;
-}
-
-void sCalendar::printCalBody_special(int year,int month)
-{
-    int startDay = getStartDay(year,month);
-    int numberofDaysinMonth = getDaysinMonth(year,month);
-    int i = 0;
-    int j = 1;
-
-    time_t now = time(0);
-    string dt =ctime(&now);
-    string Date_now = dt.substr(8,2);
-    Date_now.c_str();
-    int Date = atoi(Date_now.c_str());
-
-    for(i=0; i<startDay; i++)
-    {
-        cout <<setw(4)<<" ";
-    }
-    for(i=1, j =startDay +1; i<Date;i++,j++)
-    {
-        cout <<setw(4)<< i;
-        if (j%7 ==0)
-            cout <<endl;
-    }
-
-    cout<<setw(2)<<"*"<<Date<<"*";
-    if (Date%7==0)
-        cout <<endl;
-    cout <<setw(3)<< Date+1;
-    if (j%7 ==0)
-        cout <<endl;
-    for(i=Date+2, j =startDay +Date+2; i<=numberofDaysinMonth;i++,j++)
-    {
-        cout <<setw(4)<< i;
-        if (j%7 ==0)
-            cout <<endl;
-    }
-
-    cout<<"\n";
-    cout<<"-----------------------------"<<endl;
-}
-
-void sCalendar::printMonth(int year,int month)
-{
-
-    if ((month < 1)||(month > 12)){
-        cout << "error month";
-    }
-    printMonthName(year,month);
-    printCalBody(year,month);
-}
-
-void sCalendar::printMonth_special(int year,int month)
-{
-
-    if ((month < 1)||(month > 12)){
-        cout << "error month";
-    }
-    printMonthName(year,month);
-    printCalBody_special(year,month);
-}
-
-void sCalendar::showYear(int year){
-//    cout << year<<"year"<<endl;
-    int month;
-
-    time_t now = time(0);
-    string dt =ctime(&now);
-//    cout<<"now is "<<dt<<endl;
-    string Month_now = dt.substr(4,3);
-    string Date_now = dt.substr(8,2);
-    int Month_int = month_map.get(Month_now);
-
-    cout<<Month_now<<endl;
-    cout<<Date_now<<endl;
-
-    if (year !=2020){
-        for  (month=1; month<=12; month++){
-            printMonth(year,month);
-
-        }
-    }else{
-        for (month=1; month<Month_int;month++){
-            printMonth(year,month);
-        }
-        printMonth_special(2020,Month_int);
-        for (month = Month_int+1;month<=12;month++){
-            printMonth(year,month);
-        }
-    }
-}
-
 int sCalendar::get_this_month(){
     time_t now = time(0);
     string dt =ctime(&now);
@@ -214,6 +101,7 @@ int sCalendar::get_this_month(){
     int Month_int = month_map.get(Month_now);
     return Month_int;
 }
+
 
 string sCalendar::showMonth(int year, int month) {
     stringstream outPut ;
@@ -238,70 +126,97 @@ string sCalendar::showMonth(int year, int month) {
     int Date = atoi(Date_now.c_str());
 
     string Month_now = dt.substr(4,3);
-    int Month_int = month_map.get(Month_now);
+    int Month_int = 0;
 
+    if (Month_now == "Jan"){
+        Month_int = 1;
+    } else if (Month_now =="Feb"){
+        Month_int =2;
+    } else if (Month_now =="Mar"){
+        Month_int =3;
+    } else if (Month_now =="Apr"){
+        Month_int =4;
+    } else if (Month_now =="May"){
+        Month_int =5;
+    } else if (Month_now =="Jun"){
+        Month_int =6;
+    } else if (Month_now =="Jul"){
+        Month_int =7;
+    } else if (Month_now =="Aug"){
+        Month_int =8;
+    } else if (Month_now =="Sep"){
+        Month_int =9;
+    } else if (Month_now =="Oct"){
+        Month_int =10;
+    } else if (Month_now =="Nov"){
+        Month_int =11;
+    } else if (Month_now =="Dec"){
+        Month_int =12;
+    }
 
 
     for(i=0; i<startDay; i++)
     {
-        outPut <<setw(4)<<" ";
+        outPut << "    ";
     }
-    for(i=1, j =startDay +1; i<Date;i++,j++)
+    for(i=1, j =startDay +1; i<Date;i++,j++)   //startday to Date
     {
-        outPut <<setw(4)<< i;
+        if(i<10){
+            outPut <<"   "<< i;
+        }else{
+            outPut << "  "<<i;
+        }
         if (j%7 ==0)
             outPut <<endl;
     }
-    if(year==2020 && month ==Month_int){
-        outPut<<setw(2)<<"*"<<Date<<"*";
+    if(year==2020 && month ==Month_int){     //at Date
+        if(Date<10){
+            outPut <<" *"<< Date<<"*";
+        }else{
+            outPut << " *"<<Date<<"*";
+        }
         if (Date%7==0)
             outPut <<endl;
-        outPut <<setw(3)<< Date+1;
-        if (j%7 ==0)
+        if(Date+1 <10){
+            outPut <<"  "<< Date+1;
+        }else{
+            outPut << " "<<Date+1;
+        }
+        if ((startDay+ Date)%7 ==0)
             outPut <<endl;
     } else{
-        outPut <<setw(4)<< i;
-        if (j%7 ==0)
+        if(Date<10){
+            outPut <<"   "<< Date;
+        }else{
+            outPut << "  "<<Date;
+        }
+        if ((startDay+Date)%7 ==0)
             outPut <<endl;
-        outPut <<setw(4)<< Date+1;
-        if (j%7 ==0)
+        if(Date+1<10){
+            outPut <<"   "<< Date+1;
+        }else{
+            outPut << "  "<<Date+1;
+        }
+        if ((startDay+Date+1)%7 ==0)
             outPut <<endl;
     }
 
-//    outPut <<setw(3)<< Date+1;
-//    if (j%7 ==0)
-//        outPut <<endl;
-    for(i=Date+2, j =startDay +Date+2; i<=numberofDaysinMonth;i++,j++)
+    for(i=Date+2, j =startDay +Date+2; i<=numberofDaysinMonth;i++,j++)  //Date to end
     {
-        outPut <<setw(4)<< i;
+        if(i<10){
+            outPut <<"   "<< i;
+        }else{
+            outPut << "  "<<i;
+        }
         if (j%7 ==0)
             outPut <<endl;
     }
 
     outPut<<"\n";
-    outPut<<"-----------------------------"<<endl;
+    outPut<<"-------------------------------------------"<<endl;
 
     string a = outPut.str();
 
     return outPut.str();
 }
-/*
-int main() {
-
-    sCalendar* c = new sCalendar();
-    string year;
-    string month;
-    cout << "enter a year" << endl;
-    getline(cin,year);
-
-//    c->showYear(atoi(year.c_str()));
-    cout << c->showMonth(2020,5);
-
-    return 0;
-}
-*/
-
-
-
-
 
