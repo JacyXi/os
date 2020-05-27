@@ -264,11 +264,10 @@ void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
  * and return memory used in this process(i.e. "50kb").
  * Raise error "No such file." if there is no such file.
  */
-int sPath::read_file(string filename) {
+string sPath::read_file(string filename) {
     int location = findLocation(filename);
     if (location != -1) {
-        cout << filegory[location] -> get_content() << endl;
-        return filegory[location] -> get_size();
+        return filegory[location] -> get_content();
     } else {
         error("No such  file.");
     }
@@ -311,6 +310,14 @@ void sPath::chmod(string user, string filename, int mod) {
     int location = findLocation(filename);
     if (location != -1) {
         filegory[location] -> change_mod(user, mod);
+    } else {
+        error("No such  file.");
+    }
+}
+void sPath::chcontent(string user, string filename, string content){
+    int location = findLocation(filename);
+    if (location != -1) {
+        filegory[location] -> change_content(user, content);
     } else {
         error("No such  file.");
     }

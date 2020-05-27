@@ -13,10 +13,12 @@ public:
     spthread();
     ~spthread();
     spthread(string user, bool write, bool read);
-    int init_lock(string user);
-    int rdlock(string user);
-    int wrlock(string user);
-    int unlock(string user);
+    string init_lock(string user);
+    string rdlock(string user);
+    string wrlock(string user);
+    string unlock(string user);
+    bool has_wr(string user);
+    bool has_rd(string user);
 
 private:
     struct lock{

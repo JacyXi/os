@@ -21,17 +21,18 @@ public:
     int mkdir(string goalPath);
     int rm(string goalfile);
     int rm(string goalpath, string operants);
-    int cat(string filename);
-    int file_info(string filename);
+    string cat(string filename);
+    string file_info(string filename);
     int cp(string from, string to, string operants);
     int mv(string from, string to, string operants);
-    int pwd();
+    string pwd();
     int cd(string goalpath);
-    int ls();
+    string ls();
     int chmod(string file, int mod);
-    int find(string file);
+    string find(string file);
     int revoke(string file);
     void ch_user(string user);
+    void changeContent(string filename, string content);
 
 private:
     int touch(string filename, string content, int mod, sPath* operating_path);

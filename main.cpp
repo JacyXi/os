@@ -21,29 +21,14 @@ void main() {
     system.touch("hello.txt","NoNoNo.",7);
     system.mkdir("dev1");
     system.mkdir("dev2");
-    cout << "************************" << endl;
+    system.mv("foo.txt","dev1/root","-p");
+    cout << system.ls();
     system.cd("dev1");
-    system.touch("foo.txt","aaaaaaaa",7);
-    cout << "************************" << endl;
-    //system.ls();
-    system.cd("root");
-    cout << "************************" << endl;
-    //system.ls();
-    cout << "************************" << endl;
-    system.ls();
-    system.find("foo.txt");
-    system.cd("dev1");
-    system.mv("foo.txt","dev2/root","-p");
-    system.find("foo.txt");
-    cout << "************************" << endl;
-    system.cd("root");
-    system.cd("dev2");
-    system.ls();
-    system.find("foo.txt");
-    cout << "************************" << endl;
+    cout << system.ls();
 
-}
-*/
+
+}*/
+
 /*
 void main() {
     spthread sp = spthread("Jacy",false,false);
@@ -66,9 +51,26 @@ void main() {
     cal->run(a);
 }
 */
-void main(){
-    GUIcontroller contr("Jacy");
 
-    contr.update();
+int main() {
+    GUIcontroller control("Jacy");
+    control.update();
+    return 0;
+}
+
+
+/*
+void main(){
+    GWindow gw;
+    GChooser * ch = new  GChooser();
+    ch->addItem("Jacy");
+    ch->addItem("Eric");
+    ch->addItem("UUU");
+    ch->setSelectedItem("Eric");
+    gw.add(ch);
+    gw.pause(100000000);
 
 }
+
+*/
+

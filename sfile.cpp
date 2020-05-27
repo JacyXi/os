@@ -231,6 +231,11 @@ void sFile::change_mod(string user, int right) {
         error("No right has to change.");
     }
 }
+void sFile::change_content(string user, string content){
+    modified_time = time(0);
+    previous_version = contents;
+    contents = content;
+}
 
 /*
  * Method: revoke
