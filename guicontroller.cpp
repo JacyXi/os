@@ -17,7 +17,7 @@
 #include "gtable.h"
 #include "memory.h"
 #include "Calculator.h"
-#include "calendar.h"
+#include "sCalendar.h"
 #include "set.h"
 
 
@@ -116,35 +116,79 @@ void GUIcontroller::run(GWindow * gw) {
 
 }
 
-void GUIcontroller::runCalendar(){
-    GImage * cal = new GImage("calculator.png",1.3*X/5,Y/60);
+void GUIcontroller::runCalendar() {
+    GImage * cal = new GImage("calendar_back.png", 1.3*X/5, Y/50);
     gw->add(cal);
-    GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID,1,4);
-    con_cal0->setX(1.53*X/5);
-    con_cal0->setY(Y/17);
-    con_cal0->setHeight(0.05*Y);
-    con_cal0->setWidth(X/4);
+    GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID, 1, 4);
+    con_cal0->setX(1.53*X / 5);
+    con_cal0->setY(Y / 17);
+    con_cal0->setHeight(0.05 * Y);
+    con_cal0->setWidth(X / 4);
     GButton * previous = new GButton("prev");
-    previous->setActionCommand("prev");
+    previous -> setActionCommand("prev");
     GButton * next = new GButton("next");
     next->setActionCommand("next");
     GChooser * yearc = new GChooser();
     GChooser * monthc = new GChooser();
-    yearc->addItems({"2020","2019","2018","2017","2016","2015"});
+    yearc->addItems({"2021","2020","2019","2018","2017","2016","2015"});
     monthc->addItems({"1","2","3","4","5","6","7","8","9","10","11","12"});
     con_cal0->add(previous);
     con_cal0->add(yearc);
     con_cal0->add(monthc);
     con_cal0->add(next);
 
+    GContainer * con_cal1 = new GContainer();
+    con_cal1 -> setX(1.53*X/5);
+    con_cal1 -> setY(Y/10);
+    con_cal1 -> setWidth(X/4);
+    con_cal1 -> setHeight(Y*0.3);
+    GTextArea * window = new GTextArea();
+    window -> setRows(12);
+    window -> setWidth(1.5*X);
+    window -> setEditable(false);
+    con_cal1 -> add(window);
+    GButton * exit = new GButton("exit");
+    con_cal1 -> add(exit);
 
+    sCalendar * calendar = new sCalendar();
+    yearc->setSelectedItem("2020");
+    monthc->setSelectedItem(to_string(calendar->get_this_month()));
 
+    string command;
+    yearc->setEditable(true);
+    monthc->setEditable(true);
+    previous->setEnabled(true);
+    next->setEnabled(true);
 
+    while (true) {
+        window->setText(calendar->showMonth(atoi(yearc->getSelectedItem().c_str()), atoi(monthc->getSelectedItem().c_str())));
+        GEvent e = waitForEvent(CLICK_EVENT | ACTION_EVENT);
+        command = e.getActionCommand();
+        if (command.length() > 0){
+            if (!command.compare("prev")) {
+                int mon = atoi(monthc->getSelectedItem().c_str()) - 1;
+                int yea = atoi(yearc->getSelectedItem().c_str());
+                yea = mon == 0 ? yea - 1 : yea;
+                mon = mon == 0 ? 12 : mon;
+                monthc->setSelectedItem(to_string(mon));
+                yearc->setSelectedItem(to_string(yea));
+            } else if (!command.compare("next")) {
+                int mon = atoi(monthc->getSelectedItem().c_str()) + 1;
+                int yea = atoi(yearc->getSelectedItem().c_str());
+                yea = mon == 13 ? yea + 1 : yea;
+                mon = mon == 13 ? 1 : mon;
+                monthc -> setSelectedItem(to_string(mon));
+                yearc -> setSelectedItem(to_string(yea));
+            } else if (!command.compare("exit")) {
+                con_cal0->setVisible(false);
+                con_cal1->setVisible(false);
+                cal->setVisible(false);
+                return;
+            }
+        }
+        window->setText(calendar->showMonth(atoi(yearc->getSelectedItem().c_str()), atoi(monthc->getSelectedItem().c_str())));
 
-
-
-
-
+    }
 
 }
 
@@ -708,13 +752,12 @@ void GUIcontroller::initMain(){
     table->setHeight(23*Y/30);
     gw->add(table,X/5,0);
     GContainer * con_main = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL);
-    con_main->setX(3.4*X/5);
+    con_main->setX(3.5*X/5);
     con_main->setY(Y/30);
     con_main->setWidth(X/10);
     con_main->setHeight(Y/2);
     con_main->setSpacing(Y/60);
-    fileb = new GButton("","file.png");
-    fileb->setSize(X/10,Y/10);
+    fileb = new GButton("","file_icon.png");
     fileb->setActionCommand("openfs");
     memoryb = new GButton("","memory_icon.png");
     memoryb->setActionCommand("openmemory");
