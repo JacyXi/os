@@ -152,7 +152,8 @@ string spthread::unlock(string user) {
             wrlock(wt_queue.dequeue());
         } else if (wt_queue.isEmpty() && !rd_queue.isEmpty()) {
             while (!rd_queue.isEmpty()) {
-                rdlock(rd_queue.dequeue());
+                result.append("\n");
+                result.append(rdlock(rd_queue.dequeue()));
             }
         }
         result.append("\n");
@@ -168,9 +169,9 @@ string spthread::unlock(string user) {
         string result = "Successfully release a reader lock for ";
         result.append(user);
         if (!global_rd && !global_wt && !wt_queue.isEmpty()) {
-            wrlock(wt_queue.dequeue());
+            result.append("\n");
+            result.append(wrlock(wt_queue.dequeue()));
         }
-        result.append("\n");
         return result;
     } else {
         return "";

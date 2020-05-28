@@ -17,8 +17,9 @@
 #include "gtable.h"
 #include "memory.h"
 #include "Calculator.h"
-#include "calendar.h"
+#include "sCalendar.h"
 #include "set.h"
+#include "error.h"
 
 
 using namespace std;
@@ -60,7 +61,6 @@ void GUIcontroller::run(GWindow * gw) {
         string user_name = input_name->getText();
         string user_password =  input_word->getText();
         if (!login.get(user_name).compare(user_password)) {
-
             current_user = user_name;
             pick_user->addItem(user_name);
             pick_user->setSelectedItem(user_name);
@@ -116,40 +116,94 @@ void GUIcontroller::run(GWindow * gw) {
 
 }
 
-void GUIcontroller::runCalendar(){
-    GImage * cal = new GImage("calculator.png",1.3*X/5,Y/60);
+void GUIcontroller::runCalendar() {
+    GImage * cal = new GImage("calendar_back.png", 1.3*X/5, Y/50);
+    cal->setWidth(0.3472*X);
+    cal->setHeight(0.3909*Y);
     gw->add(cal);
-    GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID,1,4);
-    con_cal0->setX(1.53*X/5);
-    con_cal0->setY(Y/17);
-    con_cal0->setHeight(0.05*Y);
-    con_cal0->setWidth(X/4);
+    GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID, 1, 4);
+    con_cal0->setX(1.53*X / 5);
+    con_cal0->setY(Y / 17);
+    con_cal0->setHeight(0.05 * Y);
+    con_cal0->setWidth(X / 4);
     GButton * previous = new GButton("prev");
-    previous->setActionCommand("prev");
+    previous -> setActionCommand("prev");
     GButton * next = new GButton("next");
     next->setActionCommand("next");
     GChooser * yearc = new GChooser();
     GChooser * monthc = new GChooser();
-    yearc->addItems({"2020","2019","2018","2017","2016","2015"});
+    yearc->addItems({"2021","2020","2019","2018","2017","2016","2015"});
     monthc->addItems({"1","2","3","4","5","6","7","8","9","10","11","12"});
     con_cal0->add(previous);
     con_cal0->add(yearc);
     con_cal0->add(monthc);
     con_cal0->add(next);
 
+    GContainer * con_cal1 = new GContainer();
+    con_cal1 -> setX(1.9*X/5);
+    con_cal1 -> setY(Y/10);
+    con_cal1 -> setWidth(X/4);
+    con_cal1 -> setHeight(Y*0.3);
+    //GTextArea * window = new GTextArea();
+    GLabel * window = new GLabel();
+    //window -> setRows(12);
+    window -> setWidth(1.5*X);
+    //window -> setEditable(false);
+    con_cal1 -> addToRegion(window,GContainer::REGION_CENTER);
 
+    GContainer * con_cal2 = new GContainer();
+    con_cal2->setX(1.53*X / 5);
+    con_cal2->setY(4.3*Y / 13);
+    con_cal2->setHeight(0.05 * Y);
+    con_cal2->setWidth(X / 4);
+    GButton * exit = new GButton("exit");
+    con_cal2 -> add(exit);
 
+    sCalendar * calendar = new sCalendar();
+    yearc->setSelectedItem("2020");
+    monthc->setSelectedItem(to_string(calendar->get_this_month()));
 
+    string command;
+    yearc->setEditable(true);
+    monthc->setEditable(true);
+    previous->setEnabled(true);
+    next->setEnabled(true);
 
-
-
-
-
+    while (true) {
+        window->setText(calendar->showMonth(atoi(yearc->getSelectedItem().c_str()), atoi(monthc->getSelectedItem().c_str())));
+        GEvent e = waitForEvent(CLICK_EVENT | ACTION_EVENT);
+        command = e.getActionCommand();
+        if (command.length() > 0){
+            if (!command.compare("prev")) {
+                int mon = atoi(monthc->getSelectedItem().c_str()) - 1;
+                int yea = atoi(yearc->getSelectedItem().c_str());
+                yea = mon == 0 ? yea - 1 : yea;
+                mon = mon == 0 ? 12 : mon;
+                monthc->setSelectedItem(to_string(mon));
+                yearc->setSelectedItem(to_string(yea));
+            } else if (!command.compare("next")) {
+                int mon = atoi(monthc->getSelectedItem().c_str()) + 1;
+                int yea = atoi(yearc->getSelectedItem().c_str());
+                yea = mon == 13 ? yea + 1 : yea;
+                mon = mon == 13 ? 1 : mon;
+                monthc -> setSelectedItem(to_string(mon));
+                yearc -> setSelectedItem(to_string(yea));
+            } else if (!command.compare("exit")) {
+                con_cal0->setVisible(false);
+                con_cal1->setVisible(false);
+                cal->setVisible(false);
+                con_cal2->setVisible(false);
+                return;
+            }
+        }
+    }
 
 }
 
 void GUIcontroller::runCalculator() {
     GImage * calculator = new GImage("calculator.png",1.3*X/5,Y/60);
+    calculator->setWidth(0.34722*X);
+    calculator->setHeight(0.7669*Y);
     gw->add(calculator);
     GContainer * con_cal0 = new GContainer();
     con_cal0->setX(1.53*X/5);
@@ -248,11 +302,11 @@ void GUIcontroller::runCalculator() {
                 operation = operation.substr(0,operation.length()-1);
                 window->setText(operation);
             } else if (!command.compare("solve")){
-
                 string result = "=";
                 result = cal->run(operation);
                 window->setText(result);
                 operation = "";
+                cal = new Calculator();
             } else if (nums.contains(command)){
                 operation.append(command);
                 window->setText(operation);
@@ -345,13 +399,18 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            cout << e.getMessage() << endl;
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("cd")){
-        string dir_name = input_file->getText();
-        fs->cd(dir_name);
-        pwd->setText(fs->pwd());
-        ls->setText(fs->ls());
+        try {
+            string dir_name = input_file->getText();
+            fs->cd(dir_name);
+            pwd->setText(fs->pwd());
+            ls->setText(fs->ls());
+        } catch (ErrorException &e) {
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+        }
+
     } else if (!operant.compare("mkdir")){
         try {
             if (thread->has_wr(current_user)) {
@@ -360,7 +419,7 @@ void GUIcontroller::dealFileSystem() {
                 ls->setText(fs->ls());
             }
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("open")){
         try {
@@ -440,7 +499,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch(ErrorException e) {
-                e.getMessage();
+             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if(!operant.compare("remove")) {
         try {
@@ -455,7 +514,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("copy")) {
         try {
@@ -491,7 +550,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("move")) {
         try {
@@ -524,15 +583,34 @@ void GUIcontroller::dealFileSystem() {
                 }
             }
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("find")) {
         try {
             string filename = input_file->getText();
             ls->setText(fs->find(filename));
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
+    } else if (!operant.compare("chmod")){
+        try {
+            string filename = input_file->getText();
+            input_file->setText("Please input your mod here.");
+            string complete;
+            while (true) {
+                oper->setText("chmod!");
+                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                complete = e.getActionCommand();
+                if (!complete.compare("chmod!")){
+                    int target = atoi(input_file->getText().c_str());
+                    fs->chmod(filename,target);
+                    break;
+                }
+            }
+        } catch (ErrorException e) {
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+        }
+
     }
 }
 
@@ -554,6 +632,8 @@ void GUIcontroller::_widget(){
     Y = gw->getHeight();
     gw->setResizable(true);
     GImage * back_ground = new GImage("background.png");
+    back_ground->setWidth(X);
+    back_ground->setHeight(Y);
     back_ground->sendToBack();
     gw->add(back_ground);
     gw->setTitle("Simulated Operating System");
@@ -571,7 +651,7 @@ void GUIcontroller::initThread() {
     GContainer * thread_lay1 = new GContainer;
     thread_lay1->setBounds(1.3*X/200,Y*0.919,0.98*X/5,1*Y/18);
     pick_user = new GChooser();
-    pick_user->setBounds(X/144,Y,1.3*X/20,Y/20);
+    pick_user->setBounds(X/144,Y,1.3*X/20,Y/40);
     pick_user->addItem(current_user);
 
     write = new GButton("write");
@@ -601,21 +681,21 @@ void GUIcontroller::initThread() {
     thread_lay2->add(reporter_wrlock);
 
 
-    //thread pool reporter
+    //error reporter
     GContainer * thread_lay3 = new GContainer();
     thread_lay3->setBounds(X*0.502,Y/5*3.99,X*0.287,1.07*Y/6);
-    reporter_pool = new GTextArea();
-    reporter_pool->setRows(10);
-    reporter_pool->setEditable(false);
-    reporter_pool->setWidth(X*0.284);
-    poolinfo = "Initialize the thread pool reporter.\n";
-    reporter_pool->setText(poolinfo);
-    thread_lay3->add(reporter_pool);
+    reporter_error = new GTextArea();
+    reporter_error->setRows(10);
+    reporter_error->setEditable(false);
+    reporter_error->setWidth(X*0.284);
+    poolinfo = "Initialize the error reporter.\n";
+    reporter_error->setText(poolinfo);
+    thread_lay3->add(reporter_error);
 
 
 
 
-    thread = new spthread(current_user, true, false);
+    thread = new spthread(current_user, false, false);
     wrinfo.append("Initialize a thread for ");
     wrinfo.append(current_user);
     wrinfo.append("\n");
@@ -708,13 +788,12 @@ void GUIcontroller::initMain(){
     table->setHeight(23*Y/30);
     gw->add(table,X/5,0);
     GContainer * con_main = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL);
-    con_main->setX(3.4*X/5);
+    con_main->setX(3.5*X/5);
     con_main->setY(Y/30);
     con_main->setWidth(X/10);
     con_main->setHeight(Y/2);
     con_main->setSpacing(Y/60);
-    fileb = new GButton("","file.png");
-    fileb->setSize(X/10,Y/10);
+    fileb = new GButton("","file_icon.png");
     fileb->setActionCommand("openfs");
     memoryb = new GButton("","memory_icon.png");
     memoryb->setActionCommand("openmemory");

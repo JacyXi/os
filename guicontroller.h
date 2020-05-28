@@ -75,7 +75,7 @@ private:
     string wrinfo;
     int rows;
     GTextArea * reporter_wrlock;
-    GTextArea * reporter_pool;
+    GTextArea * reporter_error;
     string poolinfo;
     sFileSystem * fs;
     GLabel * pwd;

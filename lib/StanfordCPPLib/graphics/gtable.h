@@ -133,7 +133,7 @@ public:
     virtual std::string get(int row, int column) const;
 
     /**
-     * Returns the column headers to use the given style.
+     * Returns the column get_occupied_memorys to use the given style.
      * Default is none, but can be set to Excel style or numeric instead.
      */
     virtual ColumnHeaderStyle getColumnHeaderStyle() const;
