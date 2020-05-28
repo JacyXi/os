@@ -22,22 +22,37 @@ ostream & operator<<(ostream & os, Process & process){
     string substr_1 =  "APP name:" + process.App_name;
     string substr_2 =  "Process index:" + integerToString(process.process);
     string substr_3 =  "Memory declared: " + integerToString(process.memory_declared);
+    string substr_4 =  "Process name: " + process.process_name;
 
-    os << substr_1 << endl << substr_2 << endl << substr_3 << endl;
+    os << substr_1 << endl << substr_4 << endl << substr_2 << endl << substr_3 << endl;
     return os;
 }
 
 
 bool operator==(Process A,Process B){
-    return (A.App_name == B.App_name && A.process == B.process && A.memory_declared == B.memory_declared);
+    return (A.App_name == B.App_name && A.process == B.process && A.memory_declared == B.memory_declared && A.process_name == B.process_name);
 }
 
 bool operator!=(Process A,Process B){
     return !(A==B);}
 
-bool operator< (const Process& lhs, const Process& rhs) {
-             return ( (lhs.App_name < rhs.App_name ) || (lhs.process < rhs.process) || (lhs.memory_declared < rhs.memory_declared) );
+bool operator< (const Process& lhs, const Process& rhs){
+    if (lhs.App_name < rhs.App_name) return 1;
+    else if (lhs.App_name > rhs.App_name) return 0;
+    else {
+        if (lhs.process_name < rhs.process_name) return 1;
+        else if (lhs.process_name > rhs.process_name) return 0;
+        else {
+            if (lhs.process < rhs.process) return 1;
+            else if (lhs.process > rhs.process) return 0;
+            else {
+                if (lhs.memory_declared < rhs.memory_declared) return 1;
+                else if (lhs.memory_declared > rhs.memory_declared) return 0;
+                else return 0;
+            }
         }
+    }
+}
 
 bool operator==(page_index A,page_index B){
     return (A.inner_page_index == B.inner_page_index && A.outer_page_index == B.outer_page_index);
@@ -233,6 +248,7 @@ Vector<Block> Memory::Get_address(const Process & process){
             Block merged;
             merged.start = TLB_tail.start;
             merged.terminate = SPT_head.terminate;
+            merged.Block_size = TLB_tail.Block_size + SPT_head.Block_size;
             SPT_Blocks[0] = merged;
             TLB_Blocks.remove(TLB_Blocks.size()-1);
             Vector<Block> process_block = TLB_Blocks + SPT_Blocks;
@@ -273,7 +289,7 @@ int Memory::Get_App_memory(string App_name){
  * Usage:Get_process_memory(process)
  * --------------------------------------
  * This function will return the memory occupied by the process specified.*/
-int Memory::Get_process_memory(const Process & process){
+int Memory::Get_process_memory(Process & process){
     if (! All_Process_Status.containsKey(process)) error("There is no such process in the memory.");
     else{
         int process_memory_declared = All_Process_Size[process][0] + All_Process_Size[process][1];
@@ -946,3 +962,39 @@ int Memory::Correction_on_size(int input_size){
     }
 }
 
+Vector<double> Memory::Block_Position_Transfer(Block block){
+    Vector<double> result;
+    double pagenum = 1024;
+    int start_out = block.start.outer_page_index;
+    int start_in = block.start.inner_page_index;
+    int stotalPage = start_out*1024 + start_in;
+    double dstp = stotalPage;
+    double start_proportion = dstp/pagenum/pagenum;
+
+    int terminate_out = block.terminate.outer_page_index;
+    int terminate_in = block.terminate.inner_page_index;
+    int ttotalPage = terminate_out*1024 + terminate_in;
+    double dttp = ttotalPage;
+    double terminate_proportion = dttp/pagenum/pagenum;
+
+    result.add(start_proportion);
+    result.add(terminate_proportion);
+    return result;
+}
+
+Process Memory::Create_Process(string APP_Name, string Process_Name, int Process_Index, int Memory_Declared){
+    Process process;
+    process.App_name = APP_Name;
+    process.process_name = Process_Name;
+    process.process = Process_Index;
+    process.memory_declared = Memory_Declared;
+    return process;
+}
+
+void Memory::Remove_APP_from_memory(string APP_Name){
+    Vector<Process> CP = Current_Process;
+    for (Process process:CP){
+        if (process.App_name != APP_Name) continue;
+        else Remove_from_memory(process);
+    }
+}

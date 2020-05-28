@@ -13,6 +13,7 @@ using namespace std;
 */
 struct Process{
     string App_name;
+    string process_name;
     int process;
     int memory_declared;
 };
@@ -110,7 +111,7 @@ public:
      * Usage:Get_process_memory(process)
      * --------------------------------------
      * This function will return the memory occupied by the process specified.*/
-    int Get_process_memory(const Process & process);
+    int Get_process_memory(Process & process);
 
     /* Method:Get_Free_Memory_Size
      * Usage:Get_Free_Memory_Size()
@@ -157,6 +158,27 @@ public:
      * The location information will be represented as blocks in the memory.*/
     Vector<Block> Get_Occupied_memory();
 
+    /* Method:Block_Position_Transfer
+     * Usage:Block_Position_Transfer(Block block)
+     * --------------------------------------
+     * This function will return the specified block's start position into a double which
+     * tells the proportion of the start position in the physical memory.*
+     * This function only for GUI usage.*/
+    Vector<double> Block_Position_Transfer(Block block);
+
+    /* Method:Create_Process
+     * Usage:Create_Process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared)
+     * --------------------------------------
+     * This function is used to create a Process type variable in one statement.*/
+    Process Create_Process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared);
+
+    /* Method:Remove_APP_from_memory
+     * Usage:Remove_from_memory(process)
+     * --------------------------------------
+     * If there are no such a process inside the memory, print error message.
+     * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+     * Free_memory, Current_Process, All_Process_Status will be modified.*/
+    void Remove_APP_from_memory(string APP_Name);
 
 
 private:
