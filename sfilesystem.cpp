@@ -80,12 +80,11 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
     return 2;
 }
 
-int sFileSystem::file_info(string filename){
+string sFileSystem::file_info(string filename) {
     if (current_path -> has_file(filename)) {
         sFile* thisfile = current_path->get_file(filename);
         string info = thisfile->get_info();
-        cout << info << endl;
-        return thisfile->size;
+        return info;
     } else {
         error("No such file to delect.");
     }
@@ -196,7 +195,8 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
 
     } else if (operationPath -> is_subset(goal)) {
         operationPath -> removePath(goal);
-        string absolute_goal = goal.append("/").append(operationPath->get_absolute());
+        string absolute_goal_raw = goal;
+        string absolute_goal = absolute_goal_raw.append("/").append(operationPath->get_absolute());
         int location = get_location(absolute_goal);
         sPath * path_to_remove = allpath[location];
         for (string files : path_to_remove->get_files()) rmFile(files, path_to_remove);
@@ -224,7 +224,7 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
  * ----------------------------
  * Show the content of the file.
  */
-int sFileSystem::cat(string filename) {
+string sFileSystem::cat(string filename) {
     return current_path -> read_file(filename);
 }
 
@@ -235,9 +235,11 @@ int sFileSystem::cat(string filename) {
  * A helper function to copy a path.
  */
 void sFileSystem::cpDir(string name, sPath *currentPath, sPath *targetPath) {
-    string absolute_name = name.append("/").append(targetPath -> get_absolute());
+    string raw1 = name;
+    string raw2 = name;
+    string absolute_name = raw1.append("/").append(targetPath -> get_absolute());
     mkdir(absolute_name, targetPath);
-    string origin_absolute = name.append("/").append(currentPath -> get_absolute());
+    string origin_absolute = raw2.append("/").append(currentPath -> get_absolute());
     sPath * origin_path = allpath[get_location(origin_absolute)];
     for (string file : origin_path -> get_files()) cpFile(file, origin_path, allpath[get_location(absolute_name)]);
     for (string path : origin_path -> get_subsets()) cpDir(path, origin_path, allpath[get_location(absolute_name)]);
@@ -315,9 +317,8 @@ int sFileSystem::mv(string from, string to, string operants){
  * ------------------------------
  * Get current directory absolute address.
  */
-int sFileSystem::pwd() {
-    cout << pwd(current_path) << endl;
-    return 2;
+string sFileSystem::pwd() {
+    return pwd(current_path);
 }
 
 
@@ -347,6 +348,15 @@ string sFileSystem::pwd(sPath * thislevel){
  * A helper function to change current path.
  */
 int sFileSystem::cd(string goalpath, sPath* operating_path){
+    if (goalpath.find("/") != goalpath.npos) {
+        int i = get_location(goalpath);
+        if (i >= 0) {
+            current_path = allpath[i];
+            return 2;
+        } else {
+            error("No such exist path.");
+        }
+    }
     if (operating_path->is_root()) {
         string absolute_address = goalpath.append("/").append(operating_path->get_absolute());
         int i = get_location(absolute_address);
@@ -388,22 +398,21 @@ int sFileSystem::cd(string goalpath) {
  * -------------------------------------
  * List all files and paths in the current path.
  */
-int sFileSystem::ls() {
+string sFileSystem::ls() {
     Set<string> subsets = current_path->get_subsets();
-    cout << "subfolders:" << endl;
-    cout << "------------" << endl;
+    string result =  "subfolders:\n------------\n";
     for (string p : subsets) {
-        cout << p << endl;
+        result.append(p);
+        result.append("\n");
     }
-    cout << "------------" << endl;
+    result.append("------------\n");
     Set<string> files = current_path->get_files();
-    cout << "files:"<< endl;
-    cout << "------------" << endl;
+    result.append("files:\n------------\n");
     for (string f : files) {
-        cout << f << endl;
+        result.append(f);
+        result.append("\n");
     }
-    cout << "------------" << endl;
-    return 2;
+    return result;
 }
 
 
@@ -426,22 +435,26 @@ int sFileSystem::chmod(string file, int mod) {
  * Find the file's absolute address. There maybe some duplicated name files.
  * Also duplicated name paths together.
  */
-int sFileSystem::find(string file) {
+string sFileSystem::find(string file) {
+    string result;
     Set<sPath*> target;
     if (!tree.search(hashfunc(file, false))){
-        cout << "No such file."<< endl;
+        return "No such file.";
     } else {
         target = tree.select(hashfunc(file, false),EQ).front();
         try {
-            cout << "Try to find the file with name "<< file << " by using B+ tree search." << endl;
+            result = "Try to find the file with name ";
+            result.append(file);
+            result.append(" by using B+ tree search.\n");
             for (sPath * path : target) {
-                cout << pwd(path) << endl;
+                result.append(pwd(path));
+                result.append("\n");
             }
         } catch (ErrorException) {
-            cout << "Failed in find"<<endl;
+            return "Failed in find";
         }
     }
-    return 2;
+    return result;
 }
 
 
@@ -492,8 +505,10 @@ string sFileSystem::hashfunc(string filename, bool is_path){
         return code.substr(0,16);
     }
 }
+void sFileSystem::changeContent(string filename, string content){
+    current_path -> chcontent(current_user, filename, content);
+}
 
-
-Set<string> sFileSystem::alluser = {"Jacy", "Yanzhang", "Xiaojie", "Yuhao", "Yuheng"};
+Set<string> sFileSystem::alluser = {"Jacy", "Eric", "Blaine", "Yuheng"};
 
 

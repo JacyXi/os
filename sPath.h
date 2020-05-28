@@ -41,11 +41,12 @@ public:
     bool is_root();
     string get_name();
     void get_all_parent(sPath * thisLevel, Set<string> & parents_book);
-    int read_file(string filename);
+    string read_file(string filename);
     void get_pwd(sPath * thisLevel, Stack<string> & pwd_road);
     bool has_file(string filename);
     sFile * get_file(string filename);
     void chmod(string user, string filename, int mod);
+    void chcontent(string user, string filename, string content);
     string get_absolute();
 private:
     int findLocation(string filename);

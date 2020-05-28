@@ -25,7 +25,7 @@ public:
     void str_to_inf(string str);  //字符串转化为中缀表达式
     void inf_to_suf();            //中缀表达式转后缀表达式
     double result();              //后缀表达式计算最终结果
-    void run(string s);
+    string run(string s);
 
 private:
     struct nodes{

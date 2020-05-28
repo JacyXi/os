@@ -1,7 +1,7 @@
 #include "Calculator.h"
 #include "iostream"
 #include "iomanip"
-#include <string>
+#include  <string>
 
 
 
@@ -16,19 +16,19 @@ Calculator::Calculator(string s){
 Calculator::~Calculator(){
 
 }
-void Calculator::run(string s){
+string Calculator::run(string s){
     if(!judge(s)){
-         cout<<endl<<"Wrong Input！"<<endl;
-         s.clear();
+         return "Error";
     }
     else {
         string after;
         after=dealneg(s);
         str_to_inf(after);
         inf_to_suf();
-        cout<<endl<<"The Result is:："<<result()<<endl;
+        double x = result();
+        string result = to_string(x);
+        return result;
     }
-
 }
 
 int Calculator::priority(char x){                       //给操作符赋予优先级

@@ -33,6 +33,7 @@ public:
     void change_mod(string user, int right);
     void revoke();
     void assign_location(string loca);
+    void change_content(string user, string content);
 
 
     string filename;
