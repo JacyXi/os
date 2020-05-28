@@ -399,7 +399,8 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("cd")){
         try {
@@ -408,7 +409,8 @@ void GUIcontroller::dealFileSystem() {
             pwd->setText(fs->pwd());
             ls->setText(fs->ls());
         } catch (ErrorException &e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
 
     } else if (!operant.compare("mkdir")){
@@ -419,7 +421,8 @@ void GUIcontroller::dealFileSystem() {
                 ls->setText(fs->ls());
             }
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("open")){
         try {
@@ -499,7 +502,8 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch(ErrorException e) {
-             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if(!operant.compare("remove")) {
         try {
@@ -514,7 +518,8 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("copy")) {
         try {
@@ -550,7 +555,8 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("move")) {
         try {
@@ -583,7 +589,8 @@ void GUIcontroller::dealFileSystem() {
                 }
             }
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("find")) {
         try {
@@ -608,7 +615,8 @@ void GUIcontroller::dealFileSystem() {
                 }
             }
         } catch (ErrorException e) {
-            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+            string message = e.getMessage().append("\n");
+            set_reporter(reporter_error,message,poolinfo);
         }
 
     }
