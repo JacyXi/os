@@ -19,6 +19,7 @@
 #include "Calculator.h"
 #include "sCalendar.h"
 #include "set.h"
+#include "error.h"
 
 
 using namespace std;
@@ -60,7 +61,6 @@ void GUIcontroller::run(GWindow * gw) {
         string user_name = input_name->getText();
         string user_password =  input_word->getText();
         if (!login.get(user_name).compare(user_password)) {
-
             current_user = user_name;
             pick_user->addItem(user_name);
             pick_user->setSelectedItem(user_name);
@@ -302,11 +302,11 @@ void GUIcontroller::runCalculator() {
                 operation = operation.substr(0,operation.length()-1);
                 window->setText(operation);
             } else if (!command.compare("solve")){
-
                 string result = "=";
                 result = cal->run(operation);
                 window->setText(result);
                 operation = "";
+                cal = new Calculator();
             } else if (nums.contains(command)){
                 operation.append(command);
                 window->setText(operation);
@@ -399,13 +399,18 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            cout << e.getMessage() << endl;
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("cd")){
-        string dir_name = input_file->getText();
-        fs->cd(dir_name);
-        pwd->setText(fs->pwd());
-        ls->setText(fs->ls());
+        try {
+            string dir_name = input_file->getText();
+            fs->cd(dir_name);
+            pwd->setText(fs->pwd());
+            ls->setText(fs->ls());
+        } catch (ErrorException &e) {
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+        }
+
     } else if (!operant.compare("mkdir")){
         try {
             if (thread->has_wr(current_user)) {
@@ -414,7 +419,7 @@ void GUIcontroller::dealFileSystem() {
                 ls->setText(fs->ls());
             }
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("open")){
         try {
@@ -494,7 +499,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch(ErrorException e) {
-                e.getMessage();
+             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if(!operant.compare("remove")) {
         try {
@@ -509,7 +514,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("copy")) {
         try {
@@ -545,7 +550,7 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("move")) {
         try {
@@ -578,15 +583,34 @@ void GUIcontroller::dealFileSystem() {
                 }
             }
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("find")) {
         try {
             string filename = input_file->getText();
             ls->setText(fs->find(filename));
         } catch (ErrorException e) {
-            e.getMessage();
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
+    } else if (!operant.compare("chmod")){
+        try {
+            string filename = input_file->getText();
+            input_file->setText("Please input your mod here.");
+            string complete;
+            while (true) {
+                oper->setText("chmod!");
+                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                complete = e.getActionCommand();
+                if (!complete.compare("chmod!")){
+                    int target = atoi(input_file->getText().c_str());
+                    fs->chmod(filename,target);
+                    break;
+                }
+            }
+        } catch (ErrorException e) {
+            set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
+        }
+
     }
 }
 
@@ -657,21 +681,21 @@ void GUIcontroller::initThread() {
     thread_lay2->add(reporter_wrlock);
 
 
-    //thread pool reporter
+    //error reporter
     GContainer * thread_lay3 = new GContainer();
     thread_lay3->setBounds(X*0.502,Y/5*3.99,X*0.287,1.07*Y/6);
-    reporter_pool = new GTextArea();
-    reporter_pool->setRows(10);
-    reporter_pool->setEditable(false);
-    reporter_pool->setWidth(X*0.284);
-    poolinfo = "Initialize the thread pool reporter.\n";
-    reporter_pool->setText(poolinfo);
-    thread_lay3->add(reporter_pool);
+    reporter_error = new GTextArea();
+    reporter_error->setRows(10);
+    reporter_error->setEditable(false);
+    reporter_error->setWidth(X*0.284);
+    poolinfo = "Initialize the error reporter.\n";
+    reporter_error->setText(poolinfo);
+    thread_lay3->add(reporter_error);
 
 
 
 
-    thread = new spthread(current_user, true, false);
+    thread = new spthread(current_user, false, false);
     wrinfo.append("Initialize a thread for ");
     wrinfo.append(current_user);
     wrinfo.append("\n");

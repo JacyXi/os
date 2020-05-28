@@ -36,10 +36,10 @@ void main() {
     sp.init_lock("Chenpi");
     sp.init_lock("Eric");
     sp.init_lock("Haoge");
-    sp.rdlock("haoge");
-    sp.wrlock("Jacy");
-    sp.unlock("haoge");
-    sp.rdlock("Jacy");
+    cout << sp.rdlock("haoge")<<endl;
+    cout << sp.wrlock("Jacy") <<endl;
+    cout << sp.unlock("haoge") << endl;
+    cout << sp.rdlock("Jacy") << endl;
 
 }
 */
@@ -55,7 +55,9 @@ void main() {
 
 int main() {
     GUIcontroller control("Jacy");
-    control.update();
+    while (!control.isStop()){
+        control.update();
+    }
     return 0;
 }
 
@@ -74,4 +76,6 @@ void main(){
 }
 
 */
+
+
 
