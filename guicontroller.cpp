@@ -118,6 +118,8 @@ void GUIcontroller::run(GWindow * gw) {
 
 void GUIcontroller::runCalendar() {
     GImage * cal = new GImage("calendar_back.png", 1.3*X/5, Y/50);
+    cal->setWidth(0.3472*X);
+    cal->setHeight(0.3909*Y);
     gw->add(cal);
     GContainer * con_cal0 = new GContainer(GContainer::LAYOUT_GRID, 1, 4);
     con_cal0->setX(1.53*X / 5);
@@ -142,13 +144,20 @@ void GUIcontroller::runCalendar() {
     con_cal1 -> setY(Y/10);
     con_cal1 -> setWidth(X/4);
     con_cal1 -> setHeight(Y*0.3);
-    GTextArea * window = new GTextArea();
-    window -> setRows(12);
+    //GTextArea * window = new GTextArea();
+    GLabel * window = new GLabel();
+    //window -> setRows(12);
     window -> setWidth(1.5*X);
-    window -> setEditable(false);
+    //window -> setEditable(false);
     con_cal1 -> add(window);
+
+    GContainer * con_cal2 = new GContainer();
+    con_cal2->setX(1.53*X / 5);
+    con_cal2->setY(4*Y / 9);
+    con_cal2->setHeight(0.05 * Y);
+    con_cal2->setWidth(X / 4);
     GButton * exit = new GButton("exit");
-    con_cal1 -> add(exit);
+    con_cal2 -> add(exit);
 
     sCalendar * calendar = new sCalendar();
     yearc->setSelectedItem("2020");
@@ -183,17 +192,18 @@ void GUIcontroller::runCalendar() {
                 con_cal0->setVisible(false);
                 con_cal1->setVisible(false);
                 cal->setVisible(false);
+                con_cal2->setVisible(false);
                 return;
             }
         }
-        window->setText(calendar->showMonth(atoi(yearc->getSelectedItem().c_str()), atoi(monthc->getSelectedItem().c_str())));
-
     }
 
 }
 
 void GUIcontroller::runCalculator() {
     GImage * calculator = new GImage("calculator.png",1.3*X/5,Y/60);
+    calculator->setWidth(0.34722*X);
+    calculator->setHeight(0.7669*Y);
     gw->add(calculator);
     GContainer * con_cal0 = new GContainer();
     con_cal0->setX(1.53*X/5);
@@ -598,6 +608,8 @@ void GUIcontroller::_widget(){
     Y = gw->getHeight();
     gw->setResizable(true);
     GImage * back_ground = new GImage("background.png");
+    back_ground->setWidth(X);
+    back_ground->setHeight(Y);
     back_ground->sendToBack();
     gw->add(back_ground);
     gw->setTitle("Simulated Operating System");

@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <string>
 #include <stdlib.h>
-#include "console.h"
 #include <ctime>
 
 
@@ -175,7 +174,7 @@ string sCalendar::showMonth(int year, int month) {
         }else{
             outPut << " *"<<Date<<"*";
         }
-        if (Date%7==0)
+        if ((Date+startDay)%7==0)
             outPut <<endl;
         if(Date+1 <10){
             outPut <<"  "<< Date+1;
@@ -213,9 +212,10 @@ string sCalendar::showMonth(int year, int month) {
     }
 
     outPut<<"\n";
-    outPut<<"-------------------------------------------"<<endl;
+    outPut<<"-----------------------------"<<endl;
 
     string a = outPut.str();
+    cout << a;
 
     return outPut.str();
 }
