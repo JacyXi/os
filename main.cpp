@@ -52,14 +52,13 @@ void main() {
     cout << cal->run(a);
 }
 */
-/*
 
 int main() {
     GUIcontroller control("Jacy");
     control.update();
     return 0;
 }
-*/
+
 
 /*
 void main(){
@@ -76,13 +75,3 @@ void main(){
 
 */
 
-int main(){
-    sCalendar cal;
-    cal.showMonth(2020,5);
-    GWindow *gw = new GWindow();
-    GLabel * la = new GLabel();
-    la->setText(cal.showMonth(2020,5));
-    gw->add(la);
-    gw->pause(10000);
-    return  0;
-}

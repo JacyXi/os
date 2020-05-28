@@ -140,7 +140,7 @@ void GUIcontroller::runCalendar() {
     con_cal0->add(next);
 
     GContainer * con_cal1 = new GContainer();
-    con_cal1 -> setX(1.53*X/5);
+    con_cal1 -> setX(1.9*X/5);
     con_cal1 -> setY(Y/10);
     con_cal1 -> setWidth(X/4);
     con_cal1 -> setHeight(Y*0.3);
@@ -149,11 +149,11 @@ void GUIcontroller::runCalendar() {
     //window -> setRows(12);
     window -> setWidth(1.5*X);
     //window -> setEditable(false);
-    con_cal1 -> add(window);
+    con_cal1 -> addToRegion(window,GContainer::REGION_CENTER);
 
     GContainer * con_cal2 = new GContainer();
     con_cal2->setX(1.53*X / 5);
-    con_cal2->setY(4*Y / 9);
+    con_cal2->setY(4.3*Y / 13);
     con_cal2->setHeight(0.05 * Y);
     con_cal2->setWidth(X / 4);
     GButton * exit = new GButton("exit");
@@ -627,7 +627,7 @@ void GUIcontroller::initThread() {
     GContainer * thread_lay1 = new GContainer;
     thread_lay1->setBounds(1.3*X/200,Y*0.919,0.98*X/5,1*Y/18);
     pick_user = new GChooser();
-    pick_user->setBounds(X/144,Y,1.3*X/20,Y/20);
+    pick_user->setBounds(X/144,Y,1.3*X/20,Y/40);
     pick_user->addItem(current_user);
 
     write = new GButton("write");
