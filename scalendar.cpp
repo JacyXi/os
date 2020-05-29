@@ -144,7 +144,7 @@ string sCalendar::showMonth(int year, int month) {
         } else {
             outPut << " " << Date + 1;
         }
-        if ((startDay + Date) % 7 == 0)
+        if ((startDay + Date + 1) % 7 == 0)
             outPut << endl;
     } else {
         if (Date < 10) {
