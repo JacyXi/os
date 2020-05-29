@@ -38,9 +38,9 @@ GUIcontroller::GUIcontroller(string user)
     _widget();
 
     initThread();
-    initMemory();
     init_login();
     initMain();
+    initMemory();
     run(gw);
 
 
@@ -99,7 +99,7 @@ void GUIcontroller::run(GWindow * gw) {
         break;
     }
     case 6:{
-        initMemory();
+        MemoryProcess();
         break;
     }
     case 7:{
