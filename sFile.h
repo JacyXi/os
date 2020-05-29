@@ -21,7 +21,7 @@ public:
     sFile(string user, int mod, string name, string content,string location);
     string get_content();
     string get_name();
-    string get_info();
+    string get_info(string user);
     string get_type();
     int get_size();
     string get_location();
