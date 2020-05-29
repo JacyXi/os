@@ -326,9 +326,12 @@ void GUIcontroller::runCalculator() {
 
 void GUIcontroller::dealFileSystem() {
     string operant = input_oper->getSelectedItem();
+
     if (!operant.compare("touch")){
         try {
+            fs->ch_user(current_user);
             if (thread->has_wr(current_user)) {
+
                 string filename = input_file->getText();
                 GContainer * temp = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL,2,3);
                 temp->setX(X/4);
@@ -400,6 +403,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("cd")){
+        fs->ch_user(current_user);
         try {
             string dir_name = input_file->getText();
             fs->cd(dir_name);
@@ -411,6 +415,7 @@ void GUIcontroller::dealFileSystem() {
         }
 
     } else if (!operant.compare("mkdir")){
+        fs->ch_user(current_user);
         try {
             if (thread->has_wr(current_user)) {
                 string dir_name = input_file->getText();
@@ -422,6 +427,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("open")){
+        fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
             GContainer * temp = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL,2,3);
@@ -503,6 +509,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if(!operant.compare("remove")) {
+        fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
             if (filename.find(".") != filename.npos){
@@ -519,6 +526,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("copy")) {
+        fs->ch_user(current_user);
         try {
 
             string filename = input_file->getText();
@@ -531,7 +539,7 @@ void GUIcontroller::dealFileSystem() {
                 complete = e.getActionCommand();
                 if (!complete.compare("copy!")){
                     string target = input_file->getText();
-                    if (filename.rfind(".")!=filename.npos){
+                    if (filename.rfind(".") != filename.npos) {
                         fs->cp(filename, target, "-p");
                         fs->cd(target);
                         pwd->setText(fs->pwd());
@@ -556,6 +564,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("move")) {
+        fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
             input_file->setText("Please input your target directory here. ");
@@ -590,6 +599,7 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("find")) {
+        fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
             ls->setText(fs->find(filename));
@@ -597,17 +607,21 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("chmod")){
+        fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
-            input_file->setText("Please input your mod here.");
+            input_file->setText("Mod here.");
             string complete;
             while (true) {
                 oper->setText("chmod!");
                 GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                 complete = e.getActionCommand();
                 if (!complete.compare("chmod!")){
+                    assert(atoi(input_file->getText().c_str()));
                     int target = atoi(input_file->getText().c_str());
                     fs->chmod(filename,target);
+                    file_info->setText(fs->file_info(filename));
+                    oper->setText("run");
                     break;
                 }
             }

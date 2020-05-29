@@ -9,6 +9,7 @@
 #include "set.h"
 #include <vector.h>
 #include <iostream>
+#include "error.h"
 using namespace std;
 
 /*
@@ -311,7 +312,7 @@ void sPath::chmod(string user, string filename, int mod) {
     if (location != -1) {
         filegory[location] -> change_mod(user, mod);
     } else {
-        error("No such  file.");
+        error("No such file.");
     }
 }
 void sPath::chcontent(string user, string filename, string content){

@@ -9,19 +9,20 @@
 #include <map.h>
 using namespace std;
 
-class sCalendar{
+class sCalendar {
 
 public:
     sCalendar();
     ~sCalendar();
+    int get_this_month();
+    string showMonth(int year,int month);
 
-    void printMonthName(int year,int month);
+private:
     int getStartDay(int year,int month);
     int getTotalDays(int year,int month);
     int getDaysinMonth(int year,int month);
     bool isLeapYear(int year);
-    int get_this_month();
-    string showMonth(int year,int month);
+
     Map<string,int> month_map;
 
 };

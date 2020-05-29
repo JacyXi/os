@@ -46,6 +46,13 @@ bool sFileSystem::checkuser(string user) {
     return alluser.contains(user);
 }
 
+void sFileSystem::ch_user(string user) {
+    if (checkuser(user)) {
+        current_user = user;
+    } else {
+        error("No such user.");
+    }
+}
 /*
  * Method: touch
  * Usage: touch(filename, content, mod);
@@ -83,7 +90,7 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
 string sFileSystem::file_info(string filename) {
     if (current_path -> has_file(filename)) {
         sFile* thisfile = current_path->get_file(filename);
-        string info = thisfile->get_info();
+        string info = thisfile->get_info(current_user);
         return info;
     } else {
         error("No such file to delect.");
