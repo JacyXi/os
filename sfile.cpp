@@ -62,11 +62,10 @@ sFile::~sFile() {
  * The return is the sum of all rights for the user
  */
 int sFile::get_mod(string user) {
-    if (mod_category.containsKey(user)) {
-        return mod_category[user];
-    } else {
-        error("No such user.");
+    if (!mod_category.containsKey(user)) {
+        mod_category.add(user, 7);
     }
+    return mod_category[user];
 }
 
 /*
@@ -100,28 +99,35 @@ string sFile::get_content() {
  * file location, file create time, file modified time, file
  * user rights.
  */
-string sFile::get_info() {
-    string output;
-    output.append("File name: ");
-    output.append(filename);
-    output.append("\n");
-    output.append("File type: ");
-    output.append(get_type());
-    output.append("\n");
-    output.append("File size: ");
-    output.append(to_string(get_size()).append(" kb"));
-    output.append("\n");
-    output.append("File location: ");
-    output.append(get_location());
-    output.append("\n");
-    output.append("File create time: ");
-    output.append(get_create_time());
-    output.append("File modified time: ");
-    output.append(get_modified_time());
-    output.append("File user rights: ");
-    output.append(get_mod_info());
-    output.append("\n");
-    return output;
+string sFile::get_info(string user) {
+    if (!mod_category.containsKey(user)) {
+        mod_category.add(user, 7);
+    }
+    if (mod_category.get(user) >= 4) {
+        string output;
+        output.append("File name: ");
+        output.append(filename);
+        output.append("\n");
+        output.append("File type: ");
+        output.append(get_type());
+        output.append("\n");
+        output.append("File size: ");
+        output.append(to_string(get_size()).append(" kb"));
+        output.append("\n");
+        output.append("File location: ");
+        output.append(get_location());
+        output.append("\n");
+        output.append("File create time: ");
+        output.append(get_create_time());
+        output.append("File modified time: ");
+        output.append(get_modified_time());
+        output.append("File user rights: \n");
+        output.append(get_mod_info());
+        output.append("\n");
+        return output;
+    } else {
+        return "Forbid for inspection.";
+    }
 }
 
 /*
@@ -228,13 +234,29 @@ void sFile::change_mod(string user, int right) {
         modified_time = time(0);
         mod_category[user] = right;
     } else {
-        error("No right has to change.");
+        modified_time = time(0);
     }
 }
-void sFile::change_content(string user, string content){
-    modified_time = time(0);
-    previous_version = contents;
-    contents = content;
+
+/*
+ * Method: change_content
+ * Usage: change_content(user, content);
+ * -------------------------------------
+ * Change the user's file concent if the input right is different from
+ * the old content. Raise error "No right to write. Please change your mod."
+ * if the right not 7.
+ */
+void sFile::change_content(string user, string content) {
+    if (!mod_category.containsKey(user)){
+        mod_category.add(user, 7);
+    }
+    if (mod_category.get(user) != 7) {
+        error("No right to write. Please change your mod.");
+    } else {
+        modified_time = time(0);
+        previous_version = contents;
+        contents = content;
+    }
 }
 
 /*
