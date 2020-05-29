@@ -237,6 +237,7 @@ HEADERS *= "" \
     BPlus_node.h \
     BPlus_tree.h \
     guicontroller.h \
+    memory.h \
     sFile.h \
     sFileSystem.h \
     sPath.h \
@@ -258,6 +259,7 @@ SOURCES *= "" \
     bpt.cpp \
     guicontroller.cpp \
     main.cpp \
+    memory.cpp \
     memory.cpp \
     scalendar.cpp \
     sfile.cpp \

@@ -12,6 +12,8 @@
 #include "gtextfield.h"
 #include "memory.h"
 #include "map.h"
+#include "gtable.h"
+
 
 using namespace std;
 
@@ -41,7 +43,8 @@ private:
     void dealFileSystem();
     void runCalculator();
     void runCalendar();
-
+    void MemoryAdd(string APP_Name, string Process_Name, int Process_Index, int Memory_Declared);
+    void MemoryQuit(string APP_Name);
 
     string set_reporter(GTextArea * reporter, string toadd, string info);
     bool runnable;
@@ -74,7 +77,7 @@ private:
 
     string wrinfo;
     int rows;
-    GTextArea * reporter_wrlock;
+    GTextArea * reporter_wrlock;   
     GTextArea * reporter_error;
     string poolinfo;
     sFileSystem * fs;
@@ -87,7 +90,20 @@ private:
     GImage * table;
     Map<string,int> command;
     Map<string, string> login;
+
     Memory * mo;
+    //Memory used size
+    GContainer * memory_lay_top4;
+    GLabel *memory_content2;
+    // VM invoked Yes or No
+    GContainer * memory_lay_top6;
+    GLabel *memory_content3;
+    // Memory Process Table
+    GContainer * memory_table;
+    GTable *mt;
+    // Memory Bar
+    Vector<GRect*> APP_Bars;
+    GRect *APP_bar;
 
 
 

@@ -1,6 +1,6 @@
 #include "memory.h"
-#include <iostream>
-#include "strlib.h"
+#include<iostream>
+#include"strlib.h"
 using namespace std;
 
 ostream & operator<<(ostream & os, Block block){
@@ -68,41 +68,37 @@ bool operator==(Block A,Block B){
 
 
 
-
 // Below are the definition of Memory class.
 const double Memory::TLB_PROPORTION = 0.25;
 
 /* Default constructor with 4GB memory*/
 Memory::Memory()
 {
+size = INITIAL_TOTAL_SIZE;
+Free_size = size;
+Occupied_size = 0;
+SPT_size = 0;
+TLB_size = 0;
+inner_page_total = size/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
-    size = INITIAL_TOTAL_SIZE;
-    Free_size = size;
-    Occupied_size = 0;
-    SPT_size = 0;
-    TLB_size = 0;
-    inner_page_total = size/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
+// Add the free block(the complete memory) into the vector of Free_memory.
+page_index Free_start;
+page_index Free_terminate;
+Free_start.outer_page_index = 0;
+Free_start.inner_page_index = 0;
+Free_terminate.outer_page_index = OUT_PAGE_TOTAL-1; // 1023
+Free_terminate.inner_page_index = inner_page_total-1; //1023
 
-    // Add the free block(the complete memory) into the vector of Free_memory.
-    page_index Free_start;
-    page_index Free_terminate;
-    Free_start.outer_page_index = 0;
-    Free_start.inner_page_index = 0;
-    Free_terminate.outer_page_index = OUT_PAGE_TOTAL-1; // 1023
-    Free_terminate.inner_page_index = inner_page_total-1; //1023
-
-    Block Free;
-    Free.start = Free_start;
-    Free.terminate = Free_terminate;
-    Free.Block_size = Free_size;
-    Free_memory.add(Free);
+Block Free;
+Free.start = Free_start;
+Free.terminate = Free_terminate;
+Free.Block_size = Free_size;
+Free_memory.add(Free);
 
 }
 
-
 /* Constructor with specified total size of the memory*/
-Memory::Memory(int size)
-{
+Memory::Memory(int size){
     // Remark: The size must be xxxGB, xxx must be an integer.
     this->size = size;
     Free_size = size;
@@ -111,34 +107,29 @@ Memory::Memory(int size)
     TLB_size = 0;
     inner_page_total = (this->size)/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
-    // Add the free block(the complete memory) into the vector of free_memory.
-    page_index free_start;
+    // Add the free block(the complete memory) into the vector of Free_memory.
+    page_index Free_start;
     page_index Free_terminate;
-    free_start.outer_page_index = 0;
-    free_start.inner_page_index = 0;
-    Free_terminate.outer_page_index = OUT_PAGE_TOTAL - 1; // This time might not be 1023
-    Free_terminate.inner_page_index = inner_page_total - 1; //This time might not be 1023
+    Free_start.outer_page_index = 0;
+    Free_start.inner_page_index = 0;
+    Free_terminate.outer_page_index = OUT_PAGE_TOTAL-1; // This time might not be 1023
+    Free_terminate.inner_page_index = inner_page_total-1; //This time might not be 1023
     Block Free;
-    Free.start = free_start;
+    Free.start = Free_start;
     Free.terminate = Free_terminate;
     Free.Block_size = Free_size;
     Free_memory.add(Free);
 
 }
 
-/*
- * Method: add_to_memory
- * Usage: add_to_memory(process)
+/* Method:Add_to_memory
+ * Usage:Add_to_memory(process)
  * --------------------------------------
  * If there the process has already been added into the memory, print error message.
  * If the memory space is not enough for the process, print error message.
-<<<<<<< HEAD
- * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
- * free_memory, current_process, all_process_status will be modified.
- */
-void Memory::add_to_memory(Process process) {
-    // string app_name = process.app_name;
-    // int process_index = process.process;
+ * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
+ * Free_memory, Current_Process, All_Process_Status will be modified.*/
+void Memory::Add_to_memory(Process process){
 
     int memory_declared = process.memory_declared;
     int TLB_declared = memory_declared * TLB_PROPORTION;
@@ -148,16 +139,14 @@ void Memory::add_to_memory(Process process) {
     int Actual_SPT_declared = Correction_on_size(SPT_declared);
     int Actual_memory_declared = Actual_SPT_declared + Actual_TLB_declared;
 
-
     // Check whether the memory is full. If it's full, then invoke virtual memory.
     if (Actual_memory_declared>Free_size){
         Virtual_memory(process,TLB_declared);
     }
     // Check whether you are adding the same process for the second times.
-    else if (All_Process_Status.containsKey(process)) {
+    else if (All_Process_Status.containsKey(process)){
         error("There is already such a process in the memory.");
     }
-
     // This is the case when we don't have to invoke virtual memory.
     else{
         // Remark: TLB_size is the first element, SPT_size is the second!
@@ -171,7 +160,7 @@ void Memory::add_to_memory(Process process) {
         TLB_size += Actual_TLB_declared;
         SPT_size += Actual_SPT_declared;
 
-        current_process.add(process);
+        Current_Process.add(process);
 
         Vector<Block> TLB_table;
         Vector<Block> SPT_table;
@@ -198,8 +187,8 @@ void Memory::add_to_memory(Process process) {
  * If there are no such a process inside the memory, print error message.
  *
  * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
- * Free_memory, current_process, All_Process_Status will be modified.*/
-void Memory::remove_from_memory(Process process){
+ * Free_memory, Current_Process, All_Process_Status will be modified.*/
+void Memory::Remove_from_memory(Process process){
 
 
         //Check whether there is such a process in the memory.
@@ -221,8 +210,8 @@ void Memory::remove_from_memory(Process process){
             TLB_size -= Actual_TLB_declared;
             SPT_size -= Actual_SPT_declared;
 
-            // Clear the process from the current_process vector.
-            current_process.removeValue(process);
+            // Clear the process from the Current_Process vector.
+            Current_Process.removeValue(process);
             // Adjust the two vectors that records the memory usage.
             for (Block page_table_blocks : page_table.TLB){
                 Occupied_memory.removeValue(page_table_blocks);
@@ -277,9 +266,9 @@ Vector<Block> Memory::Get_address(const Process & process){
  * --------------------------------------
  * This function will return the total memory occupied by the App.
  * The input is the string App_name.*/
-int Memory::get_app_memory(string App_name){
+int Memory::Get_App_memory(string App_name){
     Vector<int> App_memory_vector;
-    for (Process processes : current_process){
+    for (Process processes : Current_Process){
         if (processes.App_name == App_name) {
             int App_memory = All_Process_Size[processes][0] + All_Process_Size[processes][1];
             App_memory_vector.add(App_memory);
@@ -308,19 +297,19 @@ int Memory::Get_process_memory(Process & process){
     }
 }
 
-/* Method:get_free_memory_Size
- * Usage:get_free_memory_Size()
+/* Method:Get_Free_Memory_Size
+ * Usage:Get_Free_Memory_Size()
  * --------------------------------------
  * This function will return the total space of free memory.(The unit is kb)*/
-int Memory::get_free_memory_size(){
+int Memory::Get_Free_Memory_Size(){
     return Free_size;
 }
 
-/* Method:get_occupied_memory_Size
- * Usage:get_occupied_memory_Size()
+/* Method:Get_Occupied_Memory_Size
+ * Usage:Get_Occupied_Memory_Size()
  * --------------------------------------
  * This function will return the total space of occupied memory.(The unit is kb)*/
-int Memory::get_occupied_memory_size(){
+int Memory::Get_Occupied_Memory_Size(){
     return Occupied_size;
 }
 
@@ -340,30 +329,30 @@ int Memory::Get_SPT_Size(){
     return SPT_size;
 }
 
-/* Method:get_current_process
- * Usage:get_current_process()
+/* Method:Get_Current_Process
+ * Usage:Get_Current_Process()
  * --------------------------------------
  * This function will return all the processes in the memory right now. Information include
  * App_name, process index and memory declared inside each process.*/
-Vector<Process> Memory::get_current_process(){
-    return current_process;
+Vector<Process> Memory::Get_Current_Process(){
+    return Current_Process;
 }
 
-/* Method:get_free_memory
- * Usage:get_free_memory()
+/* Method:Get_Free_memory
+ * Usage:Get_Free_memory()
  * --------------------------------------
  * This function will return all the free memory location in the memory right now.
  * The location information will be represented as blocks in the memory.*/
-Vector<Block> Memory::get_free_memory(){
+Vector<Block> Memory::Get_Free_memory(){
     return Free_memory;
 }
 
-/* Method:get_occupied_memory
- * Usage:get_occupied_memory()
+/* Method:Get_Occupied_memory
+ * Usage:Get_Occupied_memory()
  * --------------------------------------
  * This function will return all the occupied memory location in the memory right now.
  * The location information will be represented as blocks in the memory.*/
-Vector<Block> Memory::get_occupied_memory(){
+Vector<Block> Memory::Get_Occupied_memory(){
     return Occupied_memory;
 }
 
@@ -376,7 +365,7 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
         Vector<Block> Free_memory_copy = Free_memory;
         Vector<Block> table;
         // Start the for loop iteration
-        for (Block Free_Blocks : Free_memory_copy) {
+        for (Block Free_Blocks : Free_memory_copy){
             free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
 
             if (free_accumulated_memory < memory_declared) {
@@ -389,7 +378,7 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 Free_memory.remove(0);
 
 
-                // Add occupation on the occupied_memory
+                // Add occupation on the Occupied_memory
                 Block new_occupied;
                 new_occupied.start = Free_Block_Start;
                 new_occupied.terminate = Free_Block_Terminate;
@@ -399,27 +388,29 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 // Update the partition page table (could be TLB or SPT) for this process at this step.
                 table.add(new_occupied);
                 continue;
-            } else {
+            }
+            else{
 
                 int remaining_memory = free_accumulated_memory - memory_declared;
 
-                // This is to check whether the remaining memory is 0 modulo 4.
-                // Eg. The remaining memory = 5kb, then 5kb/4 = 1; then 1*4<5, we should return 1 page.
-                // However, the reamaining memory should be 1*4  = 4kb as in this situation there will be fragments.
+                /*This is to check whether the remaining memory is 0 modulo 4.
+                  Eg. The remaining memory = 5kb, then 5kb/4 = 1; then 1*4<5, we should return 1 page.
+                      However, the reamaining memory should be 1*4  = 4kb as in this situation there will be fragments.
+                    */
 
                 // This variable counts the number of pages needed to free from the buttom.
-                int pages_from_bottom = remaining_memory / SINGLE_PAGE_SIZE;
+                int pages_from_bottom = remaining_memory/SINGLE_PAGE_SIZE;
 
                 if (pages_from_bottom * SINGLE_PAGE_SIZE < remaining_memory) {
-                    remaining_memory = pages_from_bottom * SINGLE_PAGE_SIZE;
+                    remaining_memory = pages_from_bottom*SINGLE_PAGE_SIZE;
                 }
 
-                // Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
-                // inner_page_index_pre = 2, out_page_number_from_bottom = 1
-                // Hence, we can use this to calculate the index needed.
-
+                /*Take 4*1024*1024 as an example, then if the remaining memory takes 1026 pages, then
+                 * inner_page_index_pre = 2, out_page_number_from_bottom = 1
+                 * Hence, we can use this to calculate the index needed.
+                .*/
                 int inner_page_index_pre = pages_from_bottom % inner_page_total;
-                int out_page_number_from_bottom = (pages_from_bottom - inner_page_index_pre) / inner_page_total;
+                int out_page_number_from_bottom = (pages_from_bottom-inner_page_index_pre)/inner_page_total;
 
                 page_index Free_Block_Start = Free_Blocks.start;
                 page_index Free_Block_Terminate = Free_Blocks.terminate;
@@ -429,35 +420,34 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 divide_free.outer_page_index = Free_Block_Terminate.outer_page_index - out_page_number_from_bottom;
                 if (divide_free.inner_page_index < 0) {
                     divide_free.inner_page_index += inner_page_total;
-                    divide_free.outer_page_index -= 1;
-                }
+                    divide_free.outer_page_index -= 1;}
 
                 if (divide_free.inner_page_index > 1023) {
                     divide_free.inner_page_index -= inner_page_total;
-                    divide_free.outer_page_index += 1;
-                }
+                    divide_free.outer_page_index += 1;}
+
+
 
                 page_index divide_occupied;
                 divide_occupied.inner_page_index = divide_free.inner_page_index - 1;
                 divide_occupied.outer_page_index = divide_free.outer_page_index;
-                if (divide_occupied.inner_page_index < 0) {
+                if (divide_occupied.inner_page_index <0){
                     divide_occupied.inner_page_index += inner_page_total;
                     divide_occupied.outer_page_index -= 1;
                 }
 
-                if (divide_occupied.inner_page_index > 1023) {
+                if (divide_occupied.inner_page_index >1023){
                     divide_occupied.inner_page_index -= inner_page_total;
                     divide_occupied.outer_page_index += 1;
                 }
+
 
                 Block Occupied;
                 Block Free;
 
                 Occupied.start = Free_Block_Start;
                 Occupied.terminate = divide_occupied;
-
                 Occupied.Block_size = Free_Blocks.Block_size - remaining_memory;
-
 
                 Free.start = divide_free;
                 Free.terminate = Free_Block_Terminate;
@@ -466,9 +456,7 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared){
                 Free_memory[0] = Free;
                 Occupied_memory.add(Occupied);
 
-
                 table.add(Occupied);
-
                 // This makes sure that if going into this else statement, the for loop will terminate.
                 break;
             }
@@ -498,8 +486,6 @@ bool Memory::Is_neighbor(const Block & b1, const Block & b2){
     else return false;
 }
 
-
-
 /* This function is used to invoke virtual memory*/
 void Memory::Virtual_memory(Process process,int TLB_decalred){
     int memory_declared = process.memory_declared;
@@ -520,9 +506,9 @@ void Memory::Virtual_memory(Process process,int TLB_decalred){
         int Previous_SPT_Size = SPT_size;
         SPT_size = Occupied_size - TLB_size;
 
-        // Do a deep copy of the current_process for the iteration usage. The iteration will follow FIFO rule( Just like a queue).
-        Vector<Process> Process_Queue = current_process;
-        current_process.add(process);
+        // Do a deep copy of the Current_Process for the iteration usage. The iteration will follow FIFO rule( Just like a queue).
+        Vector<Process> Process_Queue = Current_Process;
+        Current_Process.add(process);
 
         // Empty Free_memory and put its empty space(record by Vector of block) into TFM.
         if (Free_size != 0) {
@@ -531,172 +517,11 @@ void Memory::Virtual_memory(Process process,int TLB_decalred){
         for(int i = 0;i < Free_memory.size();i++){
             Free_memory.remove(i);
         }
-
         }
 
-}
-}
+        // Handle Block situation for virtual memory
+        int SPT_need_remove_size = Previous_SPT_Size + Actual_SPT_declared - SPT_size;
 
-/*
- * Method:get_address
- * Usage:get_address(process)
- * --------------------------------------
- * If there are no such a process inside the memory, print error message.
- * If nothing goes wrong, then the function will return the memory location of the process
- * in the form of memory blocks.
- */
-Vector<Block> Memory::Get_address(Process process) {
-    // Check whether the input process is still in the memory or not.
-    if (!all_process_status.containsKey(process)) error("There is no such a process");
-
-    // If there is such a process, then we can get the address(blocks) of the process.
-    Vector<Block> process_block = all_process_status[process];
-    return process_block;
-}
-
-/*
- * Method:get_app_memory
- * Usage:get_app_memory(app_name)
- * --------------------------------------
- * This function will return the total memory occupied by the App.
- * The input is the string app_name.
- */
-int Memory::get_app_memory(string app_name) {
-    Vector<int> App_memory_vector;
-    for (Process processes : current_process) {
-        if (processes.app_name == app_name) {
-            int App_memory = processes.memory_declared;
-            App_memory_vector.add(App_memory);
-        }
-    }
-
-    if (App_memory_vector.size() == 0) {
-        error("There is no such APP in the memory.");
-    } else {
-        // Sum up the memory for the app_name given.
-        int Total_App_Memory = 0;
-        for (int i = 0; i < App_memory_vector.size(); i++) {
-            Total_App_Memory += App_memory_vector[i];
-        }
-        return Total_App_Memory;
-    }
-}
-
-/*
- * Method:get_process_memory
- * Usage:get_process_memory(process)
- * --------------------------------------
- * This function will return the memory occupied by the process specified.
- */
-int Memory::Get_Process_Memory(Process process) {
-    if (!all_process_status.containsKey(process)) {
-        error("There is no such process in the memory.");
-    } else {
-        int process_memory_declared = process.memory_declared;
-        return process_memory_declared;
-    }
-}
-
-/*
- * Method:get_free_memory_size
- * Usage:get_free_memory_size()
- * --------------------------------------
- * This function will return the total space of free memory.(The unit is kb)
- */
-int Memory::get_free_memory_size() {
-    return free_size;
-}
-
-/*
- * Method:get_occupied_memory_size
- * Usage:get_occupied_memory_size()
- * --------------------------------------
- * This function will return the total space of occupied memory.(The unit is kb)
- */
-int Memory::get_occupied_memory_size() {
-    return occupied_size;
-}
-
-/*
- * Method:get_current_process
- * Usage:get_current_process()
- * --------------------------------------
- * This function will return all the processes in the memory right now. Information include
- * app_name, process index and memory declared inside each process.
- */
-Vector<Process> Memory::get_current_process() {
-    return current_process;
-}
-
-/*
- * Method:get_free_memory
- * Usage:get_free_memory()
- * --------------------------------------
- * This function will return all the free memory location in the memory right now.
- * The location information will be represented as blocks in the memory.
- */
-Vector<Block> Memory::get_free_memory() {
-    return free_memory;
-}
-
-/*
- * Method:get_occupied_memory
- * Usage:get_occupied_memory()
- * --------------------------------------
- * This function will return all the occupied memory location in the memory right now.
- * The location information will be represented as blocks in the memory.
- */
-Vector<Block> Memory::get_occupied_memory() {
-    return occupied_memory;
-}
-
-
-ostream & operator<<(ostream & os, Block block){
-    page_index start = block.start;
-    page_index terminate = block.terminate;
-    int start_out = start.outer_page_index;
-    int start_in = start.inner_page_index;
-    int terminate_out = terminate.outer_page_index;
-    int terminate_in = terminate.inner_page_index;
-
-    string substr_1 =  "Start:(Out:" + integerToString(start_out) + ",In:" + integerToString(start_in) +")";
-    string substr_2 =  "Terminate:(Out:" + integerToString(terminate_out) + ",In:" + integerToString(terminate_in) +")";
-
-    os << "{" << substr_1 << "," << substr_2 << "}";
-    return os;
-}
-
-ostream & operator<<(ostream & os, Process process) {
-    string substr_1 =  "APP name:" + process.app_name;
-    string substr_2 =  "Process index:" + integerToString(process.process);
-    string substr_3 =  "Memory declared: " + integerToString(process.memory_declared);
-
-    os << substr_1 << endl << substr_2 << endl << substr_3 << endl;
-    return os;
-}
-
-
-bool operator==(Process A, Process B) {
-    return (A.app_name == B.app_name && A.process == B.process && A.memory_declared == B.memory_declared);
-}
-
-bool operator!=(Process A, Process B) {
-    return !(A == B);
-}
-
-bool operator< (const Process& lhs, const Process& rhs) {
-     return ((lhs.app_name < rhs.app_name ) || (lhs.process < rhs.process)
-             || (lhs.memory_declared < rhs.memory_declared) );
-}
-
-bool operator==(page_index A, page_index B) {
-    return (A.inner_page_index == B.inner_page_index && A.outer_page_index == B.outer_page_index);
-}
-
-bool operator==(Block A, Block B) {
-    return (A.start == B.start && A.terminate == B.terminate);
-}
-=======
         // Situation when the new process requires all the SPT to be removed.
         if (SPT_need_remove_size > Previous_SPT_Size){
             for (Process process:Process_Queue){
@@ -1137,9 +962,6 @@ int Memory::Correction_on_size(int input_size){
     }
 }
 
-<<<<<<< HEAD:res/memory.cpp
->>>>>>> ChenYuheng
-=======
 Vector<double> Memory::Block_Position_Transfer(Block block){
     Vector<double> result;
     double pagenum = 1024;
@@ -1176,4 +998,8 @@ void Memory::Remove_APP_from_memory(string APP_Name){
         else Remove_from_memory(process);
     }
 }
->>>>>>> ChenYuheng:memory.cpp
+
+bool Memory::In_Memory(Process process){
+    if (All_Process_Status.containsKey(process)) return 1;
+    else return 0;
+}

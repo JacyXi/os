@@ -20,6 +20,8 @@
 #include "sCalendar.h"
 #include "set.h"
 #include "error.h"
+#include "set.h"
+
 
 
 using namespace std;
@@ -31,10 +33,12 @@ GUIcontroller::GUIcontroller(string user)
     current_user = user;
     gw = new GWindow(getScreenWidth(),getScreenHeight());
 
+    mo = new Memory();
+
     _widget();
 
     initThread();
-
+    initMemory();
     init_login();
     initMain();
     run(gw);
@@ -61,6 +65,7 @@ void GUIcontroller::run(GWindow * gw) {
         string user_name = input_name->getText();
         string user_password =  input_word->getText();
         if (!login.get(user_name).compare(user_password)) {
+
             current_user = user_name;
             pick_user->addItem(user_name);
             pick_user->setSelectedItem(user_name);
@@ -116,7 +121,12 @@ void GUIcontroller::run(GWindow * gw) {
 
 }
 
+
 void GUIcontroller::runCalendar() {
+    int process_index = 0;
+    string APP_Name = "Calandar";
+    MemoryAdd(APP_Name,"Basic",1,524288);
+
     GImage * cal = new GImage("calendar_back.png", 1.3*X/5, Y/50);
     cal->setWidth(0.3472*X);
     cal->setHeight(0.3909*Y);
@@ -132,12 +142,15 @@ void GUIcontroller::runCalendar() {
     next->setActionCommand("next");
     GChooser * yearc = new GChooser();
     GChooser * monthc = new GChooser();
+
     yearc->addItems({"2021","2020","2019","2018","2017","2016","2015"});
+
     monthc->addItems({"1","2","3","4","5","6","7","8","9","10","11","12"});
     con_cal0->add(previous);
     con_cal0->add(yearc);
     con_cal0->add(monthc);
     con_cal0->add(next);
+
 
     GContainer * con_cal1 = new GContainer();
     con_cal1 -> setX(1.9*X/5);
@@ -181,6 +194,12 @@ void GUIcontroller::runCalendar() {
                 mon = mon == 0 ? 12 : mon;
                 monthc->setSelectedItem(to_string(mon));
                 yearc->setSelectedItem(to_string(yea));
+
+                string process_name = "prev";
+                process_index += 1;
+                MemoryAdd(APP_Name,process_name,process_index,262144);
+
+
             } else if (!command.compare("next")) {
                 int mon = atoi(monthc->getSelectedItem().c_str()) + 1;
                 int yea = atoi(yearc->getSelectedItem().c_str());
@@ -188,11 +207,19 @@ void GUIcontroller::runCalendar() {
                 mon = mon == 13 ? 1 : mon;
                 monthc -> setSelectedItem(to_string(mon));
                 yearc -> setSelectedItem(to_string(yea));
+
+                string process_name = "next";
+                process_index += 1;
+                MemoryAdd(APP_Name,process_name,process_index,262144);
+
             } else if (!command.compare("exit")) {
                 con_cal0->setVisible(false);
                 con_cal1->setVisible(false);
                 cal->setVisible(false);
                 con_cal2->setVisible(false);
+
+                MemoryQuit("Calandar");
+
                 return;
             }
         }
@@ -200,7 +227,13 @@ void GUIcontroller::runCalendar() {
 
 }
 
+
 void GUIcontroller::runCalculator() {
+
+    int process_index = 0;
+    string APP_Name = "Calculator";
+    MemoryAdd(APP_Name,"Basic",1,524288);
+
     GImage * calculator = new GImage("calculator.png",1.3*X/5,Y/60);
     calculator->setWidth(0.34722*X);
     calculator->setHeight(0.7669*Y);
@@ -307,6 +340,11 @@ void GUIcontroller::runCalculator() {
                 window->setText(result);
                 operation = "";
                 cal = new Calculator();
+
+                string process_name = "Solve";
+                process_index += 1;
+                MemoryAdd(APP_Name,process_name,process_index,262144);
+
             } else if (nums.contains(command)){
                 operation.append(command);
                 window->setText(operation);
@@ -315,19 +353,21 @@ void GUIcontroller::runCalculator() {
                 con_cal->setVisible(false);
                 con_cal0->setVisible(false);
                 window->setVisible(false);
+
+                MemoryQuit("Calculator");
+
                 return;
             }
         }
     }
 
-
-
-
-
-
 }
 
 void GUIcontroller::dealFileSystem() {
+
+    int process_index = 0;
+    string APP_Name = "File System";
+
     string operant = input_oper->getSelectedItem();
     if (!operant.compare("touch")){
         try {
@@ -353,6 +393,12 @@ void GUIcontroller::dealFileSystem() {
                 temp->addToGrid(enter,1,0);
                 temp->addToGrid(revoke,1,1);
                 temp->addToGrid(exit,1,2);
+
+                string Process_Name = "Touch";
+                process_index += 1;
+                Process Touch = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+                mo->Add_to_memory(Touch);
+                MemoryProcess();
 
 
                 string complete;
@@ -390,6 +436,10 @@ void GUIcontroller::dealFileSystem() {
                         temp->clear();
                         temp->setVisible(false);
                         temp = nullptr;
+
+                        mo->Remove_from_memory(Touch);
+                        MemoryProcess();
+
                         break;
                     }
                 }
@@ -399,11 +449,19 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
+
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
         }
     } else if (!operant.compare("cd")){
         try {
+
+//            string Process_Name = "Cd";
+//            process_index += 1;
+//            Process cd = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//            mo->Add_to_memory(cd);
+//            MemoryProcess();
+
             string dir_name = input_file->getText();
             fs->cd(dir_name);
             pwd->setText(fs->pwd());
@@ -413,9 +471,17 @@ void GUIcontroller::dealFileSystem() {
             set_reporter(reporter_error,message,poolinfo);
         }
 
+
     } else if (!operant.compare("mkdir")){
         try {
             if (thread->has_wr(current_user)) {
+
+//                string Process_Name = "Mkdir";
+//                process_index += 1;
+//                Process mkdir = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                mo->Add_to_memory(mkdir);
+//                MemoryProcess();
+
                 string dir_name = input_file->getText();
                 fs->mkdir(dir_name);
                 ls->setText(fs->ls());
@@ -423,6 +489,7 @@ void GUIcontroller::dealFileSystem() {
         } catch (ErrorException e) {
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
+
         }
     } else if (!operant.compare("open")){
         try {
@@ -449,6 +516,12 @@ void GUIcontroller::dealFileSystem() {
             temp->addToGrid(exit,1,2);
 
             if (thread->has_wr(current_user)) {
+
+                string Process_Name = "Open";
+                process_index += 1;
+                Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+                mo->Add_to_memory(open);
+                MemoryProcess();
 
                 string complete;
                 int revoke_time = 0;
@@ -478,11 +551,22 @@ void GUIcontroller::dealFileSystem() {
                     if (!complete.compare("exit")){
                         file_info->clearText();
                         temp->setVisible(false);
+
+                        mo->Remove_from_memory(open);
+                        MemoryProcess();
+
                         break;
                     }
                 }
 
             } else if (thread->has_rd(current_user)){
+
+                string Process_Name = "Open";
+                process_index += 1;
+                Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+                mo->Add_to_memory(open);
+                MemoryProcess();
+
                 string complete;
                 string content = fs->cat(filename);
 
@@ -491,10 +575,13 @@ void GUIcontroller::dealFileSystem() {
                 while(true) {
                     GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                     complete = e.getActionCommand();
-
                     if (!complete.compare("exit")){
                         file_info->clearText();
                         temp->setVisible(false);
+
+                        mo->Remove_from_memory(open);
+                        MemoryProcess();
+
                         break;
                     }
                 }
@@ -502,8 +589,10 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch(ErrorException e) {
+
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
+
         }
     } else if(!operant.compare("remove")) {
         try {
@@ -512,14 +601,28 @@ void GUIcontroller::dealFileSystem() {
                 fs->rm(filename);
                 ls->setText(fs->ls());
 
+//                string Process_Name = "Rm";
+//                process_index += 1;
+//                Process rm = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                mo->Add_to_memory(rm);
+//                MemoryProcess();
+
             } else {
                 fs->rm(filename, "-r");
                 ls->setText(fs->ls());
+
+//                string Process_Name = "Rm";
+//                process_index += 1;
+//                Process rm = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                mo->Add_to_memory(rm);
+//                MemoryProcess();
             }
 
         } catch (ErrorException e) {
+
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
+
         }
     } else if (!operant.compare("copy")) {
         try {
@@ -527,6 +630,12 @@ void GUIcontroller::dealFileSystem() {
             string filename = input_file->getText();
             input_file->setText("Please input your target directory here. ");
             string complete;
+
+            string Process_Name = "Copy";
+            process_index += 1;
+            Process copy = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            mo->Add_to_memory(copy);
+            MemoryProcess();
 
             while (true) {
                 oper->setText("copy!");
@@ -540,6 +649,10 @@ void GUIcontroller::dealFileSystem() {
                         pwd->setText(fs->pwd());
                         ls->setText(fs->ls());
                         oper->setText("run");
+
+                        mo->Remove_from_memory(copy);
+                        MemoryProcess();
+
                         break;
                     } else {
                         fs->cp(filename, target, "-r");
@@ -547,6 +660,10 @@ void GUIcontroller::dealFileSystem() {
                         pwd->setText(fs->pwd());
                         ls->setText(fs->ls());
                         oper->setText("run");
+
+                        mo->Remove_from_memory(copy);
+                        MemoryProcess();
+
                         break;
                     }
 
@@ -555,14 +672,22 @@ void GUIcontroller::dealFileSystem() {
             }
 
         } catch (ErrorException e) {
+
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
+
         }
     } else if (!operant.compare("move")) {
         try {
             string filename = input_file->getText();
             input_file->setText("Please input your target directory here. ");
             string complete;
+
+            string Process_Name = "Move";
+            process_index += 1;
+            Process move = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            mo->Add_to_memory(move);
+            MemoryProcess();
 
             while (true) {
                 oper->setText("move!");
@@ -576,6 +701,10 @@ void GUIcontroller::dealFileSystem() {
                         pwd->setText(fs->pwd());
                         ls->setText(fs->ls());
                         oper->setText("run");
+
+                        mo->Remove_from_memory(move);
+                        MemoryProcess();
+
                         break;
                     } else {
                         fs->mv(filename,target,"-r");
@@ -583,20 +712,27 @@ void GUIcontroller::dealFileSystem() {
                         pwd->setText(fs->pwd());
                         ls->setText(fs->ls());
                         oper->setText("run");
+
+                        mo->Remove_from_memory(move);
+                        MemoryProcess();
+
                         break;
                     }
 
                 }
             }
         } catch (ErrorException e) {
+
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
+
         }
     } else if (!operant.compare("find")) {
         try {
             string filename = input_file->getText();
             ls->setText(fs->find(filename));
         } catch (ErrorException e) {
+
             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
     } else if (!operant.compare("chmod")){
@@ -604,6 +740,14 @@ void GUIcontroller::dealFileSystem() {
             string filename = input_file->getText();
             input_file->setText("Please input your mod here.");
             string complete;
+
+            string Process_Name = "Chmod";
+            process_index += 1;
+            Process chmod = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            mo->Add_to_memory(chmod);
+            MemoryProcess();
+
+
             while (true) {
                 oper->setText("chmod!");
                 GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
@@ -611,6 +755,10 @@ void GUIcontroller::dealFileSystem() {
                 if (!complete.compare("chmod!")){
                     int target = atoi(input_file->getText().c_str());
                     fs->chmod(filename,target);
+
+                    mo->Remove_from_memory(chmod);
+                    MemoryProcess();
+
                     break;
                 }
             }
@@ -618,6 +766,7 @@ void GUIcontroller::dealFileSystem() {
             string message = e.getMessage().append("\n");
             set_reporter(reporter_error,message,poolinfo);
         }
+
 
     }
 }
@@ -640,8 +789,10 @@ void GUIcontroller::_widget(){
     Y = gw->getHeight();
     gw->setResizable(true);
     GImage * back_ground = new GImage("background.png");
+
     back_ground->setWidth(X);
     back_ground->setHeight(Y);
+
     back_ground->sendToBack();
     gw->add(back_ground);
     gw->setTitle("Simulated Operating System");
@@ -650,6 +801,10 @@ void GUIcontroller::_widget(){
 }
 
 void GUIcontroller::initThread() {
+    Process OS_1 = mo->Create_Process("OS","Thread",1,524288);
+    mo->Add_to_memory(OS_1);
+
+
     command.add("wrlock", 1);
     command.add("rdlock", 2);
     command.add("unlock", 3);
@@ -659,7 +814,9 @@ void GUIcontroller::initThread() {
     GContainer * thread_lay1 = new GContainer;
     thread_lay1->setBounds(1.3*X/200,Y*0.919,0.98*X/5,1*Y/18);
     pick_user = new GChooser();
+
     pick_user->setBounds(X/144,Y,1.3*X/20,Y/40);
+
     pick_user->addItem(current_user);
 
     write = new GButton("write");
@@ -689,6 +846,7 @@ void GUIcontroller::initThread() {
     thread_lay2->add(reporter_wrlock);
 
 
+
     //error reporter
     GContainer * thread_lay3 = new GContainer();
     thread_lay3->setBounds(X*0.502,Y/5*3.99,X*0.287,1.07*Y/6);
@@ -703,7 +861,9 @@ void GUIcontroller::initThread() {
 
 
 
+
     thread = new spthread(current_user, false, false);
+
     wrinfo.append("Initialize a thread for ");
     wrinfo.append(current_user);
     wrinfo.append("\n");
@@ -713,6 +873,13 @@ void GUIcontroller::initThread() {
 
 
 void GUIcontroller::initFileSystem() {
+    Process initFS = mo->Create_Process("File System","Init",1,1048576);
+    if (! mo->In_Memory(initFS)) {
+        mo->Add_to_memory(initFS);
+        MemoryProcess();
+    }
+
+
     command.add("run", 4);
 
     GContainer * con_pwd = new GContainer();
@@ -786,6 +953,8 @@ void GUIcontroller::initFileSystem() {
 }
 
 void GUIcontroller::initMain(){
+    Process OS_1 = mo->Create_Process("OS","Main",1,524288);
+    mo->Add_to_memory(OS_1);
     command.add("openfs",5);
     command.add("openmemory",6);
     command.add("opencalculator",7);
@@ -796,12 +965,16 @@ void GUIcontroller::initMain(){
     table->setHeight(23*Y/30);
     gw->add(table,X/5,0);
     GContainer * con_main = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL);
+
     con_main->setX(3.5*X/5);
+
     con_main->setY(Y/30);
     con_main->setWidth(X/10);
     con_main->setHeight(Y/2);
     con_main->setSpacing(Y/60);
+
     fileb = new GButton("","file_icon.png");
+
     fileb->setActionCommand("openfs");
     memoryb = new GButton("","memory_icon.png");
     memoryb->setActionCommand("openmemory");
@@ -818,6 +991,9 @@ void GUIcontroller::initMain(){
 }
 
 void GUIcontroller::init_login() {
+    Process OS_1 = mo->Create_Process("OS","Login",1,524288);
+    mo->Add_to_memory(OS_1);
+
     command.add("confirm_user", 0);
     login.add("Jacy","abc");
     login.add("Eric","abc");
@@ -859,6 +1035,12 @@ void GUIcontroller::init_login() {
 }
 
 void GUIcontroller::initMemory() {
+    static const int GBtoKB = 1048576;
+
+    // Create the process called OS.
+    Process OS_1 = mo->Create_Process("OS","Memory",1,524288);
+    mo->Add_to_memory(OS_1);
+
     int Linespace = Y/25;
     int Colspace = X/10;
 
@@ -899,14 +1081,36 @@ void GUIcontroller::initMemory() {
     memory_title3->setColor("Black");
     memory_lay_top3->add(memory_title3);
 
-    GContainer * memory_lay_top4 = new GContainer;
+    memory_lay_top4 = new GContainer;
     memory_lay_top4->setX(4*X/5 + Colspace);
     memory_lay_top4->setY(Y/200 + Linespace*2);
-    memory_lay_top4->setWidth(Colspace);
+    memory_lay_top4->setWidth(Colspace/2);
     memory_lay_top4->setHeight(Linespace);
-    GLabel *memory_content2 = new GLabel("2.00GB/4.00GB");
+
+    // Get info from mo
+    int occupied_size = mo->Get_Occupied_Memory_Size();
+    int mid = occupied_size*100/GBtoKB;
+    // Keep 2 decimal place.
+    int mid_part1 = mid/100; // eg.For 3.92 this variable == 3.
+    int mid_part2 = mid%100; // this variable == 92.
+    string cbn = integerToString(mid_part1)+"."+integerToString(mid_part2);
+    memory_content2 = new GLabel(cbn+"GB");
+    if (mid_part1 < 3){
     memory_content2->setColor("Black");
+    }
+    else{
+    memory_content2->setColor("Red");
+    }
     memory_lay_top4->add(memory_content2);
+
+    GContainer * memory_lay_top4_1 = new GContainer;
+    memory_lay_top4_1->setX(4*X/5 + Colspace*1.45);
+    memory_lay_top4_1->setY(Y/200 + Linespace*2);
+    memory_lay_top4_1->setWidth(Colspace/2);
+    memory_lay_top4_1->setHeight(Linespace);
+    GLabel *memory_content2_1 = new GLabel("/4.00GB");
+    memory_content2_1->setColor("Black");
+    memory_lay_top4_1->add(memory_content2_1);
 
     GContainer * memory_lay_top5 = new GContainer;
     memory_lay_top5->setX(4*X/5);
@@ -917,14 +1121,20 @@ void GUIcontroller::initMemory() {
     memory_title4->setColor("Black");
     memory_lay_top5->add(memory_title4);
 
-    GContainer * memory_lay_top6 = new GContainer;
+
+    memory_lay_top6 = new GContainer;
     memory_lay_top6->setX(4*X/5 + Colspace);
     memory_lay_top6->setY(Y/200 + Linespace*3);
     memory_lay_top6->setWidth(Colspace);
     memory_lay_top6->setHeight(Linespace);
-    GLabel *memory_content3 = new GLabel("No");
+    string invoked;
+    if (occupied_size == 4194304) invoked = "Yes";
+    else invoked = "No";
+    memory_content3 = new GLabel(invoked);
     memory_content3->setColor("Black");
     memory_lay_top6->add(memory_content3);
+
+
 
     // Top Middle Block of memory GUI
     GContainer * memory_lay_mid0 = new GContainer;
@@ -937,18 +1147,33 @@ void GUIcontroller::initMemory() {
     memory_lay_mid0->add(memory_title5);
 
 
-    GContainer * memory_table = new GContainer;
+    memory_table = new GContainer;
 
-    GTable *mt = new GTable(16,4);
+    Vector<Process> Current_Process = mo->Get_Current_Process();
+    int num_process = Current_Process.size();
+    mt= new GTable(num_process,5);
     mt->setColumnHeaderStyle(GTable::COLUMN_HEADER_NONE);
-    mt->set(1,1,"HAHAHA");
-    mt->setY(Y*23/90);
+    for (int i = 0; i < num_process; i++){
+       mt->set(i,0,Current_Process[i].App_name);
+       mt->set(i,1,Current_Process[i].process_name);
+       mt->set(i,2,integerToString(Current_Process[i].process));
+       mt->set(i,3,integerToString(Current_Process[i].memory_declared));
+       mt->set(i,4,integerToString(mo->Get_process_memory(Current_Process[i])));
+    }
+
+    // 这里的表格会出现间距太窄的问题，这里还没有修复，请往下在这个区域内增加内容
+
+
+    //
+
+
     memory_table->setX(4*X/5);
     memory_table->setY(Y*23/90);
     memory_table->setWidth(X/5);
     memory_table->setHeight(Linespace*12.5);
     memory_table->add(mt);
 
+    // 表格的Header还未加上去！！！！！！
     // APP Name ; Process name ; memory decalred ; memory occupied (HEADER)
 //    GContainer * header = new GContainer;
 //    header->setX(4*X/5);
@@ -972,14 +1197,31 @@ void GUIcontroller::initMemory() {
     memory_bar->setColor(255,255,255);
     gw->add(memory_bar);
 
-    GRect * APP_bar1 = new GRect(start_x,start_y,length/5,height);
-    APP_bar1->sendToFront();
-    APP_bar1->setFilled(1);
-    APP_bar1->setFillColor(255,165,0);
-    APP_bar1->setColor(255,255,255);
-    gw->add(APP_bar1);
 
-    // Legend.
+    // Draw memory bar for every process.
+    for (Process process:mo->Get_Current_Process()){
+        // Draw memory bar for every block.
+        for (Block block:mo->Get_address(process)){
+            Vector<double> proportion = mo->Block_Position_Transfer(block);
+            double start_proportion = proportion[0];
+            double terminate_proportion = proportion[1];
+            double size_proportion = terminate_proportion - start_proportion;
+            APP_bar = new GRect(start_x + start_proportion*length,start_y,length*size_proportion,height);
+            APP_bar->sendToFront();
+            APP_bar->setFilled(1);
+            APP_bar->setColor(255,255,255);
+            APP_Bars.add(APP_bar);
+            if (process.App_name == "File System") APP_bar->setFillColor(255,165,0);
+            else if (process.App_name == "Calculator") APP_bar->setFillColor(0,156,255);
+            else if (process.App_name == "Calandar") APP_bar->setFillColor(36,110,0);
+            else if (process.App_name == "OS") APP_bar->setFillColor(166,0,200);
+            gw->add(APP_bar);
+        }
+    }
+
+
+
+    // Legend. (This part is already well-set, please do not modify!)
 
     // File System
     GRect * APP_legend1 = new GRect(start_x,start_y+height+0.5*Linespace,length/20,length/20);
@@ -1008,7 +1250,7 @@ void GUIcontroller::initMemory() {
     LabelLegend2->setSize(length/5,length/5);
     LL2->add(LabelLegend2);
 
-    // Canlandar
+    // Calandar
     GRect * APP_legend3 = new GRect(start_x+horizontal*1.7,start_y+height+0.5*Linespace,length/20,length/20);
     APP_legend3->sendToFront();
     APP_legend3->setFilled(1);
@@ -1038,6 +1280,7 @@ void GUIcontroller::initMemory() {
 
 }
 
+
 void GUIcontroller::update() {
     while (true){
         run(gw);
@@ -1046,4 +1289,97 @@ void GUIcontroller::update() {
 
 bool GUIcontroller::isStop() {
     return !runnable;
+}
+
+
+void GUIcontroller::MemoryProcess(){
+    // Renew total memory occupied size in the GUI.
+
+    static const int GBtoKB = 1048576;
+    int occupied_size = mo->Get_Occupied_Memory_Size();
+    int mid = occupied_size*100/GBtoKB;
+    // Keep 2 decimal place.
+    int mid_part1 = mid/100; // eg.For 3.92 this variable == 3.
+    int mid_part2 = mid%100; // this variable == 92.
+    string cbn;
+    if (mid_part2<10) cbn = integerToString(mid_part1)+".0"+integerToString(mid_part2);
+    else cbn = integerToString(mid_part1)+"."+integerToString(mid_part2);
+    memory_content2 = new GLabel(cbn+"GB");
+    if (mid_part1 < 3){
+    memory_content2->setColor("Black");
+    }
+    else{
+    memory_content2->setColor("Red");
+    }
+    memory_lay_top4->clear();
+    memory_lay_top4->add(memory_content2);
+
+    // Renew virtual memory invoked status in the GUI.
+
+    string invoked;
+    if (occupied_size == 4194304) invoked = "Yes";
+    else invoked = "No";
+    memory_content3 = new GLabel(invoked);
+    memory_content3->setColor("Black");
+    memory_lay_top6->clear();
+    memory_lay_top6->add(memory_content3);
+
+    // Renew the memory-process table
+    memory_table->clear();
+    Vector<Process> Current_Process = mo->Get_Current_Process();
+    int num_process = Current_Process.size();
+    mt= new GTable(num_process,5);
+    for (int i = 0; i < num_process; i++){
+       mt->set(i,0,Current_Process[i].App_name);
+       mt->set(i,1,Current_Process[i].process_name);
+       mt->set(i,2,integerToString(Current_Process[i].process));
+       mt->set(i,3,integerToString(Current_Process[i].memory_declared));
+       mt->set(i,4,integerToString(mo->Get_process_memory(Current_Process[i])));
+    }
+    memory_table->add(mt);
+
+    // The memory bar plot.
+
+    // Draw memory bar for every process.
+    int Linespace = Y/25;
+    int start_x = 4*X/5*1.008;
+    int start_y = Y/200*165;
+    int length = X/5*0.9;
+    int height = Y/18+Linespace*1.5;
+
+    // Remove the original bars
+    for (GRect *bars:APP_Bars) gw->remove(bars);
+
+    // Add new bars.
+    for (Process process:mo->Get_Current_Process()){
+        // Draw memory bar for every block.
+        for (Block block:mo->Get_address(process)){
+            Vector<double> proportion = mo->Block_Position_Transfer(block);
+            double start_proportion = proportion[0];
+            double terminate_proportion = proportion[1];
+            double size_proportion = terminate_proportion - start_proportion;
+            APP_bar = new GRect(start_x + start_proportion*length,start_y,length*size_proportion,height);
+            APP_bar->sendToFront();
+            APP_bar->setFilled(1);
+            APP_bar->setColor(255,255,255);
+            APP_Bars.add(APP_bar);
+            if (process.App_name == "File System") APP_bar->setFillColor(255,165,0);
+            else if (process.App_name == "Calculator") APP_bar->setFillColor(0,156,255);
+            else if (process.App_name == "Calandar") APP_bar->setFillColor(36,110,0);
+            else if (process.App_name == "OS") APP_bar->setFillColor(166,0,200);
+            gw->add(APP_bar);
+        }
+    }
+
+}
+
+void GUIcontroller::MemoryAdd(string APP_Name, string Process_Name, int Process_Index, int Memory_Declared){
+    Process process = mo->Create_Process(APP_Name,Process_Name,Process_Index,Memory_Declared);
+    mo->Add_to_memory(process);
+    MemoryProcess();
+}
+
+void GUIcontroller::MemoryQuit(string APP_Name){
+    mo->Remove_APP_from_memory(APP_Name);
+    MemoryProcess();
 }
