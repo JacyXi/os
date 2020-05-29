@@ -322,9 +322,6 @@ void GUIcontroller::runCalculator() {
 
 
 
-
-
-
 }
 
 void GUIcontroller::dealFileSystem() {
