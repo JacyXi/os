@@ -931,13 +931,13 @@ int Memory::correction_on_size(int input_size){
     }
 }
 
-/* Method:block_Position_Transfer
- * Usage:block_Position_Transfer(Block block)
+/* Method:block_position_transfer
+ * Usage:block_position_transfer(Block block)
  * --------------------------------------
  * This function will return the specified block's start position into a double which
  * tells the proportion of the start position in the physical memory.*
  * This function only for GUI usage.*/
-Vector<double> Memory::block_Position_Transfer(Block block) {
+Vector<double> Memory::block_position_transfer(Block block) {
     Vector<double> result;
     double pagenum = 1024;
     int start_out = block.start.outer_page_index;

@@ -157,13 +157,13 @@ public:
      * The location information will be represented as blocks in the memory.*/
     Vector<Block> Get_Occupied_memory();
 
-    /* Method:block_Position_Transfer
-     * Usage:block_Position_Transfer(Block block)
+    /* Method:block_position_transfer
+     * Usage:block_position_transfer(Block block)
      * --------------------------------------
      * This function will return the specified block's start position into a double which
      * tells the proportion of the start position in the physical memory.*
      * This function only for GUI usage.*/
-    Vector<double> block_Position_Transfer(Block block);
+    Vector<double> block_position_transfer(Block block);
 
     /* Method:create_process
      * Usage:create_process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared)
@@ -219,7 +219,6 @@ private:
     void virtual_memory(Process process,int TLB_declared);
     /* This function is used to make a correction on the true size occupied or freed*/
     int correction_on_size(int input_size);
-
 
 };
 

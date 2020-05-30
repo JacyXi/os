@@ -132,7 +132,7 @@ void GUIcontroller::run(GWindow * gw) {
 void GUIcontroller::runCalendar() {
     string APP_Name = "Calandar";
 
-    Process CalandarProc = mo->Create_Process(APP_Name,"Basic",1,524288);
+    Process CalandarProc = mo->create_process(APP_Name,"Basic",1,524288);
     if (! mo->In_Memory(CalandarProc)) {
     mo->Add_to_memory(CalandarProc);
     MemoryProcess();
@@ -251,7 +251,7 @@ void GUIcontroller::runCalendar() {
 
 void GUIcontroller::runCalculator() {
     string APP_Name = "Calculator";
-    Process CalculatorProc = mo->Create_Process(APP_Name,"Basic",1,524288);
+    Process CalculatorProc = mo->create_process(APP_Name,"Basic",1,524288);
     if (! mo->In_Memory(CalculatorProc)) {
     mo->Add_to_memory(CalculatorProc);
     MemoryProcess();
@@ -431,7 +431,7 @@ void GUIcontroller::dealFileSystem() {
 
                 string Process_Name = "Touch";
                 process_index += 1;
-                Process Touch = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+                Process Touch = mo->create_process(APP_Name,Process_Name,process_index,524288);
                 mo->Add_to_memory(Touch);
                 MemoryProcess();
 
@@ -494,7 +494,7 @@ void GUIcontroller::dealFileSystem() {
 
 //            string Process_Name = "Cd";
 //            process_index += 1;
-//            Process cd = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//            Process cd = mo->create_process(APP_Name,Process_Name,process_index,262144);
 //            mo->Add_to_memory(cd);
 //            MemoryProcess();
 
@@ -516,7 +516,7 @@ void GUIcontroller::dealFileSystem() {
 
 //                string Process_Name = "Mkdir";
 //                process_index += 1;
-//                Process mkdir = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                Process mkdir = mo->create_process(APP_Name,Process_Name,process_index,262144);
 //                mo->Add_to_memory(mkdir);
 //                MemoryProcess();
 
@@ -558,7 +558,7 @@ void GUIcontroller::dealFileSystem() {
 
             string Process_Name = "Open";
             process_index += 1;
-            Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            Process open = mo->create_process(APP_Name,Process_Name,process_index,524288);
             mo->Add_to_memory(open);
             MemoryProcess();
 
@@ -605,7 +605,7 @@ void GUIcontroller::dealFileSystem() {
         } else if (thread->has_rd(current_user)){
             string Process_Name = "Open";
             process_index += 1;
-            Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            Process open = mo->create_process(APP_Name,Process_Name,process_index,524288);
             mo->Add_to_memory(open);
             MemoryProcess();
 
@@ -648,7 +648,7 @@ void GUIcontroller::dealFileSystem() {
 
 //                string Process_Name = "Rm";
 //                process_index += 1;
-//                Process rm = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                Process rm = mo->create_process(APP_Name,Process_Name,process_index,262144);
 //                mo->Add_to_memory(rm);
 //                MemoryProcess();
 
@@ -658,7 +658,7 @@ void GUIcontroller::dealFileSystem() {
 
 //                string Process_Name = "Rm";
 //                process_index += 1;
-//                Process rm = mo->Create_Process(APP_Name,Process_Name,process_index,262144);
+//                Process rm = mo->create_process(APP_Name,Process_Name,process_index,262144);
 //                mo->Add_to_memory(rm);
 //                MemoryProcess();
             }
@@ -694,7 +694,7 @@ void GUIcontroller::dealFileSystem() {
 
         string Process_Name = "Copy";
         process_index += 1;
-        Process copy = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        Process copy = mo->create_process(APP_Name,Process_Name,process_index,524288);
         mo->Add_to_memory(copy);
         MemoryProcess();
 
@@ -764,7 +764,7 @@ void GUIcontroller::dealFileSystem() {
 
         string Process_Name = "Move";
         process_index += 1;
-        Process move = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        Process move = mo->create_process(APP_Name,Process_Name,process_index,524288);
         mo->Add_to_memory(move);
         MemoryProcess();
 
@@ -826,7 +826,7 @@ void GUIcontroller::dealFileSystem() {
 
         string Process_Name = "Chmod";
         process_index += 1;
-        Process chmod = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        Process chmod = mo->create_process(APP_Name,Process_Name,process_index,524288);
         mo->Add_to_memory(chmod);
         MemoryProcess();
 
@@ -887,7 +887,7 @@ void GUIcontroller::_widget(){
 }
 
 void GUIcontroller::initThread() {
-    Process OS_1 = mo->Create_Process("OS","Thread",1,524288);
+    Process OS_1 = mo->create_process("OS","Thread",1,524288);
     mo->Add_to_memory(OS_1);
 
 
@@ -959,7 +959,7 @@ void GUIcontroller::initThread() {
 
 
 void GUIcontroller::initFileSystem() {
-    Process initFS = mo->Create_Process("File System","Init",1,1048576);
+    Process initFS = mo->create_process("File System","Init",1,1048576);
     if (! mo->In_Memory(initFS)) {
         mo->Add_to_memory(initFS);
         MemoryProcess();
@@ -1039,7 +1039,7 @@ void GUIcontroller::initFileSystem() {
 }
 
 void GUIcontroller::initMain(){
-    Process OS_1 = mo->Create_Process("OS","Main",1,524288);
+    Process OS_1 = mo->create_process("OS","Main",1,524288);
     mo->Add_to_memory(OS_1);
     command.add("openfs",5);
     command.add("openmemory",6);
@@ -1077,7 +1077,7 @@ void GUIcontroller::initMain(){
 }
 
 void GUIcontroller::init_login() {
-    Process OS_1 = mo->Create_Process("OS","Login",1,524288);
+    Process OS_1 = mo->create_process("OS","Login",1,524288);
     mo->Add_to_memory(OS_1);
 
     command.add("confirm_user", 0);
@@ -1124,7 +1124,7 @@ void GUIcontroller::initMemory() {
     static const int GBtoKB = 1048576;
 
     // Create the process called OS.
-    Process OS_1 = mo->Create_Process("OS","Memory",1,524288);
+    Process OS_1 = mo->create_process("OS","Memory",1,524288);
     mo->Add_to_memory(OS_1);
 
     int Linespace = Y/25;
@@ -1320,7 +1320,7 @@ void GUIcontroller::initMemory() {
     for (Process process:mo->Get_Current_Process()){
         // Draw memory bar for every block.
         for (Block block:mo->Get_address(process)){
-            Vector<double> proportion = mo->Block_Position_Transfer(block);
+            Vector<double> proportion = mo->block_position_transfer(block);
             double start_proportion = proportion[0];
             double terminate_proportion = proportion[1];
             double size_proportion = terminate_proportion - start_proportion;
@@ -1504,7 +1504,7 @@ void GUIcontroller::MemoryProcess(){
     for (Process process:mo->Get_Current_Process()){
         // Draw memory bar for every block.
         for (Block block:mo->Get_address(process)){
-            Vector<double> proportion = mo->Block_Position_Transfer(block);
+            Vector<double> proportion = mo->block_position_transfer(block);
             double start_proportion = proportion[0];
             double terminate_proportion = proportion[1];
             double size_proportion = terminate_proportion - start_proportion;
@@ -1524,12 +1524,12 @@ void GUIcontroller::MemoryProcess(){
 }
 
 void GUIcontroller::MemoryAdd(string APP_Name, string Process_Name, int Process_Index, int Memory_Declared){
-    Process process = mo->Create_Process(APP_Name,Process_Name,Process_Index,Memory_Declared);
+    Process process = mo->create_process(APP_Name,Process_Name,Process_Index,Memory_Declared);
     mo->Add_to_memory(process);
     MemoryProcess();
 }
 
 void GUIcontroller::MemoryQuit(string APP_Name){
-    mo->Remove_APP_from_memory(APP_Name);
+    mo->remove_app_from_memory(APP_Name);
     MemoryProcess();
 }
