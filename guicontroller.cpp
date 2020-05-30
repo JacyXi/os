@@ -1,28 +1,25 @@
 #include "guicontroller.h"
 #include "sFileSystem.h"
+#include "Calculator.h"
+#include "sCalendar.h"
+#include "spthread.h"
+#include "memory.h"
+
 #include "gwindow.h"
+#include "gobjects.h"
 #include "gbutton.h"
 #include "gtextfield.h"
+#include "gtextarea.h"
 #include "gevent.h"
 #include "glabel.h"
 #include "gchooser.h"
-#include "spthread.h"
-#include <string>
-#include "QMenu"
-#include "gobjects.h"
-#include "gslider.h"
-#include "math.h"
-#include <iostream>
-#include "gtextarea.h"
 #include "gtable.h"
-#include "memory.h"
-#include "Calculator.h"
-#include "sCalendar.h"
+
+#include <iostream>
+#include <string>
+#include "math.h"
 #include "set.h"
 #include "error.h"
-#include "set.h"
-
-
 
 using namespace std;
 
@@ -58,7 +55,6 @@ void GUIcontroller::run(GWindow * gw) {
        comd = e.getActionCommand();
        if (comd.length() > 0) break;
     }
-
     switch (command.get(comd))
     {
     case 0:{
@@ -99,12 +95,10 @@ void GUIcontroller::run(GWindow * gw) {
         break;
     }
     case 6:{
-
         MemoryProcess();
         break;
     }
     case 7:{
-        //calculator
         runCalculator();
         break;
     }
@@ -118,14 +112,14 @@ void GUIcontroller::run(GWindow * gw) {
         MemoryProcess();
         break;
     }
-
-
-    default:
-        cout << "No matches" << endl;
+    case 99:{
+        runnable = false;
+        break;
     }
-
-    gw->pause(10);
-
+    default:
+        break;
+    }
+    gw->repaint();
 }
 
 
@@ -1045,6 +1039,7 @@ void GUIcontroller::initMain(){
     command.add("openmemory",6);
     command.add("opencalculator",7);
     command.add("opencalendar",8);
+    command.add("exit",99);
 
     table = new GImage("main.png");
     table->setWidth(3*X/5);
@@ -1068,12 +1063,13 @@ void GUIcontroller::initMain(){
     calculatorb->setActionCommand("opencalculator");
     calendarb = new GButton("","calendar_icon.png");
     calendarb->setActionCommand("opencalendar");
+    exitb = new GButton("","exit.png");
+    exitb->setActionCommand("exit");
     con_main->add(calendarb);
     con_main->add(calculatorb);
     con_main->add(fileb);
     con_main->add(memoryb);
-
-
+    con_main->add(exitb);
 }
 
 void GUIcontroller::init_login() {
@@ -1174,7 +1170,7 @@ void GUIcontroller::initMemory() {
     memory_lay_top4->setHeight(Linespace);
 
     // Get info from mo
-    int occupied_size = mo->Get_Occupied_Memory_Size();
+    int occupied_size = mo->get_occupied_memory_size();
     int mid = occupied_size*100/GBtoKB;
     // Keep 2 decimal place.
     int mid_part1 = mid/100; // eg.For 3.92 this variable == 3.
@@ -1266,7 +1262,7 @@ void GUIcontroller::initMemory() {
     // Memory Table
     memory_table = new GContainer;
 
-    Vector<Process> Current_Process = mo->Get_Current_Process();
+    Vector<Process> Current_Process = mo->get_current_process();
     int num_process = Current_Process.size();
     mt= new GTable(num_process,5);
     mt->setColumnHeaderStyle(GTable::COLUMN_HEADER_NONE);
@@ -1317,7 +1313,7 @@ void GUIcontroller::initMemory() {
 
 
     // Draw memory bar for every process.
-    for (Process process:mo->Get_Current_Process()){
+    for (Process process:mo->get_current_process()){
         // Draw memory bar for every block.
         for (Block block:mo->Get_address(process)){
             Vector<double> proportion = mo->block_position_transfer(block);
@@ -1414,7 +1410,7 @@ void GUIcontroller::MemoryProcess(){
     // Renew total memory occupied size in the GUI.
 
     static const int GBtoKB = 1048576;
-    int occupied_size = mo->Get_Occupied_Memory_Size();
+    int occupied_size = mo->get_occupied_memory_size();
     int mid = occupied_size*100/GBtoKB;
     // Keep 2 decimal place.
     int mid_part1 = mid/100; // eg.For 3.92 this variable == 3.
@@ -1445,7 +1441,7 @@ void GUIcontroller::MemoryProcess(){
     // Renew the memory-process table
     memory_table->clear();
 
-    Vector<Process> Current_Process = mo->Get_Current_Process();
+    Vector<Process> Current_Process = mo->get_current_process();
 
 
 
@@ -1501,7 +1497,7 @@ void GUIcontroller::MemoryProcess(){
     for (GRect *bars:APP_Bars) gw->remove(bars);
 
     // Add new bars.
-    for (Process process:mo->Get_Current_Process()){
+    for (Process process:mo->get_current_process()){
         // Draw memory bar for every block.
         for (Block block:mo->Get_address(process)){
             Vector<double> proportion = mo->block_position_transfer(block);

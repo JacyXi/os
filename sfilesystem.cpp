@@ -16,8 +16,7 @@
  * ---------------------------------
  * Initialize a new empty sFileSystem.
  */
-sFileSystem::sFileSystem()
-{
+sFileSystem::sFileSystem() {
 }
 
 
@@ -27,7 +26,7 @@ sFileSystem::sFileSystem()
  * ----------------------------------------------
  * Initialize a new empty sFileSystem, set a user.
  */
-sFileSystem::sFileSystem(string user){
+sFileSystem::sFileSystem(string user) {
     if (checkuser(user)) current_user = user; else error ("No such user.");
     root = new sPath("root", true);
     allpath.add(root);
@@ -46,6 +45,12 @@ bool sFileSystem::checkuser(string user) {
     return alluser.contains(user);
 }
 
+/*
+ * Method: ch_user
+ * Usage: ch_user(user);
+ * ----------------------
+ * Change current user if the user is valid.
+ */
 void sFileSystem::ch_user(string user) {
     if (checkuser(user)) {
         current_user = user;
@@ -53,6 +58,7 @@ void sFileSystem::ch_user(string user) {
         error("No such user.");
     }
 }
+
 /*
  * Method: touch
  * Usage: touch(filename, content, mod);
@@ -87,6 +93,12 @@ int sFileSystem::touch(string filename, string content,int mod, sPath * operatio
     return 2;
 }
 
+/*
+ * Method: file_info
+ * Usage: file_info(filename);
+ * ---------------------------
+ * Get the file information if file exists.
+ */
 string sFileSystem::file_info(string filename) {
     if (current_path -> has_file(filename)) {
         sFile* thisfile = current_path->get_file(filename);
@@ -105,7 +117,6 @@ string sFileSystem::file_info(string filename) {
  */
 int sFileSystem::mkdir(string pathname, sPath * operating_path) {
     if (operating_path -> is_subset(pathname)) error("The path already exists.");
-
     string key = hashfunc(pathname, true);
     string absolute_address = pathname.append("/").append(operating_path -> get_absolute());
     Set<sPath*> target;
@@ -129,10 +140,10 @@ int sFileSystem::mkdir(string pathname, sPath * operating_path) {
 /*
  * Method: mkdir
  * Usage: mkdir(pathname);
- * -----------------------------------------------------
+ * -----------------------
  * Create a path at the current directory.
  */
-int sFileSystem::mkdir(string pathname){
+int sFileSystem::mkdir(string pathname) {
     return mkdir(pathname, current_path);
 }
 
@@ -157,7 +168,7 @@ void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
     if (operationPath -> has_file(goalfile)) {
         operationPath -> removeFile(goalfile);
         Set<sPath*> target;
-        string key = hashfunc(goalfile,false);
+        string key = hashfunc(goalfile, false);
         if(tree.search(key)) {
             target = tree.select(key, EQ).front();
             target.remove(operationPath);
@@ -172,7 +183,7 @@ void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
 
 /*
  * Method: rm
- * Usage: rm(goalfile, operationPath);
+ * Usage: rm(goalfile, operants);
  * ----------------------------------
  * A helper function to remove a file.
  */
@@ -211,10 +222,11 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
 
         Set<sPath*> target;
         target = tree.select(hashfunc(goal,true), EQ).front();
-        try {
-            if (target.contains(allpath[location])) target.remove(allpath[location]);
-        } catch (ErrorException) {
-            cout << "Failed to rmDir." << endl;
+
+        if (target.contains(allpath[location])) {
+            target.remove(allpath[location]);
+        } else {
+            error("Could not remove to such path.");
         }
         tree.insert(hashfunc(goal,true), target);
         allpath[location] -> ~sPath();
@@ -434,7 +446,6 @@ int sFileSystem::chmod(string file, int mod) {
     return 2;
 }
 
-
 /*
  * Method: find
  * Usage: find(file);
@@ -464,9 +475,6 @@ string sFileSystem::find(string file) {
     return result;
 }
 
-
-
-
 /*
  * Method: revoke
  * Usage: revoke(file);
@@ -482,7 +490,6 @@ int sFileSystem::revoke(string file) {
         error("No such file exists.");
     }
 }
-
 
 /*
  * Method: hashfunc
@@ -512,10 +519,23 @@ string sFileSystem::hashfunc(string filename, bool is_path){
         return code.substr(0,16);
     }
 }
+
+/*
+ * Method: changeContent
+ * Usage: changeContent(filename, content);
+ * ----------------------------------------
+ * Change file content if file exists.
+ */
 void sFileSystem::changeContent(string filename, string content){
     current_path -> chcontent(current_user, filename, content);
 }
 
+/*
+ * Method: has_path
+ * Usage: has_path(filename);
+ * --------------------------
+ * Check whether the path exists.
+ */
 bool sFileSystem::has_path(string pathname) {
     return current_path->is_subset(pathname);
 }

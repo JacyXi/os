@@ -23,52 +23,68 @@ public:
     /* Constructor for Calculator with operation equation s.*/
     Calculator(string s);
 
-    /* Method: priority
+    /*
+     * Method: priority
      * Usage:priority(x);
      * ------------------
-     * Helper function to figure out the operating priority.*/
+     * Helper function to figure out the operating priority.
+     */
     int priority(char x);
 
-    /* Method: calcu
+    /*
+     * Method: calcu
      * Usage: calcu(d1, d2, t);
      * ------------------
-     * Helper function to calculate the equation.*/
+     * Helper function to calculate the equation.
+     */
     double calcu(double d1, double d2, char t);
 
-    /* Method: judge
+    /*
+     * Method: judge
      * Usage: judge(s);
      * ------------------
-     * Helper function to judge whether the equation is legal.*/
+     * Helper function to judge whether the equation is legal.
+     */
     bool judge(string s);
 
-    /* Method: dealneg
+    /*
+     * Method: dealneg
      * Usage: dealneg(s);
      * ------------------
-     * Helper function to deal with negative number.*/
+     * Helper function to deal with negative number.
+     */
     string dealneg(string s);
 
-    /* Method: str_to_inf
+    /*
+     * Method: str_to_inf
      * Usage: str_to_inf(str);
      * ------------------
-     * Intermediate helper function to change expression.*/
+     * Intermediate helper function to change expression.
+     */
     void str_to_inf(string str);
 
-    /* Method: inf_to_suf
+    /*
+     * Method: inf_to_suf
      * Usage: inf_to_suf();
      * ------------------
-     * Intermediate helper function to change expression.*/
+     * Intermediate helper function to change expression.
+     */
     void inf_to_suf();
 
-    /* Method: result
+    /*
+     * Method: result
      * Usage: result();
      * ------------------
-     * Calculate to the final result.*/
+     * Calculate to the final result.
+     */
     double result();
 
-    /* Method: run
+    /*
+     * Method: run
      * Usage: run(s);
      * ------------------
-     * Activate the calculator.*/
+     * Activate the calculator.
+     */
     string run(string s);
 
 private:

@@ -8,12 +8,21 @@
 using namespace std;
 typedef long long ll;
 
-Calculator::Calculator(){
+/* Constructor: Calculator
+ * Usage: Calculator cal;
+ * -------------------
+ * Initial with default empty calculator.*/
+Calculator::Calculator() {
 }
 
+/* Constructor: Calculator
+ * Usage: Calculator(s);
+ * -------------------
+ * Initial with default size of the memory(4GB).*/
 Calculator::Calculator(string s) {
     run(s);
 }
+
 Calculator::~Calculator() {
 
 }
@@ -31,6 +40,12 @@ string Calculator::run(string s) {
     }
 }
 
+/*
+ * Method: priority
+ * Usage:priority(x);
+ * ------------------
+ * Helper function to figure out the operating priority.
+ */
 int Calculator::priority(char x) {
     if(x=='+'||x=='-')
         return 1;
@@ -42,6 +57,12 @@ int Calculator::priority(char x) {
         return -1;
 }
 
+/*
+ * Method: calcu
+ * Usage: calcu(d1, d2, t);
+ * ------------------
+ * Helper function to calculate the equation.
+ */
 double Calculator::calcu(double d1, double d2, char t) {
     if (t == '+') {
         return (d1 + d2);

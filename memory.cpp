@@ -77,13 +77,13 @@ const double Memory::TLB_PROPORTION = 0.25;
  * Initial with default size of the memory(4GB).*/
 Memory::Memory() {
     size = INITIAL_TOTAL_SIZE;
-    Free_size = size;
-    Occupied_size = 0;
+    free_size = size;
+    occupied_size = 0;
     SPT_size = 0;
     TLB_size = 0;
     inner_page_total = size/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
-    // Add the free block(the complete memory) into the vector of Free_memory.
+    // Add the free block(the complete memory) into the vector of free_memory.
     page_index Free_start;
     page_index Free_terminate;
     Free_start.outer_page_index = 0;
@@ -94,8 +94,8 @@ Memory::Memory() {
     Block Free;
     Free.start = Free_start;
     Free.terminate = Free_terminate;
-    Free.Block_size = Free_size;
-    Free_memory.add(Free);
+    Free.Block_size = free_size;
+    free_memory.add(Free);
 
 }
 
@@ -106,13 +106,13 @@ Memory::Memory() {
 Memory::Memory(int size) {
     // Remark: The size must be xxxGB, xxx must be an integer.
     this->size = size;
-    Free_size = size;
-    Occupied_size = 0;
+    free_size = size;
+    occupied_size = 0;
     SPT_size = 0;
     TLB_size = 0;
     inner_page_total = (this->size)/OUT_PAGE_TOTAL/SINGLE_PAGE_SIZE;
 
-    // Add the free block(the complete memory) into the vector of Free_memory.
+    // Add the free block(the complete memory) into the vector of free_memory.
     page_index Free_start;
     page_index Free_terminate;
     Free_start.outer_page_index = 0;
@@ -122,8 +122,8 @@ Memory::Memory(int size) {
     Block Free;
     Free.start = Free_start;
     Free.terminate = Free_terminate;
-    Free.Block_size = Free_size;
-    Free_memory.add(Free);
+    Free.Block_size = free_size;
+    free_memory.add(Free);
 
 }
 
@@ -132,8 +132,8 @@ Memory::Memory(int size) {
  * --------------------------------------
  * If there the process has already been added into the memory, print error message.
  * If the memory space is not enough for the process, print error message.
- * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
- * Free_memory, Current_Process, All_Process_Status will be modified.*/
+ * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
+ * free_memory, current_process, all_process_status will be modified.*/
 void Memory::Add_to_memory(Process process) {
 
     int memory_declared = process.memory_declared;
@@ -145,11 +145,11 @@ void Memory::Add_to_memory(Process process) {
     int Actual_memory_declared = Actual_SPT_declared + Actual_TLB_declared;
 
     // Check whether the memory is full. If it's full, then invoke virtual memory.
-    if (Actual_memory_declared > Free_size) {
+    if (Actual_memory_declared > free_size) {
         virtual_memory(process, TLB_declared);
     }
     // Check whether you are adding the same process for the second times.
-    else if (All_Process_Status.containsKey(process)) {
+    else if (all_process_status.containsKey(process)) {
         error("There is already such a process in the memory.");
     }
     // This is the case when we don't have to invoke virtual memory.
@@ -158,28 +158,28 @@ void Memory::Add_to_memory(Process process) {
         Vector<int> Process_size;
         Process_size.add(Actual_TLB_declared);
         Process_size.add(Actual_SPT_declared);
-        All_Process_Size.put(process,Process_size);
+        all_process_size.put(process,Process_size);
 
-        Free_size -= Actual_memory_declared;
-        Occupied_size += Actual_memory_declared;
+        free_size -= Actual_memory_declared;
+        occupied_size += Actual_memory_declared;
         TLB_size += Actual_TLB_declared;
         SPT_size += Actual_SPT_declared;
 
-        Current_Process.add(process);
+        current_process.add(process);
 
         Vector<Block> TLB_table;
         Vector<Block> SPT_table;
 
-        // In the next two line, the function has already modified the Free_memory and Occupied_memory.
+        // In the next two line, the function has already modified the free_memory and occupied_memory.
         // Note: here the input can't use Atualized size data, as the function itself will make the correction.
-        TLB_table = Partition_add_to_memory(Actual_TLB_declared);
-        SPT_table = Partition_add_to_memory(Actual_SPT_declared);
+        TLB_table = partition_add_to_memory(Actual_TLB_declared);
+        SPT_table = partition_add_to_memory(Actual_SPT_declared);
 
         process_status page_table;
         page_table.SPT = SPT_table;
         page_table.TLB = TLB_table;
 
-        All_Process_Status.put(process,page_table);
+        all_process_status.put(process,page_table);
    }
 
 }
@@ -190,38 +190,38 @@ void Memory::Add_to_memory(Process process) {
  * --------------------------------------
  * If there are no such a process inside the memory, print error message.
  *
- * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
- * Free_memory, Current_Process, All_Process_Status will be modified.*/
+ * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
+ * free_memory, current_process, all_process_status will be modified.*/
 void Memory::Remove_from_memory(Process process) {
     //Check whether there is such a process in the memory.
-    if (! All_Process_Status.containsKey(process)) error("There is no such a process in the memory.");
+    if (! all_process_status.containsKey(process)) error("There is no such a process in the memory.");
     // If there is such a process, then we can start to remove.
     else {
-        process_status page_table = All_Process_Status[process];
-        Vector<int> Process_size = All_Process_Size[process];
+        process_status page_table = all_process_status[process];
+        Vector<int> Process_size = all_process_size[process];
         int Actual_TLB_declared = Process_size[0];
         int Actual_SPT_declared = Process_size[1];
         int Actual_memory_decalred = Actual_SPT_declared + Actual_TLB_declared;
 
         // Clear the (process,page table) pair and (process,Process_size) pair.
-        All_Process_Status.remove(process);
-        All_Process_Size.remove(process);
+        all_process_status.remove(process);
+        all_process_size.remove(process);
         // Modify Free , Occupied and TLB SPT size value
-        Free_size += Actual_memory_decalred;
-        Occupied_size -= Actual_memory_decalred;
+        free_size += Actual_memory_decalred;
+        occupied_size -= Actual_memory_decalred;
         TLB_size -= Actual_TLB_declared;
         SPT_size -= Actual_SPT_declared;
 
-        // Clear the process from the Current_Process vector.
-        Current_Process.removeValue(process);
+        // Clear the process from the current_process vector.
+        current_process.removeValue(process);
         // Adjust the two vectors that records the memory usage.
         for (Block page_table_blocks : page_table.TLB) {
-            Occupied_memory.removeValue(page_table_blocks);
-            Free_memory.add(page_table_blocks);
+            occupied_memory.removeValue(page_table_blocks);
+            free_memory.add(page_table_blocks);
         }
         for (Block page_table_blocks : page_table.SPT) {
-            Occupied_memory.removeValue(page_table_blocks);
-            Free_memory.add(page_table_blocks);
+            occupied_memory.removeValue(page_table_blocks);
+            free_memory.add(page_table_blocks);
         }
 
     }
@@ -236,10 +236,10 @@ void Memory::Remove_from_memory(Process process) {
  * in the form of memory blocks.*/
 Vector<Block> Memory::Get_address(const Process & process) {
     // Check whether the input process is still in the memory or not.
-    if (!All_Process_Status.containsKey(process)) error("There is no such a process");
+    if (!all_process_status.containsKey(process)) error("There is no such a process");
 
     // If there is such a process, then we can get the address(blocks) of the process.
-    process_status process_status = All_Process_Status[process];
+    process_status process_status = all_process_status[process];
     Vector<Block> TLB_Blocks = process_status.TLB;
     Vector<Block> SPT_Blocks = process_status.SPT;
     if (SPT_Blocks.size() == 0) return TLB_Blocks;
@@ -270,9 +270,9 @@ Vector<Block> Memory::Get_address(const Process & process) {
  * The input is the string App_name.*/
 int Memory::Get_App_memory(string App_name) {
     Vector<int> App_memory_vector;
-    for (Process processes : Current_Process) {
+    for (Process processes : current_process) {
         if (processes.App_name == App_name) {
-            int App_memory = All_Process_Size[processes][0] + All_Process_Size[processes][1];
+            int App_memory = all_process_size[processes][0] + all_process_size[processes][1];
             App_memory_vector.add(App_memory);
         }
     }
@@ -293,28 +293,28 @@ int Memory::Get_App_memory(string App_name) {
  * --------------------------------------
  * This function will return the memory occupied by the process specified.*/
 int Memory::Get_process_memory(Process & process) {
-    if (!All_Process_Status.containsKey(process)) {
+    if (!all_process_status.containsKey(process)) {
         error("There is no such process in the memory.");
     } else {
-        int process_memory_declared = All_Process_Size[process][0] + All_Process_Size[process][1];
+        int process_memory_declared = all_process_size[process][0] + all_process_size[process][1];
         return process_memory_declared;
     }
 }
 
-/* Method:Get_Free_Memory_Size
- * Usage:Get_Free_Memory_Size()
+/* Method:Get_free_memory_Size
+ * Usage:Get_free_memory_Size()
  * --------------------------------------
  * This function will return the total space of free memory.(The unit is kb)*/
-int Memory::Get_Free_Memory_Size() {
-    return Free_size;
+int Memory::Get_free_memory_Size() {
+    return free_size;
 }
 
-/* Method:Get_Occupied_Memory_Size
- * Usage:Get_Occupied_Memory_Size()
+/* Method:get_occupied_memory_size
+ * Usage:get_occupied_memory_size()
  * --------------------------------------
  * This function will return the total space of occupied memory.(The unit is kb)*/
-int Memory::Get_Occupied_Memory_Size() {
-    return Occupied_size;
+int Memory::get_occupied_memory_size() {
+    return occupied_size;
 }
 
 /* Method:Get_TLB_Size
@@ -333,46 +333,46 @@ int Memory::Get_SPT_Size() {
     return SPT_size;
 }
 
-/* Method:Get_Current_Process
- * Usage:Get_Current_Process()
+/* Method:get_current_process
+ * Usage:get_current_process()
  * --------------------------------------
  * This function will return all the processes in the memory right now. Information include
  * App_name, process index and memory declared inside each process.*/
-Vector<Process> Memory::Get_Current_Process() {
-    return Current_Process;
+Vector<Process> Memory::get_current_process() {
+    return current_process;
 }
 
-/* Method:Get_Free_memory
- * Usage:Get_Free_memory()
+/* Method:Get_free_memory
+ * Usage:Get_free_memory()
  * --------------------------------------
  * This function will return all the free memory location in the memory right now.
  * The location information will be represented as blocks in the memory.*/
-Vector<Block> Memory::Get_Free_memory() {
-    return Free_memory;
+Vector<Block> Memory::Get_free_memory() {
+    return free_memory;
 }
 
-/* Method:Get_Occupied_memory
- * Usage:Get_Occupied_memory()
+/* Method:Get_occupied_memory
+ * Usage:Get_occupied_memory()
  * --------------------------------------
  * This function will return all the occupied memory location in the memory right now.
  * The location information will be represented as blocks in the memory.*/
-Vector<Block> Memory::Get_Occupied_memory() {
-    return Occupied_memory;
+Vector<Block> Memory::Get_occupied_memory() {
+    return occupied_memory;
 }
 
 
-/* Method: Partition_add_to_memory
- * Usage: Partition_add_to_memory(memory_declared);
+/* Method: partition_add_to_memory
+ * Usage: partition_add_to_memory(memory_declared);
  * ------------------------------------------------
  * This function is used to add the TLB and SPT part
  * of the process into the memory seperately. */
-Vector<Block> Memory::Partition_add_to_memory(int memory_declared) {
-    int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
-        // Do a deep copy of Free_memory for iteration
-        Vector<Block> Free_memory_copy = Free_memory;
+Vector<Block> Memory::partition_add_to_memory(int memory_declared) {
+    int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in free_memory.
+        // Do a deep copy of free_memory for iteration
+        Vector<Block> free_memory_copy = free_memory;
         Vector<Block> table;
         // Start the for loop iteration
-        for (Block Free_Blocks : Free_memory_copy){
+        for (Block Free_Blocks : free_memory_copy){
             free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
             if (free_accumulated_memory < memory_declared) {
                 // Get the address for the free block at this iteration
@@ -380,14 +380,14 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared) {
                 page_index Free_Block_Terminate = Free_Blocks.terminate;
 
                 // Remove the block in free memory
-                Free_memory.remove(0);
+                free_memory.remove(0);
 
-                // Add occupation on the Occupied_memory
+                // Add occupation on the occupied_memory
                 Block new_occupied;
                 new_occupied.start = Free_Block_Start;
                 new_occupied.terminate = Free_Block_Terminate;
                 new_occupied.Block_size = Free_Blocks.Block_size;
-                Occupied_memory.add(new_occupied);
+                occupied_memory.add(new_occupied);
 
                 // Update the partition page table (could be TLB or SPT) for this process at this step.
                 table.add(new_occupied);
@@ -452,8 +452,8 @@ Vector<Block> Memory::Partition_add_to_memory(int memory_declared) {
                 Free.terminate = Free_Block_Terminate;
                 Free.Block_size = remaining_memory;
 
-                Free_memory[0] = Free;
-                Occupied_memory.add(Occupied);
+                free_memory[0] = Free;
+                occupied_memory.add(Occupied);
 
                 table.add(Occupied);
                 // This makes sure that if going into this else statement, the for loop will terminate.
@@ -506,22 +506,22 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
 
     // The case when virtual memory is able to be invoked.
     else {
-        Vector<Block> Temporary_Free_Memory;
-        Occupied_size = size;
+        Vector<Block> Temporary_free_memory;
+        occupied_size = size;
         TLB_size += Actual_TLB_declared;
         int Previous_SPT_Size = SPT_size;
-        SPT_size = Occupied_size - TLB_size;
+        SPT_size = occupied_size - TLB_size;
 
-        // Do a deep copy of the Current_Process for the iteration usage. The iteration will follow FIFO rule( Just like a queue).
-        Vector<Process> Process_Queue = Current_Process;
-        Current_Process.add(process);
+        // Do a deep copy of the current_process for the iteration usage. The iteration will follow FIFO rule( Just like a queue).
+        Vector<Process> Process_Queue = current_process;
+        current_process.add(process);
 
-        // Empty Free_memory and put its empty space(record by Vector of block) into TFM.
-        if (Free_size != 0) {
-            Free_size = 0;
-            Temporary_Free_Memory = Free_memory;
-            for (int i = 0; i < Free_memory.size(); i++) {
-                Free_memory.remove(i);
+        // Empty free_memory and put its empty space(record by Vector of block) into TFM.
+        if (free_size != 0) {
+            free_size = 0;
+            Temporary_free_memory = free_memory;
+            for (int i = 0; i < free_memory.size(); i++) {
+                free_memory.remove(i);
             }
         }
 
@@ -531,36 +531,36 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
         // Situation when the new process requires all the SPT to be removed.
         if (SPT_need_remove_size > Previous_SPT_Size) {
             for (Process process : Process_Queue) {
-                // Modify All_Process_Size
-                Vector<int> process_size = All_Process_Size[process];
+                // Modify all_process_size
+                Vector<int> process_size = all_process_size[process];
                 // Here is to modify the SPT size of the exist processes.
                 process_size[1] = 0;
-                All_Process_Size[process] = process_size;
+                all_process_size[process] = process_size;
 
-                // Modify Occupied_memory and All_Process_Status
-                // Step1: Remove the original processes' SPT blocks in Occupied_memory and Assign empty SPT block vector to them in All_Process_Status.
-                process_status ps = All_Process_Status[process];
+                // Modify occupied_memory and all_process_status
+                // Step1: Remove the original processes' SPT blocks in occupied_memory and Assign empty SPT block vector to them in all_process_status.
+                process_status ps = all_process_status[process];
                 Vector<Block> SPT = ps.SPT;
                 // Remove the corresponding blocks in the occupied_memory.
                 for (Block block : SPT) {
-                    Occupied_memory.removeValue(block);
-                    Temporary_Free_Memory.add(block);
+                    occupied_memory.removeValue(block);
+                    Temporary_free_memory.add(block);
                 }
                 // Assign an empty vector of block to SPT and then assign the new process status back to the map.
                 Vector<Block> Empty;
                 ps.SPT = Empty;
-                All_Process_Status[process] = ps;
+                all_process_status[process] = ps;
             }
 
-            // Step2: Assign New space for the new process in the Occupied_memory and A_P_St.
-            int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
+            // Step2: Assign New space for the new process in the occupied_memory and A_P_St.
+            int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in free_memory.
 
-            // Do a deep copy of Temporary_Free_memory for iteration
-                Vector<Block> Free_memory_copy = Temporary_Free_Memory;
+            // Do a deep copy of Temporary_free_memory for iteration
+                Vector<Block> free_memory_copy = Temporary_free_memory;
                 Vector<Block> TLB_blocks;
 
             // Start the for loop iteration to arrange space for TLB of the new process.
-              for (Block Free_Blocks : Free_memory_copy){
+              for (Block Free_Blocks : free_memory_copy){
                     free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
                     if (free_accumulated_memory < Actual_TLB_declared) {
                         // Get the address for the free block at this iteration
@@ -568,14 +568,14 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                         page_index Free_Block_Terminate = Free_Blocks.terminate;
 
                         // Remove the block in temporary free memory
-                        Temporary_Free_Memory.remove(0);
+                        Temporary_free_memory.remove(0);
 
-                        // Add occupation on the Occupied_memory
+                        // Add occupation on the occupied_memory
                         Block new_occupied;
                         new_occupied.start = Free_Block_Start;
                         new_occupied.terminate = Free_Block_Terminate;
                         new_occupied.Block_size = Free_Blocks.Block_size;
-                        Occupied_memory.add(new_occupied);
+                        occupied_memory.add(new_occupied);
                         TLB_blocks.add(new_occupied);
                         continue;
                     } else {
@@ -637,8 +637,8 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                         Free.terminate = Free_Block_Terminate;
                         Free.Block_size = remaining_memory;
 
-                        Temporary_Free_Memory[0] = Free;
-                        Occupied_memory.add(Occupied);
+                        Temporary_free_memory[0] = Free;
+                        occupied_memory.add(Occupied);
 
                         TLB_blocks.add(Occupied);
                         // This makes sure that if going into this else statement, the for loop will terminate.
@@ -648,14 +648,14 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                 }
               Vector<Block> SPT_blocks;
               // Put all the remaining free space as occupied SPT_blocks for the new process.
-              for (Block spt : Temporary_Free_Memory) {
+              for (Block spt : Temporary_free_memory) {
                   SPT_blocks.add(spt);
-                  Occupied_memory.add(spt);
+                  occupied_memory.add(spt);
               }
               process_status new_process_status;
               new_process_status.SPT = SPT_blocks;
               new_process_status.TLB = TLB_blocks;
-              All_Process_Status[process] = new_process_status;
+              all_process_status[process] = new_process_status;
         }
         // Situation when we have to move partial SPT from exist processes.
         else{
@@ -663,7 +663,7 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
             int Process_Queue_index = 0;
             for (Process process : Process_Queue) {
 
-                Vector<int> Process_size = All_Process_Size[process];
+                Vector<int> Process_size = all_process_size[process];
                 int Process_SPT_Size = Process_size[1];
                 Accumulated_Exist_Process_SPT_Size += Process_SPT_Size;
 
@@ -674,21 +674,21 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                 // Below are the situation when we have to remove the complete SPT part of one of the exist process.
                 // Here is to modify the SPT size of the exist processes.
                 Process_size[1] = 0;
-                All_Process_Size[process] = Process_size;
+                all_process_size[process] = Process_size;
 
-                // Modify Occupied_memory and All_Process_Status
-                // Step1: Remove the original processes' SPT blocks in Occupied_memory and Assign empty SPT block vector to them in All_Process_Status.
-                process_status ps = All_Process_Status[process];
+                // Modify occupied_memory and all_process_status
+                // Step1: Remove the original processes' SPT blocks in occupied_memory and Assign empty SPT block vector to them in all_process_status.
+                process_status ps = all_process_status[process];
                 Vector<Block> SPT = ps.SPT;
                 // Remove the corresponding blocks in the occupied_memory.
                 for (Block block : SPT) {
-                Occupied_memory.removeValue(block);
-                Temporary_Free_Memory.add(block);
+                occupied_memory.removeValue(block);
+                Temporary_free_memory.add(block);
                 }
                 // Assign an empty vector of block to SPT and then assign the new process status back to the map.
                 Vector<Block> Empty;
                 ps.SPT = Empty;
-                All_Process_Status[process] = ps;
+                all_process_status[process] = ps;
             }
 
             // Jump out of the for loop and deal with the specific SPT block we need.
@@ -698,8 +698,8 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
             Process Specific_Process = Process_Queue[Process_Queue_index];
 
             // Deal with the process' blocks that is not specific
-            process_status ps = All_Process_Status[Specific_Process];
-            int Specific_Process_SPT_size = All_Process_Size[Specific_Process][1];
+            process_status ps = all_process_status[Specific_Process];
+            int Specific_Process_SPT_size = all_process_size[Specific_Process][1];
             int Single_SPT_need_remove_size = Specific_Process_SPT_size - remaining_SPT_size;
             Vector<Block> SPT = ps.SPT;
             int accumulated_block_size = 0;
@@ -709,9 +709,9 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                 accumulated_block_size += block_size;
                 if (accumulated_block_size > Single_SPT_need_remove_size) break;
                 block_index += 1;
-                Occupied_memory.removeValue(block);
+                occupied_memory.removeValue(block);
                 SPT.removeValue(block);
-                Temporary_Free_Memory.add(block);
+                Temporary_free_memory.add(block);
             }
 
             // The specific block and start to cut
@@ -776,32 +776,32 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
 
             //************** End copy ***************
 
-            Occupied_memory.removeValue(Specific_Block);
-            Occupied_memory.add(Reserved);
+            occupied_memory.removeValue(Specific_Block);
+            occupied_memory.add(Reserved);
             SPT.removeValue(Specific_Block);
             SPT.add(Reserved);
-            Temporary_Free_Memory.add(Removed);
+            Temporary_free_memory.add(Removed);
 
             // Renew the SPT table for the process.
             ps.SPT = SPT;
-            All_Process_Status[Specific_Process] = ps;
+            all_process_status[Specific_Process] = ps;
 
             // ALL PROCESS SIZE modification towards this specific process.
-            Vector<int> Specific_Process_Size = All_Process_Size[Specific_Process];
+            Vector<int> Specific_Process_Size = all_process_size[Specific_Process];
             Specific_Process_Size[1] = remaining_SPT_size;
-            All_Process_Size[Specific_Process] = Specific_Process_Size;
+            all_process_size[Specific_Process] = Specific_Process_Size;
 
             // Arrange new space for the new input process.
             // STEP2
-            int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in Free_memory.
+            int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in free_memory.
 
-            // Do a deep copy of Temporary_Free_memory for iteration
-            Vector<Block> Free_memory_copy = Temporary_Free_Memory;
+            // Do a deep copy of Temporary_free_memory for iteration
+            Vector<Block> free_memory_copy = Temporary_free_memory;
             Vector<Block> TLB_blocks;
 
 
             // Start the for loop iteration to arrange space for TLB of the new process.
-            for (Block Free_Blocks : Free_memory_copy) {
+            for (Block Free_Blocks : free_memory_copy) {
                 free_accumulated_memory += Free_Blocks.Block_size; // Use this variable to denote the accumulated memory added.
 
                 if (free_accumulated_memory < Actual_TLB_declared) {
@@ -810,14 +810,14 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                     page_index Free_Block_Terminate = Free_Blocks.terminate;
 
                     // Remove the block in temporary free memory
-                    Temporary_Free_Memory.remove(0);
+                    Temporary_free_memory.remove(0);
 
-                    // Add occupation on the Occupied_memory
+                    // Add occupation on the occupied_memory
                     Block new_occupied;
                     new_occupied.start = Free_Block_Start;
                     new_occupied.terminate = Free_Block_Terminate;
                     new_occupied.Block_size = Free_Blocks.Block_size;
-                    Occupied_memory.add(new_occupied);
+                    occupied_memory.add(new_occupied);
 
                     TLB_blocks.add(new_occupied);
                     continue;
@@ -883,8 +883,8 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
                     Free.terminate = Free_Block_Terminate;
                     Free.Block_size = remaining_memory;
 
-                    Temporary_Free_Memory[0] = Free;
-                    Occupied_memory.add(Occupied);
+                    Temporary_free_memory[0] = Free;
+                    occupied_memory.add(Occupied);
 
                     TLB_blocks.add(Occupied);
                     // This makes sure that if going into this else statement, the for loop will terminate.
@@ -893,18 +893,18 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
           }
           Vector<Block> SPT_blocks;
           // Put all the remaining free space as occupied SPT_blocks for the new process.
-          for (Block spt : Temporary_Free_Memory) {
+          for (Block spt : Temporary_free_memory) {
               SPT_blocks.add(spt);
-              Occupied_memory.add(spt);
+              occupied_memory.add(spt);
           }
           process_status new_process_status;
           new_process_status.SPT = SPT_blocks;
           new_process_status.TLB = TLB_blocks;
-          All_Process_Status[process] = new_process_status;
+          all_process_status[process] = new_process_status;
         }
     }
 
-    // Handle All_Process_size
+    // Handle all_process_size
     Vector<int> Process_size;
     Process_size.add(Actual_TLB_declared);
 
@@ -913,7 +913,7 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
         Actual_SPT_declared = SPT_size;
     }
     Process_size.add(Actual_SPT_declared);
-    All_Process_Size.add(process,Process_size);
+    all_process_size.add(process,Process_size);
 
 }
 
@@ -974,10 +974,10 @@ Process Memory::create_process(string APP_Name, string Process_Name, int Process
  * Usage:Remove_from_memory(process)
  * --------------------------------------
  * If there are no such a process inside the memory, print error message.
- * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
- * Free_memory, Current_Process, All_Process_Status will be modified.*/
+ * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
+ * free_memory, current_process, all_process_status will be modified.*/
 void Memory::remove_app_from_memory(string APP_Name) {
-    Vector<Process> CP = Current_Process;
+    Vector<Process> CP = current_process;
     for (Process process : CP) {
         if (process.App_name != APP_Name) {
             continue;
@@ -993,5 +993,5 @@ void Memory::remove_app_from_memory(string APP_Name) {
  * Judge whether the process is already in the memory or not.
  * If yes, then return true. Otherwise return false.*/
 bool Memory::In_Memory(Process process) {
-    return All_Process_Status.containsKey(process) ? 1 : 0;
+    return all_process_status.containsKey(process) ? 1 : 0;
 }

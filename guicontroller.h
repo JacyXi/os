@@ -21,8 +21,12 @@ using namespace std;
 class GUIcontroller
 {
 public:
+    /* Default constructor for GUIcontroller.*/
     GUIcontroller(string user);
+
+    /* Default destructor for GUIcontroller.*/
     ~GUIcontroller();
+
     void update();
     bool isStop();
 
@@ -65,6 +69,7 @@ private:
     GButton * memoryb;
     GButton * calculatorb;
     GButton * calendarb;
+    GButton * exitb;
 
     string current_user;
     spthread * thread;
@@ -112,10 +117,6 @@ private:
     // Memory Bar
     Vector<GRect*> APP_Bars;
     GRect *APP_bar;
-
-
-
-
 
 };
 

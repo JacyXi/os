@@ -1,7 +1,7 @@
 #ifndef BPLUS_NODE
 #define BPLUS_NODE
 
-#define NULL 0
+
 #include "sPath.h"
 #include <string>
 #include "set.h"
