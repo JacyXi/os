@@ -15,6 +15,7 @@
 #include "gtable.h"
 
 
+
 using namespace std;
 
 class GUIcontroller
@@ -56,6 +57,9 @@ private:
     int user_login_y;
     int user_login_w;
     int user_login_h;
+
+    int calc_process_index = 0;
+    int cala_process_index = 0;
 
     GButton * fileb;
     GButton * memoryb;
@@ -101,6 +105,10 @@ private:
     // Memory Process Table
     GContainer * memory_table;
     GTable *mt;
+    GTable *mt2;
+    GContainer *memory_button;
+    GChooser *SelectButton;
+    GButton *OK;
     // Memory Bar
     Vector<GRect*> APP_Bars;
     GRect *APP_bar;

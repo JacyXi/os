@@ -112,6 +112,12 @@ void GUIcontroller::run(GWindow * gw) {
         runCalendar();
         break;
     }
+    case 9:{
+        // OK Button
+        MemoryProcess();
+        break;
+    }
+
 
     default:
         cout << "No matches" << endl;
@@ -123,9 +129,13 @@ void GUIcontroller::run(GWindow * gw) {
 
 
 void GUIcontroller::runCalendar() {
-    int process_index = 0;
     string APP_Name = "Calandar";
-    MemoryAdd(APP_Name,"Basic",1,524288);
+
+    Process CalandarProc = mo->Create_Process(APP_Name,"Basic",1,524288);
+    if (! mo->In_Memory(CalandarProc)) {
+    mo->Add_to_memory(CalandarProc);
+    MemoryProcess();
+    }
 
     GImage * cal = new GImage("calendar_back.png", 1.3*X/5, Y/50);
     cal->setWidth(0.3472*X);
@@ -172,6 +182,9 @@ void GUIcontroller::runCalendar() {
     GButton * exit = new GButton("exit");
     con_cal2 -> add(exit);
 
+    GButton * min = new GButton("min");
+    con_cal2 -> add(min);
+
     sCalendar * calendar = new sCalendar();
     yearc->setSelectedItem("2020");
     monthc->setSelectedItem(to_string(calendar->get_this_month()));
@@ -196,8 +209,8 @@ void GUIcontroller::runCalendar() {
                 yearc->setSelectedItem(to_string(yea));
 
                 string process_name = "prev";
-                process_index += 1;
-                MemoryAdd(APP_Name,process_name,process_index,262144);
+                cala_process_index += 1;
+                MemoryAdd(APP_Name,process_name,cala_process_index,262144);
 
 
             } else if (!command.compare("next")) {
@@ -209,8 +222,8 @@ void GUIcontroller::runCalendar() {
                 yearc -> setSelectedItem(to_string(yea));
 
                 string process_name = "next";
-                process_index += 1;
-                MemoryAdd(APP_Name,process_name,process_index,262144);
+                cala_process_index += 1;
+                MemoryAdd(APP_Name,process_name,cala_process_index,262144);
 
             } else if (!command.compare("exit")) {
                 con_cal0->setVisible(false);
@@ -222,6 +235,13 @@ void GUIcontroller::runCalendar() {
 
                 return;
             }
+            else if (!command.compare("min")) {
+                            con_cal0->setVisible(false);
+                            con_cal1->setVisible(false);
+                            cal->setVisible(false);
+                            con_cal2->setVisible(false);
+                            return;
+            }
         }
     }
 
@@ -229,10 +249,12 @@ void GUIcontroller::runCalendar() {
 
 
 void GUIcontroller::runCalculator() {
-
-    int process_index = 0;
     string APP_Name = "Calculator";
-    MemoryAdd(APP_Name,"Basic",1,524288);
+    Process CalculatorProc = mo->Create_Process(APP_Name,"Basic",1,524288);
+    if (! mo->In_Memory(CalculatorProc)) {
+    mo->Add_to_memory(CalculatorProc);
+    MemoryProcess();
+    }
 
     GImage * calculator = new GImage("calculator.png",1.3*X/5,Y/60);
     calculator->setWidth(0.34722*X);
@@ -319,6 +341,8 @@ void GUIcontroller::runCalculator() {
     con_cal->add(bad);
     GButton * exit = new GButton("exit");
     con_cal->addToRegion(exit,GContainer::REGION_SOUTH);
+    GButton * min = new GButton("min");
+    con_cal->addToRegion(min,GContainer::REGION_SOUTH);
 
     Calculator * cal = new Calculator();
     Set<string> nums = {"0","1","2","3","4","5","6","7","8","9","+","-","*","/",".","(",")"};
@@ -342,8 +366,8 @@ void GUIcontroller::runCalculator() {
                 cal = new Calculator();
 
                 string process_name = "Solve";
-                process_index += 1;
-                MemoryAdd(APP_Name,process_name,process_index,262144);
+                calc_process_index += 1;
+                MemoryAdd(APP_Name,process_name,calc_process_index,262144);
 
             } else if (nums.contains(command)){
                 operation.append(command);
@@ -356,12 +380,18 @@ void GUIcontroller::runCalculator() {
 
                 MemoryQuit("Calculator");
 
-                return;
+                return;               
             }
+            else if (!command.compare("min")) {
+                            calculator->setVisible(false);
+                            con_cal->setVisible(false);
+                            con_cal0->setVisible(false);
+                            window->setVisible(false);
+                            return;
         }
     }
 
-
+}
 }
 
 void GUIcontroller::dealFileSystem() {
@@ -1157,13 +1187,44 @@ void GUIcontroller::initMemory() {
     GContainer * memory_lay_mid0 = new GContainer;
     memory_lay_mid0->setX(4*X/5);
     memory_lay_mid0->setY(Y/200*40);
-    memory_lay_mid0->setWidth(X/5);
+    memory_lay_mid0->setWidth(X/5 - Colspace*1.3);
     memory_lay_mid0->setHeight(Y/18);
-    GLabel *memory_title5 = new GLabel("Memory Process Table");
+    GLabel *memory_title5 = new GLabel("Memory Table");
     memory_title5->setColor("Black");
     memory_lay_mid0->add(memory_title5);
 
+    // Memory Button
+    memory_button = new GContainer;
 
+    memory_button->setX(X-Colspace*1.3);
+    memory_button->setY(Y/200*40);
+    memory_button->setWidth(Colspace*0.9);
+    memory_button->setHeight(Y/18);
+
+    SelectButton = new GChooser;
+    SelectButton->addItem("Process");
+    SelectButton->addItem("APP");
+
+
+    memory_button->add(SelectButton);
+
+    GContainer *OKArea = new GContainer;
+    OKArea->setX(X-Colspace*0.4);
+    OKArea->setY(Y/200*40);
+    OKArea->setWidth(Colspace*0.4);
+    OKArea->setHeight(Y/18);
+
+    OK = new GButton("OK");
+    OK->setActionCommand("OK");
+    command["OK"] = 9;
+    OKArea->add(OK);
+
+
+
+
+
+
+    // Memory Table
     memory_table = new GContainer;
 
     Vector<Process> Current_Process = mo->Get_Current_Process();
@@ -1177,6 +1238,7 @@ void GUIcontroller::initMemory() {
        mt->set(i,3,integerToString(Current_Process[i].memory_declared));
        mt->set(i,4,integerToString(mo->Get_process_memory(Current_Process[i])));
     }
+
 
     // 这里的表格会出现间距太窄的问题，这里还没有修复，请往下在这个区域内增加内容
 
@@ -1343,7 +1405,38 @@ void GUIcontroller::MemoryProcess(){
 
     // Renew the memory-process table
     memory_table->clear();
+
     Vector<Process> Current_Process = mo->Get_Current_Process();
+
+
+
+    if (SelectButton->getSelectedItem() == "APP"){
+    Map<string,int> App_numPro;
+    Vector<string> APP_list;
+    for(Process process : Current_Process){
+        string APP_name = process.App_name;
+        if (!App_numPro.containsKey(APP_name)) {
+            App_numPro[APP_name] = 1;
+            APP_list.add(APP_name);
+        }
+        else  App_numPro[APP_name] += 1;
+    }
+
+    int num_app = APP_list.size();
+
+    mt2= new GTable(num_app,3);
+    for (int i = 0; i < num_app; i++){
+       string APP_name = APP_list[i];
+       mt2->set(i,0,APP_name);
+       mt2->set(i,1,integerToString(App_numPro[APP_name]));
+       mt2->set(i,2,integerToString(mo->Get_App_memory(APP_name)));
+    }
+    memory_table->add(mt2);
+    }
+
+
+
+    else{
     int num_process = Current_Process.size();
     mt= new GTable(num_process,5);
     for (int i = 0; i < num_process; i++){
@@ -1354,6 +1447,7 @@ void GUIcontroller::MemoryProcess(){
        mt->set(i,4,integerToString(mo->Get_process_memory(Current_Process[i])));
     }
     memory_table->add(mt);
+    }
 
     // The memory bar plot.
 
