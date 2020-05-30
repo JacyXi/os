@@ -1,3 +1,8 @@
+/*
+ * File: sFileSystem.cpp
+ * ---------------
+ * This file implements the sFileSystem class.
+ */
 #include "sFileSystem.h"
 #include <string>
 #include <map>

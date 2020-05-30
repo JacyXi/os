@@ -1,3 +1,8 @@
+/*
+ * File: sfile.cpp
+ * ---------------
+ * This file implements the sFile class.
+ */
 #include "sFile.h"
 #include <string>
 #include <iostream>
