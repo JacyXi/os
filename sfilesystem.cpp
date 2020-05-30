@@ -516,6 +516,10 @@ void sFileSystem::changeContent(string filename, string content){
     current_path -> chcontent(current_user, filename, content);
 }
 
+bool sFileSystem::has_path(string pathname) {
+    return current_path->is_subset(pathname);
+}
+
 Set<string> sFileSystem::alluser = {"Jacy", "Eric", "Blaine", "Yuheng"};
 
 

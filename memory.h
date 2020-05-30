@@ -74,7 +74,6 @@ public:
     /* Constructor with specified total size of the memory*/
     Memory(int size);
 
-
     /* Method:Add_to_memory
      * Usage:Add_to_memory(process)
      * --------------------------------------
@@ -158,28 +157,33 @@ public:
      * The location information will be represented as blocks in the memory.*/
     Vector<Block> Get_Occupied_memory();
 
-    /* Method:Block_Position_Transfer
-     * Usage:Block_Position_Transfer(Block block)
+    /* Method:block_Position_Transfer
+     * Usage:block_Position_Transfer(Block block)
      * --------------------------------------
      * This function will return the specified block's start position into a double which
      * tells the proportion of the start position in the physical memory.*
      * This function only for GUI usage.*/
-    Vector<double> Block_Position_Transfer(Block block);
+    Vector<double> block_Position_Transfer(Block block);
 
-    /* Method:Create_Process
-     * Usage:Create_Process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared)
+    /* Method:create_process
+     * Usage:create_process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared)
      * --------------------------------------
      * This function is used to create a Process type variable in one statement.*/
-    Process Create_Process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared);
+    Process create_process(string APP_Name,string Process_Name, int Process_Index, int Memory_Declared);
 
-    /* Method:Remove_APP_from_memory
+    /* Method:remove_app_from_memory
      * Usage:Remove_from_memory(process)
      * --------------------------------------
      * If there are no such a process inside the memory, print error message.
      * If nothing goes wrong, then the data field of Free_size, Occupied_size, Occupied_memory,
      * Free_memory, Current_Process, All_Process_Status will be modified.*/
-    void Remove_APP_from_memory(string APP_Name);
+    void remove_app_from_memory(string APP_Name);
 
+    /* Method: In_Memory
+     * Usage: In_Memory(process)
+     * --------------------------------------
+     * Judge whether the process is already in the memory or not.
+     * If yes, then return true. Otherwise return false.*/
     bool In_Memory(Process process);
 
 
@@ -210,11 +214,11 @@ private:
     /*This function is used to add the TLB and SPT part of the process into the memory seperately*/
     Vector<Block> Partition_add_to_memory(int memory_declared);
     /* This function is used to judge whether two blocks are next to each other*/
-    bool Is_neighbor(const Block & b1,const Block & b2);
+    bool is_neighbor(const Block & b1,const Block & b2);
     /* This function is used to invoke virtual memory*/
-    void Virtual_memory(Process process,int TLB_declared);
+    void virtual_memory(Process process,int TLB_declared);
     /* This function is used to make a correction on the true size occupied or freed*/
-    int Correction_on_size(int input_size);
+    int correction_on_size(int input_size);
 
 
 };

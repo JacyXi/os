@@ -553,6 +553,7 @@ void GUIcontroller::dealFileSystem() {
         temp->addToGrid(revoke,1,1);
         temp->addToGrid(exit,1,2);
 
+
         if (thread->has_wr(current_user)) {
 
             string Process_Name = "Open";
@@ -565,11 +566,11 @@ void GUIcontroller::dealFileSystem() {
             int revoke_time = 0;
             int enter_time = 0;
             string content = fs->cat(filename);
+            file_info->setText(fs->file_info(filename));
 
             content_area->setText(content);
-            try{
-
-                while(true) {
+            while(true) {
+                try{
                     GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                     complete = e.getActionCommand();
 
@@ -590,20 +591,18 @@ void GUIcontroller::dealFileSystem() {
                     if (!complete.compare("exit")){
                         file_info->clearText();
                         temp->setVisible(false);
-
                         mo->Remove_from_memory(open);
                         MemoryProcess();
-
                         break;
                     }
+
+                } catch(ErrorException e) {
+                    string message = e.getMessage().append("\n");
+                    set_reporter(reporter_error,message,poolinfo);
                 }
-            } catch(ErrorException e) {
-                string message = e.getMessage().append("\n");
-                set_reporter(reporter_error,message,poolinfo);
             }
 
         } else if (thread->has_rd(current_user)){
-
             string Process_Name = "Open";
             process_index += 1;
             Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
@@ -639,7 +638,7 @@ void GUIcontroller::dealFileSystem() {
         }
 
 
-    } else if(!operant.compare("remove")) {
+    } else if (!operant.compare("remove")) {
         fs->ch_user(current_user);
         try {
             string filename = input_file->getText();
@@ -672,80 +671,116 @@ void GUIcontroller::dealFileSystem() {
         }
     } else if (!operant.compare("copy")) {
         fs->ch_user(current_user);
+        string filename = input_file->getText();
+        while (true) {
+            try {
+                if (filename.length() == 0) {
+                    return;
+                }
+                if (filename.find(".") != filename.npos) {
+                    file_info->setText(fs->file_info(filename));
+                    break;
+                } else {
+                    if (fs->has_path(filename)) break;
+                    set_reporter(reporter_error, "Could not find directory.\n",poolinfo);
+                }
+            } catch (ErrorException e) {
+                set_reporter(reporter_error, e.getMessage().append("\n"),poolinfo);
+            }
+        }
 
+        input_file->setText("Please input your target directory here. ");
+        string complete;
 
-            string filename = input_file->getText();
-            input_file->setText("Please input your target directory here. ");
-            string complete;
+        string Process_Name = "Copy";
+        process_index += 1;
+        Process copy = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        mo->Add_to_memory(copy);
+        MemoryProcess();
 
-            string Process_Name = "Copy";
-            process_index += 1;
-            Process copy = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
-            mo->Add_to_memory(copy);
-            MemoryProcess();
+        while (true) {
+            try {
+                oper->setText("copy!");
+                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                complete = e.getActionCommand();
+                if (!complete.compare("copy!")) {
+                    string target = input_file->getText();
+                    if (target.length() == 0) {
+                        oper->setText("run");
+                        file_info->clearText();
+                        break;
+                    } else if (filename.rfind(".") != filename.npos) {
+                        fs->cp(filename, target, "-p");
+                        fs->cd(target);
+                        pwd->setText(fs->pwd());
+                        ls->setText(fs->ls());
+                        oper->setText("run");
 
-            while (true) {
-                try {
-                    oper->setText("copy!");
-                    GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
-                    complete = e.getActionCommand();
-                    if (!complete.compare("copy!")){
-                        string target = input_file->getText();
-                        if (filename.rfind(".") != filename.npos) {
-                            fs->cp(filename, target, "-p");
-                            fs->cd(target);
-                            pwd->setText(fs->pwd());
-                            ls->setText(fs->ls());
-                            oper->setText("run");
+                        mo->Remove_from_memory(copy);
+                        MemoryProcess();
 
-                            mo->Remove_from_memory(copy);
-                            MemoryProcess();
+                        break;
+                    } else {
+                        fs->cp(filename, target, "-r");
+                        fs->cd(target);
+                        pwd->setText(fs->pwd());
+                        ls->setText(fs->ls());
+                        oper->setText("run");
 
-                            break;
-                        } else {
-                            fs->cp(filename, target, "-r");
-                            fs->cd(target);
-                            pwd->setText(fs->pwd());
-                            ls->setText(fs->ls());
-                            oper->setText("run");
+                        mo->Remove_from_memory(copy);
+                        MemoryProcess();
 
-                            mo->Remove_from_memory(copy);
-                            MemoryProcess();
-
-                            break;
-                        }
-
+                        break;
                     }
-                } catch (ErrorException e) {
-
-                    string message = e.getMessage().append("\n");
-                    set_reporter(reporter_error,message,poolinfo);
 
                 }
+            } catch (ErrorException e) {
+                string message = e.getMessage().append("\n");
+                set_reporter(reporter_error,message,poolinfo);
             }
-
+        }
 
     } else if (!operant.compare("move")) {
         fs->ch_user(current_user);
+        string filename = input_file->getText();
+        while (true) {
+            try {
+                if (filename.length() == 0) {
+                    return;
+                }
+                if (filename.find(".") != filename.npos) {
+                    file_info->setText(fs->file_info(filename));
+                    break;
+                } else {
+                    if (fs->has_path(filename)) break;
+                    set_reporter(reporter_error, "Could not find directory.\n",poolinfo);
+                }
+            } catch (ErrorException e) {
+                set_reporter(reporter_error, e.getMessage().append("\n"),poolinfo);
+            }
+        }
+        input_file->setText("Please input your target directory here. ");
+        string complete;
 
-            string filename = input_file->getText();
-            input_file->setText("Please input your target directory here. ");
-            string complete;
+        string Process_Name = "Move";
+        process_index += 1;
+        Process move = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        mo->Add_to_memory(move);
+        MemoryProcess();
 
-            string Process_Name = "Move";
-            process_index += 1;
-            Process move = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
-            mo->Add_to_memory(move);
-            MemoryProcess();
 
-            while (true) {
-                try {
+        while (true) {
+            try {
                 oper->setText("move!");
                 GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                 complete = e.getActionCommand();
                 if (!complete.compare("move!")){
                     string target = input_file->getText();
-                    if (filename.rfind(".") != filename.npos){
+                    if (target.length() == 0) {
+                        oper->setText("run");
+                        file_info->clearText();
+                        break;
+                    } else if (filename.rfind(".") != filename.npos){
                         fs->mv(filename,target,"-p");
                         fs->cd(target);
                         pwd->setText(fs->pwd());
@@ -765,18 +800,14 @@ void GUIcontroller::dealFileSystem() {
 
                         mo->Remove_from_memory(move);
                         MemoryProcess();
-
                         break;
                     }
-
                 }
-                } catch (ErrorException e) {
-
-                    string message = e.getMessage().append("\n");
-                    set_reporter(reporter_error,message,poolinfo);
-
-                }
+            } catch (ErrorException e) {
+                string message = e.getMessage().append("\n");
+                set_reporter(reporter_error,message,poolinfo);
             }
+        }
 
     } else if (!operant.compare("find")) {
         fs->ch_user(current_user);
@@ -784,50 +815,44 @@ void GUIcontroller::dealFileSystem() {
             string filename = input_file->getText();
             ls->setText(fs->find(filename));
         } catch (ErrorException e) {
-
             set_reporter(reporter_error,e.getMessage().append("\n"),poolinfo);
         }
-    } else if (!operant.compare("chmod")){
+    } else if (!operant.compare("chmod")) {
         fs->ch_user(current_user);
 
-            string filename = input_file->getText();
-            input_file->setText("Mod here.");
-            string complete;
+        string filename = input_file->getText();
+        input_file->setText("Mod here.");
+        string complete;
 
-            string Process_Name = "Chmod";
-            process_index += 1;
-            Process chmod = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
-            mo->Add_to_memory(chmod);
-            MemoryProcess();
+        string Process_Name = "Chmod";
+        process_index += 1;
+        Process chmod = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+        mo->Add_to_memory(chmod);
+        MemoryProcess();
 
+        while (true) {
+            try {
+                oper->setText("chmod!");
+                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                complete = e.getActionCommand();
+                if (!complete.compare("chmod!")){
+                    assert(atoi(input_file->getText().c_str()));
+                    int target = atoi(input_file->getText().c_str());
+                    fs->chmod(filename,target);
 
-            while (true) {
-                try {
-                    oper->setText("chmod!");
-                    GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
-                    complete = e.getActionCommand();
-                    if (!complete.compare("chmod!")){
-                        assert(atoi(input_file->getText().c_str()));
-                        int target = atoi(input_file->getText().c_str());
-                        fs->chmod(filename,target);
+                    mo->Remove_from_memory(chmod);
+                    MemoryProcess();
 
+                    file_info->setText(fs->file_info(filename));
+                    oper->setText("run");
 
-                        mo->Remove_from_memory(chmod);
-                        MemoryProcess();
-
-                        file_info->setText(fs->file_info(filename));
-                        oper->setText("run");
-
-                        break;
-                    }
-                } catch (ErrorException e) {
-                    string message = e.getMessage().append("\n");
-                    set_reporter(reporter_error,message,poolinfo);
+                    break;
                 }
+            } catch (ErrorException e) {
+                string message = e.getMessage().append("\n");
+                set_reporter(reporter_error,message,poolinfo);
             }
-
-
-
+        }
     }
 }
 
@@ -844,6 +869,7 @@ string GUIcontroller::set_reporter(GTextArea * reporter, string toadd, string in
         return info;
     }
 }
+
 void GUIcontroller::_widget(){
     X = gw->getWidth();
     Y = gw->getHeight();

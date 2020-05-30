@@ -33,6 +33,7 @@ public:
     int revoke(string file);
     void ch_user(string user);
     void changeContent(string filename, string content);
+    bool has_path(string pathname);
 
 private:
     int touch(string filename, string content, int mod, sPath* operating_path);

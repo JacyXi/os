@@ -24,13 +24,11 @@ public:
     bool insert(KeyType key, const DataType& data);
     bool remove(KeyType key);
     bool update(KeyType oldKey, KeyType newKey);
-    // 定值查询，compareOperator可以是LT(<)、LE(<=)、EQ(=)、BE(>=)、BT(>)
     vector<DataType> select(KeyType compareKey, int compareOpeartor);
-    // 范围查询，BETWEEN
     vector<DataType> select(KeyType smallKey, KeyType largeKey);
-    bool search(KeyType key); // 查找是否存在
-    void clear();             // 清空
-    void print()const;        // 打印树关键字
+    bool search(KeyType key);
+    void clear();
+    void print() const;
 
 private:
     void recursive_insert(CNode* parentNode, KeyType key, const DataType& data);
@@ -45,7 +43,7 @@ private:
 private:
     CNode* m_Root;
     CLeafNode* m_DataHead;
-    KeyType m_MaxKey;  // B+树中的最大键
+    KeyType m_MaxKey;
 };
 
 #endif

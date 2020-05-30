@@ -14,31 +14,79 @@ using namespace std;
 class Calculator
 {
 public:
+    /* Default constructor for Calculator.*/
     Calculator();
-    ~Calculator();
-    Calculator(string s);
-    int priority(char x);
-    double calcu(double d1,double d2,char t);
 
-    bool judge(string s);         //判断表达式是否合法
-    string dealneg(string s);     //处理字符串里的负数 ，补0.
-    void str_to_inf(string str);  //字符串转化为中缀表达式
-    void inf_to_suf();            //中缀表达式转后缀表达式
-    double result();              //后缀表达式计算最终结果
+    /* Default constructor for Calculator.*/
+    ~Calculator();
+
+    /* Constructor for Calculator with operation equation s.*/
+    Calculator(string s);
+
+    /* Method: priority
+     * Usage:priority(x);
+     * ------------------
+     * Helper function to figure out the operating priority.*/
+    int priority(char x);
+
+    /* Method: calcu
+     * Usage: calcu(d1, d2, t);
+     * ------------------
+     * Helper function to calculate the equation.*/
+    double calcu(double d1, double d2, char t);
+
+    /* Method: judge
+     * Usage: judge(s);
+     * ------------------
+     * Helper function to judge whether the equation is legal.*/
+    bool judge(string s);
+
+    /* Method: dealneg
+     * Usage: dealneg(s);
+     * ------------------
+     * Helper function to deal with negative number.*/
+    string dealneg(string s);
+
+    /* Method: str_to_inf
+     * Usage: str_to_inf(str);
+     * ------------------
+     * Intermediate helper function to change expression.*/
+    void str_to_inf(string str);
+
+    /* Method: inf_to_suf
+     * Usage: inf_to_suf();
+     * ------------------
+     * Intermediate helper function to change expression.*/
+    void inf_to_suf();
+
+    /* Method: result
+     * Usage: result();
+     * ------------------
+     * Calculate to the final result.*/
+    double result();
+
+    /* Method: run
+     * Usage: run(s);
+     * ------------------
+     * Activate the calculator.*/
     string run(string s);
 
 private:
-    struct nodes{
-        char op;           //运算符
-        double num;          //数字
-        int sign;            //标记，存数字用num,标记为1，存运算符用Oper,标记为2
-    };
 
-    //string s;                     //读入字符串
-    int q=0;                      //记录infix数组大小
-    stack<char> tool;             //保存运算符
-    nodes infix[10000000];        //储存中缀表达式
-    vector<nodes> suffix;        //保存后缀表达式
+    /* Struct nodes: store the middle step elements.*/
+    struct nodes {
+        char op;
+        double num;
+        int sign;
+    };
+    /* int q*/
+    int q = 0;
+    /* stack tool*/
+    stack<char> tool;
+    /* node infix[]*/
+    nodes infix[10000000];
+    /* vector suffix*/
+    vector<nodes> suffix;
 };
 
 #endif // C_H
