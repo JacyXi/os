@@ -99,6 +99,7 @@ void GUIcontroller::run(GWindow * gw) {
         break;
     }
     case 6:{
+
         MemoryProcess();
         break;
     }
@@ -509,6 +510,7 @@ void GUIcontroller::dealFileSystem() {
 
     } else if (!operant.compare("mkdir")){
         fs->ch_user(current_user);
+        string dir_name = input_file->getText();
         try {
             if (thread->has_wr(current_user)) {
 
@@ -518,7 +520,6 @@ void GUIcontroller::dealFileSystem() {
 //                mo->Add_to_memory(mkdir);
 //                MemoryProcess();
 
-                string dir_name = input_file->getText();
                 fs->mkdir(dir_name);
                 ls->setText(fs->ls());
             }
@@ -529,43 +530,44 @@ void GUIcontroller::dealFileSystem() {
         }
     } else if (!operant.compare("open")){
         fs->ch_user(current_user);
-        try {
-            string filename = input_file->getText();
-            GContainer * temp = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL,2,3);
-            temp->setX(X/4);
-            temp->setY(Y/10);
-            temp->setWidth(X/3);
-            temp->setHeight(Y/2);
-            temp->setBackground(100);
-            GTextArea * content_area = new GTextArea();
-            content_area->setEditable(true);
-            content_area->setWidth(1.63*X/5);
-            content_area->setRows(20);
-            GButton * enter = new GButton("Enter");
-            enter->setActionCommand("enter");
-            GButton * exit = new GButton("Exit");
-            exit->setActionCommand("exit");
-            GButton * revoke = new GButton("Revoke");
-            revoke->setActionCommand("revoke");
-            temp->addToGrid(content_area,0,0);
-            temp->addToGrid(enter,1,0);
-            temp->addToGrid(revoke,1,1);
-            temp->addToGrid(exit,1,2);
 
-            if (thread->has_wr(current_user)) {
+        string filename = input_file->getText();
+        GContainer * temp = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL,2,3);
+        temp->setX(X/4);
+        temp->setY(Y/10);
+        temp->setWidth(X/3);
+        temp->setHeight(Y/2);
+        temp->setBackground(100);
+        GTextArea * content_area = new GTextArea();
+        content_area->setEditable(true);
+        content_area->setWidth(1.63*X/5);
+        content_area->setRows(20);
+        GButton * enter = new GButton("Enter");
+        enter->setActionCommand("enter");
+        GButton * exit = new GButton("Exit");
+        exit->setActionCommand("exit");
+        GButton * revoke = new GButton("Revoke");
+        revoke->setActionCommand("revoke");
+        temp->addToGrid(content_area,0,0);
+        temp->addToGrid(enter,1,0);
+        temp->addToGrid(revoke,1,1);
+        temp->addToGrid(exit,1,2);
 
-                string Process_Name = "Open";
-                process_index += 1;
-                Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
-                mo->Add_to_memory(open);
-                MemoryProcess();
+        if (thread->has_wr(current_user)) {
 
-                string complete;
-                int revoke_time = 0;
-                int enter_time = 0;
-                string content = fs->cat(filename);
+            string Process_Name = "Open";
+            process_index += 1;
+            Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            mo->Add_to_memory(open);
+            MemoryProcess();
 
-                content_area->setText(content);
+            string complete;
+            int revoke_time = 0;
+            int enter_time = 0;
+            string content = fs->cat(filename);
+
+            content_area->setText(content);
+            try{
 
                 while(true) {
                     GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
@@ -595,21 +597,26 @@ void GUIcontroller::dealFileSystem() {
                         break;
                     }
                 }
+            } catch(ErrorException e) {
+                string message = e.getMessage().append("\n");
+                set_reporter(reporter_error,message,poolinfo);
+            }
 
-            } else if (thread->has_rd(current_user)){
+        } else if (thread->has_rd(current_user)){
 
-                string Process_Name = "Open";
-                process_index += 1;
-                Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
-                mo->Add_to_memory(open);
-                MemoryProcess();
+            string Process_Name = "Open";
+            process_index += 1;
+            Process open = mo->Create_Process(APP_Name,Process_Name,process_index,524288);
+            mo->Add_to_memory(open);
+            MemoryProcess();
 
-                string complete;
-                string content = fs->cat(filename);
+            string complete;
+            string content = fs->cat(filename);
 
-                content_area->setText(content);
-                content_area->setEditable(false);
-                while(true) {
+            content_area->setText(content);
+            content_area->setEditable(false);
+            while(true) {
+                try {
                     GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                     complete = e.getActionCommand();
                     if (!complete.compare("exit")){
@@ -621,16 +628,17 @@ void GUIcontroller::dealFileSystem() {
 
                         break;
                     }
-                }
+                } catch(ErrorException e) {
 
+                    string message = e.getMessage().append("\n");
+                    set_reporter(reporter_error,message,poolinfo);
+
+                }
             }
 
-        } catch(ErrorException e) {
-
-            string message = e.getMessage().append("\n");
-            set_reporter(reporter_error,message,poolinfo);
-
         }
+
+
     } else if(!operant.compare("remove")) {
         fs->ch_user(current_user);
         try {
@@ -664,7 +672,7 @@ void GUIcontroller::dealFileSystem() {
         }
     } else if (!operant.compare("copy")) {
         fs->ch_user(current_user);
-        try {
+
 
             string filename = input_file->getText();
             input_file->setText("Please input your target directory here. ");
@@ -677,48 +685,49 @@ void GUIcontroller::dealFileSystem() {
             MemoryProcess();
 
             while (true) {
-                oper->setText("copy!");
-                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
-                complete = e.getActionCommand();
-                if (!complete.compare("copy!")){
-                    string target = input_file->getText();
-                    if (filename.rfind(".") != filename.npos) {
-                        fs->cp(filename, target, "-p");
-                        fs->cd(target);
-                        pwd->setText(fs->pwd());
-                        ls->setText(fs->ls());
-                        oper->setText("run");
+                try {
+                    oper->setText("copy!");
+                    GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                    complete = e.getActionCommand();
+                    if (!complete.compare("copy!")){
+                        string target = input_file->getText();
+                        if (filename.rfind(".") != filename.npos) {
+                            fs->cp(filename, target, "-p");
+                            fs->cd(target);
+                            pwd->setText(fs->pwd());
+                            ls->setText(fs->ls());
+                            oper->setText("run");
 
-                        mo->Remove_from_memory(copy);
-                        MemoryProcess();
+                            mo->Remove_from_memory(copy);
+                            MemoryProcess();
 
-                        break;
-                    } else {
-                        fs->cp(filename, target, "-r");
-                        fs->cd(target);
-                        pwd->setText(fs->pwd());
-                        ls->setText(fs->ls());
-                        oper->setText("run");
+                            break;
+                        } else {
+                            fs->cp(filename, target, "-r");
+                            fs->cd(target);
+                            pwd->setText(fs->pwd());
+                            ls->setText(fs->ls());
+                            oper->setText("run");
 
-                        mo->Remove_from_memory(copy);
-                        MemoryProcess();
+                            mo->Remove_from_memory(copy);
+                            MemoryProcess();
 
-                        break;
+                            break;
+                        }
+
                     }
+                } catch (ErrorException e) {
+
+                    string message = e.getMessage().append("\n");
+                    set_reporter(reporter_error,message,poolinfo);
 
                 }
-
             }
 
-        } catch (ErrorException e) {
 
-            string message = e.getMessage().append("\n");
-            set_reporter(reporter_error,message,poolinfo);
-
-        }
     } else if (!operant.compare("move")) {
         fs->ch_user(current_user);
-        try {
+
             string filename = input_file->getText();
             input_file->setText("Please input your target directory here. ");
             string complete;
@@ -730,6 +739,7 @@ void GUIcontroller::dealFileSystem() {
             MemoryProcess();
 
             while (true) {
+                try {
                 oper->setText("move!");
                 GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
                 complete = e.getActionCommand();
@@ -760,13 +770,14 @@ void GUIcontroller::dealFileSystem() {
                     }
 
                 }
+                } catch (ErrorException e) {
+
+                    string message = e.getMessage().append("\n");
+                    set_reporter(reporter_error,message,poolinfo);
+
+                }
             }
-        } catch (ErrorException e) {
 
-            string message = e.getMessage().append("\n");
-            set_reporter(reporter_error,message,poolinfo);
-
-        }
     } else if (!operant.compare("find")) {
         fs->ch_user(current_user);
         try {
@@ -778,7 +789,7 @@ void GUIcontroller::dealFileSystem() {
         }
     } else if (!operant.compare("chmod")){
         fs->ch_user(current_user);
-        try {
+
             string filename = input_file->getText();
             input_file->setText("Mod here.");
             string complete;
@@ -791,28 +802,30 @@ void GUIcontroller::dealFileSystem() {
 
 
             while (true) {
-                oper->setText("chmod!");
-                GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
-                complete = e.getActionCommand();
-                if (!complete.compare("chmod!")){
-                    assert(atoi(input_file->getText().c_str()));
-                    int target = atoi(input_file->getText().c_str());
-                    fs->chmod(filename,target);
+                try {
+                    oper->setText("chmod!");
+                    GEvent e = waitForEvent(ACTION_EVENT | CLICK_EVENT);
+                    complete = e.getActionCommand();
+                    if (!complete.compare("chmod!")){
+                        assert(atoi(input_file->getText().c_str()));
+                        int target = atoi(input_file->getText().c_str());
+                        fs->chmod(filename,target);
 
 
-                    mo->Remove_from_memory(chmod);
-                    MemoryProcess();
+                        mo->Remove_from_memory(chmod);
+                        MemoryProcess();
 
-                    file_info->setText(fs->file_info(filename));
-                    oper->setText("run");
+                        file_info->setText(fs->file_info(filename));
+                        oper->setText("run");
 
-                    break;
+                        break;
+                    }
+                } catch (ErrorException e) {
+                    string message = e.getMessage().append("\n");
+                    set_reporter(reporter_error,message,poolinfo);
                 }
             }
-        } catch (ErrorException e) {
-            string message = e.getMessage().append("\n");
-            set_reporter(reporter_error,message,poolinfo);
-        }
+
 
 
     }
