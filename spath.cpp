@@ -228,6 +228,7 @@ void sPath::removeFile(string filename) {
  */
 void sPath::removePath(string path) {
     subsets.remove(path);
+    subsets_absolute.remove(path.append("/").append(pathname));
 }
 
 /*

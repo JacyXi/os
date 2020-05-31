@@ -192,7 +192,7 @@ void sFileSystem::rmFile(string goalfile, sPath* operationPath) {
  * ----------------------------------
  * A helper function to remove a file.
  */
-int sFileSystem::rm(string goal, string operants){
+int sFileSystem::rm(string goal, string operants) {
     if (!operants.compare("-r")) {
         if (current_path -> get_name().compare(goal) == 0) {
             error("Could not delect your current path.");
@@ -223,17 +223,18 @@ void sFileSystem::rmDir(string goal, sPath* operationPath) {
         int location = get_location(absolute_goal);
         sPath * path_to_remove = allpath[location];
         for (string files : path_to_remove->get_files()) rmFile(files, path_to_remove);
-        for (string subsets : path_to_remove->get_subsets_absolute()) rmDir(subsets,path_to_remove);
+        for (string subsets : path_to_remove->get_subsets()) rmDir(subsets, path_to_remove);
 
         Set<sPath*> target;
         target = tree.select(hashfunc(goal,true), EQ).front();
 
-        if (target.contains(allpath[location])) {
-            target.remove(allpath[location]);
+        if (target.contains(operationPath)) {
+            target.remove(operationPath);
         } else {
             error("Could not remove to such path.");
         }
         tree.insert(hashfunc(goal,true), target);
+        location = get_location(absolute_goal);
         allpath[location] -> ~sPath();
         allpath.remove(location);
     } else {
@@ -289,6 +290,7 @@ void sFileSystem::cpFile(string name, sPath *currentPath, sPath *targetPath) {
  * Copy a file or directory to another location.
  */
 int sFileSystem::cp(string from, string to, string operants) {
+
     if (!operants.compare("-r")) {
         if (current_path -> is_subset(from) & (get_location(to) >= 0)){
             cpDir(from, current_path, allpath[get_location(to)]);

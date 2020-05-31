@@ -9,13 +9,15 @@
 #include <string>
 #include <stdlib.h>
 #include <ctime>
+
+
 using namespace std;
 
 /*
- * Constructor: sCalendar
+ * Constructor: calendar
  * Usage: sCalendar calendar;
  * ---------------------------------
- * Initialize a new calendar.
+ * Initialize a new sCalendar.
  */
 sCalendar::sCalendar() {
     month_map.add("Jan", 1);
@@ -30,16 +32,17 @@ sCalendar::sCalendar() {
     month_map.add("Oct", 10);
     month_map.add("Nov", 11);
     month_map.add("Dec", 12);
+
 }
 
 /*
  * Destructor: ~sCalendar
  * Usage: (Usually implicit)
  * ----------------------------------
- * Deallocate storage associated.
+ * Deallocate storage associated with this path.
  */
 sCalendar::~sCalendar() {
-    month_map.clear();
+
 }
 
 /*
@@ -62,16 +65,16 @@ int sCalendar::getStartDay(int year, int month) {
  * Method: getTotalDays
  * Usage: getTotalDays(year, month);
  * ----------------------------------
- * count and return how many days from 1st Jan 1800 to the first
- * day of a certain month in certain year.
+ * count and return how many days from 1st Jan 1800 to the first day of a certain month in certain year.
  */
-int sCalendar::getTotalDays(int year, int month) {
+int sCalendar::getTotalDays(int year, int month)
+{
     int total = 0;
     for (int i = 1800; i < year; i++) {
         if(isLeapYear(i)) {
             total += 366;
         } else {
-            total+=365;
+            total += 365;
         }
     }
     for (int i = 1; i < month; i++) {
@@ -80,16 +83,10 @@ int sCalendar::getTotalDays(int year, int month) {
     return total;
 }
 
-/*
- * Method: getDaysinMonth
- * Usage: getDaysinMonth(year, month);
- * ----------------------------------
- * count and return how many days from 1st Jan 1800 to the first
- * day of a certain month in certain year.
- */
-int sCalendar::getDaysinMonth(int year,int month) {
-    if(month == 1 || month == 3 || month == 5 || month == 7
-            || month == 8 || month == 10 || month == 12) {
+int sCalendar::getDaysinMonth(int year, int month)
+{
+    if (month == 1 || month == 3 || month == 5
+            || month == 7 || month == 8 || month == 10 || month == 12) {
         return 31;
     } else if (month == 4 || month == 6 || month == 9 || month == 11) {
         return 30;
@@ -105,7 +102,8 @@ int sCalendar::getDaysinMonth(int year,int month) {
  * ----------------------------------
  * return true if a given year is leap year.
  */
-bool sCalendar::isLeapYear(int year) {
+bool sCalendar::isLeapYear(int year) // 闰年
+{
     return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
 }
 
@@ -135,7 +133,7 @@ int sCalendar::get_this_month() {
  * then current date and the next date, then to the end of the month.
  */
 string sCalendar::showMonth(int year, int month) {
-    stringstream outPut;
+    stringstream outPut ;
     char chMonth[12][10] = {"January", "February", "March", "April",
                             "May", "June", "July", "August", "September",
                             "October", "November", "December"};
@@ -155,70 +153,89 @@ string sCalendar::showMonth(int year, int month) {
     string Date_now = dt.substr(8, 2);
     Date_now.c_str();
     int Date = atoi(Date_now.c_str());
+
     string Month_now = dt.substr(4, 3);
     int Month_int = 0;
-    Month_int = month_map.get(Month_now);
-    for (i = 0; i < startDay; i++) {
-        outPut << "    ";
-    }
-    for (i = 1, j = startDay + 1; i < Date; i++, j++) {
-        if (i < 10) {
-            outPut << "   " << i;
-        } else {
-            outPut << "  " << i;
-        }
-        if (j % 7 == 0) {
-            outPut << endl;
-        }
-    }
-    if (year == 2020 && month == Month_int) {
-        if (Date < 10) {
-            outPut << " *" << Date << "*";
-        } else {
-            outPut << " *" << Date << "*";
-        }
-        if ((Date + startDay) % 7 == 0) {
-            outPut << endl;
-            outPut << " ";
-        }
-        if (Date + 1 < 10) {
-            outPut << "  " << Date + 1;
-        } else {
-            outPut << " " << Date + 1;
-        }
-        if ((startDay + Date + 1) % 7 ==0) {
-            outPut << endl;
-        }
-    } else{
-        if(Date < 10) {
-            outPut << "   " << Date;
-        } else {
-            outPut << "  " << Date;
-        }
-        if ((startDay + Date) % 7 == 0) {
-            outPut << endl;
-        }
-        if (Date + 1 < 10) {
-            outPut << "   " << Date + 1;
-        } else {
-            outPut << "  " << Date + 1;
-        }
-        if ((startDay + Date + 1) % 7 == 0) {
-            outPut <<endl;
-        }
-    }
 
-    for(i = Date + 2, j = startDay + Date + 2; i <= numberofDaysinMonth; i++, j++) {
-        if (i < 10) {
-            outPut << "   " << i;
+    Month_int = month_map.get(Month_now);
+
+    if (month == Month_int && year == 2020) {
+        for (i = 0; i < startDay; i++) {
+            outPut << "    ";
+        }
+        for (i = 1, j = startDay + 1; i < Date; i++, j++) {
+            if(i < 10) {
+                outPut << "   " << i;
+            } else {
+                outPut << "  " << i;
+            }
+            if (j % 7 ==0)
+                outPut << endl;
+        }
+        if(year == 2020 && month == Month_int) {
+            if (Date < 10) {
+                outPut << " *" << Date << "*";
+            } else {
+                outPut << " *" << Date << "*";
+            }
+            if ((Date + startDay) % 7 == 0) {
+                outPut << endl;
+                outPut << " ";
+            }
+            if (Date + 1 < 10 && Date + 1 <= numberofDaysinMonth) {
+                outPut << "  " << Date + 1;
+            } else if (Date + 1 <= numberofDaysinMonth) {
+                outPut << " " << Date + 1;
+            }
+            if ((startDay + Date + 1) % 7 == 0 && (Date + 1 <= numberofDaysinMonth))
+                outPut << endl;
         } else {
-            outPut << "  " << i;
+            if(Date < 10) {
+                outPut << "   " << Date;
+            } else {
+                outPut << "  " << Date;
+            }
+            if ((startDay + Date) % 7 ==0)
+                outPut << endl;
+            if (Date + 1 < 10 && Date + 1 <= numberofDaysinMonth) {
+                outPut << "   " << Date + 1;
+            } else if (Date + 1 <= numberofDaysinMonth) {
+                outPut << "  " << Date + 1;
+            }
+            if ((startDay + Date + 1) % 7 ==0 && (Date + 1 <= numberofDaysinMonth)) {
+                outPut << endl;
+            }
         }
-        if (j % 7 == 0) {
-            outPut << endl;
+
+        for (i = Date + 2, j = startDay + Date + 2; i <= numberofDaysinMonth; i++, j++) {
+            if (i < 10) {
+                outPut << "   " << i;
+            } else {
+                outPut << "  " << i;
+            }
+            if (j % 7 == 0) {
+                outPut <<endl;
+            }
         }
+
+        outPut << "\n";
+        outPut << "-----------------------------" << endl;
+    } else {
+        for (i = 0; i < startDay; i++) {
+            outPut << "    ";
+        }
+        for (i = 1, j = startDay + 1; i <= numberofDaysinMonth; i++,j++) {
+            if (i < 10) {
+                outPut << "   " << i;
+            } else {
+                outPut << "  " << i;
+            }
+            if (j % 7 == 0)
+                outPut << endl;
+        }
+        outPut << "\n";
+        outPut << "-----------------------------" << endl;
     }
-    outPut << "\n";
-    outPut << "-------------------------------------------" << endl;
     return outPut.str();
 }
+
