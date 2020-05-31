@@ -953,7 +953,7 @@ void GUIcontroller::initThread() {
     //r-w-reporter
     GContainer * thread_lay2 = new GContainer();
     reporter_wrlock = new GTextArea();
-    thread_lay2->setBounds(0.208 * X, Y / 5 * 3.99, X * 0.287, 1.07 * Y / 6);
+    thread_lay2->setBounds(0.208 * X, Y / 5 * 4.02, X * 0.287, 1.07 * Y / 6);
     reporter_wrlock->setRows(10);
     reporter_wrlock->setEditable(false);
     reporter_wrlock->setWidth(X * 0.284);
@@ -966,7 +966,7 @@ void GUIcontroller::initThread() {
 
     //error reporter
     GContainer * thread_lay3 = new GContainer();
-    thread_lay3->setBounds(X * 0.502, Y / 5 * 3.99, X * 0.287, 1.07 * Y / 6);
+    thread_lay3->setBounds(X * 0.502, Y / 5 * 4.02, X * 0.287, 1.07 * Y / 6);
     reporter_error = new GTextArea();
     reporter_error->setRows(10);
     reporter_error->setEditable(false);
