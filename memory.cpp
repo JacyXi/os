@@ -71,10 +71,12 @@ bool operator==(Block A,Block B){
 // Below are the definition of Memory class.
 const double Memory::TLB_PROPORTION = 0.25;
 
-/* Constructor: Memory
+/*
+ * Constructor: Memory
  * Usage: Memory(size)
  * -------------------
- * Initial with default size of the memory(4GB).*/
+ * Initial with default size of the memory(4GB).
+ */
 Memory::Memory() {
     size = INITIAL_TOTAL_SIZE;
     free_size = size;
@@ -99,10 +101,12 @@ Memory::Memory() {
 
 }
 
-/* Constructor: Memory
+/*
+ * Constructor: Memory
  * Usage: Memory(size)
  * -------------------
- * Initial with specified total size of the memory*/
+ * Initial with specified total size of the memory.
+ */
 Memory::Memory(int size) {
     // Remark: The size must be xxxGB, xxx must be an integer.
     this->size = size;
@@ -127,13 +131,15 @@ Memory::Memory(int size) {
 
 }
 
-/* Method:Add_to_memory
+/*
+ * Method:Add_to_memory
  * Usage:Add_to_memory(process)
  * --------------------------------------
  * If there the process has already been added into the memory, print error message.
  * If the memory space is not enough for the process, print error message.
  * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
- * free_memory, current_process, all_process_status will be modified.*/
+ * free_memory, current_process, all_process_status will be modified.
+ */
 void Memory::Add_to_memory(Process process) {
 
     int memory_declared = process.memory_declared;
@@ -185,13 +191,15 @@ void Memory::Add_to_memory(Process process) {
 }
 
 
-/* Method:Remove_from_memory
+/*
+ * Method:Remove_from_memory
  * Usage:Remove_from_memory(process)
  * --------------------------------------
  * If there are no such a process inside the memory, print error message.
  *
  * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
- * free_memory, current_process, all_process_status will be modified.*/
+ * free_memory, current_process, all_process_status will be modified.
+ */
 void Memory::Remove_from_memory(Process process) {
     //Check whether there is such a process in the memory.
     if (! all_process_status.containsKey(process)) error("There is no such a process in the memory.");
@@ -228,12 +236,14 @@ void Memory::Remove_from_memory(Process process) {
 
 }
 
-/* Method:Get_address
+/*
+ * Method:Get_address
  * Usage:Get_address(process)
  * --------------------------------------
  * If there are no such a process inside the memory, print error message.
  * If nothing goes wrong, then the function will return the memory location of the process
- * in the form of memory blocks.*/
+ * in the form of memory blocks.
+ */
 Vector<Block> Memory::Get_address(const Process & process) {
     // Check whether the input process is still in the memory or not.
     if (!all_process_status.containsKey(process)) error("There is no such a process");
@@ -263,11 +273,13 @@ Vector<Block> Memory::Get_address(const Process & process) {
     }
 }
 
-/* Method:Get_App_memory
+/*
+ * Method:Get_App_memory
  * Usage:Get_App_memory(App_name)
  * --------------------------------------
  * This function will return the total memory occupied by the App.
- * The input is the string App_name.*/
+ * The input is the string App_name.
+ */
 int Memory::Get_App_memory(string App_name) {
     Vector<int> App_memory_vector;
     for (Process processes : current_process) {
@@ -288,10 +300,12 @@ int Memory::Get_App_memory(string App_name) {
     }
 }
 
-/* Method:Get_process_memory
+/*
+ * Method:Get_process_memory
  * Usage:Get_process_memory(process)
  * --------------------------------------
- * This function will return the memory occupied by the process specified.*/
+ * This function will return the memory occupied by the process specified.
+ */
 int Memory::Get_process_memory(Process & process) {
     if (!all_process_status.containsKey(process)) {
         error("There is no such process in the memory.");
@@ -301,71 +315,89 @@ int Memory::Get_process_memory(Process & process) {
     }
 }
 
-/* Method:Get_free_memory_Size
+/*
+ * Method:Get_free_memory_Size
  * Usage:Get_free_memory_Size()
  * --------------------------------------
- * This function will return the total space of free memory.(The unit is kb)*/
+ * This function will return the total space of free memory.(The unit is kb)
+ */
 int Memory::Get_free_memory_Size() {
     return free_size;
 }
 
-/* Method:get_occupied_memory_size
+/*
+ * Method:get_occupied_memory_size
  * Usage:get_occupied_memory_size()
  * --------------------------------------
- * This function will return the total space of occupied memory.(The unit is kb)*/
+ * This function will return the total space of occupied memory.(The unit is kb)
+ */
 int Memory::get_occupied_memory_size() {
     return occupied_size;
 }
 
-/* Method:Get_TLB_Size
+/*
+ * Method:Get_TLB_Size
  * Usage:Get_TLB_Size()
  * --------------------------------------
- * This function will return the space of TLB memory, which is one of the partition of the occupied memory.(The unit is kb)*/
+ * This function will return the space of TLB memory,
+ * which is one of the partition of the occupied memory.(The unit is kb)
+ */
 int Memory::Get_TLB_Size() {
     return TLB_size;
 }
 
-/* Method:Get_SPT_Size
+/*
+ * Method:Get_SPT_Size
  * Usage:Get_SPT_Size()
  * --------------------------------------
- * This function will return the space of SPT memory, which is another partition of the occupied memory.(The unit is kb)*/
+ * This function will return the space of SPT memory,
+ * which is another partition of the occupied memory.(The unit is kb)
+ */
 int Memory::Get_SPT_Size() {
     return SPT_size;
 }
 
-/* Method:get_current_process
+/*
+ * Method:get_current_process
  * Usage:get_current_process()
  * --------------------------------------
  * This function will return all the processes in the memory right now. Information include
- * App_name, process index and memory declared inside each process.*/
+ * App_name, process index and memory declared inside each process.
+ */
 Vector<Process> Memory::get_current_process() {
     return current_process;
 }
 
-/* Method:Get_free_memory
+/*
+ * Method:Get_free_memory
  * Usage:Get_free_memory()
  * --------------------------------------
  * This function will return all the free memory location in the memory right now.
- * The location information will be represented as blocks in the memory.*/
+ * The location information will be represented as blocks in the memory.
+ */
 Vector<Block> Memory::Get_free_memory() {
     return free_memory;
 }
 
-/* Method:Get_occupied_memory
+/*
+ * Method:Get_occupied_memory
  * Usage:Get_occupied_memory()
  * --------------------------------------
  * This function will return all the occupied memory location in the memory right now.
- * The location information will be represented as blocks in the memory.*/
+ * The location information will be represented as blocks in the memory.
+ */
 Vector<Block> Memory::Get_occupied_memory() {
     return occupied_memory;
 }
 
 
-/* Method: partition_add_to_memory
+/*
+ * Method: partition_add_to_memory
  * Usage: partition_add_to_memory(memory_declared);
  * ------------------------------------------------
  * This function is used to add the TLB and SPT part
- * of the process into the memory seperately. */
+ * of the process into the memory seperately.
+ */
 Vector<Block> Memory::partition_add_to_memory(int memory_declared) {
     int free_accumulated_memory = 0; // This is to record the accumulated memory during the process of iterating the blocks in free_memory.
         // Do a deep copy of free_memory for iteration
@@ -463,11 +495,13 @@ Vector<Block> Memory::partition_add_to_memory(int memory_declared) {
     return table;
 }
 
-/* Method: is_neighbor
+/*
+ * Method: is_neighbor
  * Usage: is_neighbor(b1, b2);
  * ---------------------------
  * This function is used to judge whether
- * two blocks are next to each other.*/
+ * two blocks are next to each other.
+ */
 bool Memory::is_neighbor(const Block & b1, const Block & b2) {
     page_index b1_start = b1.start;
     page_index b1_terminate = b1.terminate;
@@ -490,10 +524,12 @@ bool Memory::is_neighbor(const Block & b1, const Block & b2) {
     }
 }
 
-/* Method: virtual_memory
+/*
+ * Method: virtual_memory
  * Usage: virtual_memory(process, TLB_decalred);
  * ---------------------------------------------
- * This function is used to invoke virtual memory*/
+ * This function is used to invoke virtual memory.
+ */
 void Memory::virtual_memory(Process process, int TLB_decalred) {
     int memory_declared = process.memory_declared;
     int SPT_declared = memory_declared - TLB_decalred;
@@ -917,11 +953,13 @@ void Memory::virtual_memory(Process process, int TLB_decalred) {
 
 }
 
-/* Method: correction_on_size
+/*
+ * Method: correction_on_size
  * Usage: correction_on_size(input_size);
  * ------------------------------------------
  * This function is used to make a correction on the
- * true size occupied or freed*/
+ * true size occupied or freed.
+ */
 int Memory::correction_on_size(int input_size){
     if (input_size % SINGLE_PAGE_SIZE == 0) return input_size;
     else{
@@ -931,12 +969,14 @@ int Memory::correction_on_size(int input_size){
     }
 }
 
-/* Method:block_position_transfer
+/*
+ * Method:block_position_transfer
  * Usage:block_position_transfer(Block block)
  * --------------------------------------
  * This function will return the specified block's start position into a double which
- * tells the proportion of the start position in the physical memory.*
- * This function only for GUI usage.*/
+ * tells the proportion of the start position in the physical memory.
+ * This function only for GUI usage.
+ */
 Vector<double> Memory::block_position_transfer(Block block) {
     Vector<double> result;
     double pagenum = 1024;
@@ -957,10 +997,12 @@ Vector<double> Memory::block_position_transfer(Block block) {
     return result;
 }
 
-/* Method:create_process
+/*
+ * Method:create_process
  * Usage:create_process(APP_Name, Process_Name, Process_Index, Memory_Declared);
  * --------------------------------------
- * This function is used to create a Process type variable in one statement.*/
+ * This function is used to create a Process type variable in one statement.
+ */
 Process Memory::create_process(string APP_Name, string Process_Name, int Process_Index, int Memory_Declared) {
     Process process;
     process.App_name = APP_Name;
@@ -970,12 +1012,14 @@ Process Memory::create_process(string APP_Name, string Process_Name, int Process
     return process;
 }
 
-/* Method:remove_app_from_memory
+/*
+ * Method:remove_app_from_memory
  * Usage:Remove_from_memory(process)
  * --------------------------------------
  * If there are no such a process inside the memory, print error message.
  * If nothing goes wrong, then the data field of free_size, occupied_size, occupied_memory,
- * free_memory, current_process, all_process_status will be modified.*/
+ * free_memory, current_process, all_process_status will be modified.
+ */
 void Memory::remove_app_from_memory(string APP_Name) {
     Vector<Process> CP = current_process;
     for (Process process : CP) {
@@ -987,11 +1031,13 @@ void Memory::remove_app_from_memory(string APP_Name) {
     }
 }
 
-/* Method: In_Memory
+/*
+ * Method: In_Memory
  * Usage: In_Memory(process)
  * --------------------------------------
  * Judge whether the process is already in the memory or not.
- * If yes, then return true. Otherwise return false.*/
+ * If yes, then return true. Otherwise return false.
+ */
 bool Memory::In_Memory(Process process) {
     return all_process_status.containsKey(process) ? 1 : 0;
 }
