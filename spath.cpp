@@ -3,19 +3,19 @@
  * ---------------
  * This file implements the sPath class.
  */
-
 #include "sPath.h"
 #include "sFile.h"
 #include "set.h"
 #include <vector.h>
 #include <iostream>
 #include "error.h"
+
 using namespace std;
 
 /*
  * Constructor: sPath
  * Usage: sPath path;
- * ---------------------------------
+ * ------------------
  * Initialize a new empty sPath.
  */
 sPath::sPath()
@@ -104,7 +104,7 @@ std::string sPath::toString() {
 /*
  * Method: get_parent
  * Usage: get_parent();
- * ---------------------------
+ * --------------------
  * Return the parent path pointer.
  */
 sPath * sPath::get_parent() {
@@ -180,7 +180,7 @@ void sPath::addPath(string sub_path_name){
 /*
  * Method: is_subset
  * Usage: is_subset(name);
- * ----------------------------
+ * ----------------------
  * Return if is a subset in this path.
  */
 bool sPath::is_subset(string name){
@@ -245,7 +245,7 @@ string sPath::get_name() {
 /*
  * Method: get_all_parent
  * Usage: get_all_parent(* thisLevel, &parents_book);
- * -------------------------------------------------------
+ * --------------------------------------------------
  * Get parents of this path stored in a set.
  */
 void sPath::get_all_parent(sPath * thisLevel, Set<string> &parents_book){
@@ -283,7 +283,7 @@ string sPath::read_file(string filename) {
  */
 void sPath::get_pwd(sPath * thisLevel, Stack<string> & pwd_road) {
     if (!thisLevel->is_root()) {
-        string name = get_name();
+        string name = thisLevel->get_name();
         pwd_road.push(name);
         get_pwd(thisLevel->get_parent(), pwd_road);
     } else {
@@ -315,6 +315,13 @@ void sPath::chmod(string user, string filename, int mod) {
         error("No such file.");
     }
 }
+
+/*
+ * Method: chcontent
+ * Usage: chcontent(user, filename, content);
+ * -----------------------------------------
+ * Change the content of file.
+ */
 void sPath::chcontent(string user, string filename, string content){
     int location = findLocation(filename);
     if (location != -1) {

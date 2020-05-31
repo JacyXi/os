@@ -1,3 +1,8 @@
+/*
+ * File: sCalendar.cpp
+ * -------------------
+ * This file implements the sCalendar class.
+ */
 #include "sCalendar.h"
 #include <iostream>
 #include <iomanip>

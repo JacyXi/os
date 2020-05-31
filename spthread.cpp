@@ -23,10 +23,11 @@ spthread::spthread(string user, bool write, bool read) {
     rw_lock -> is_wt = write;
     user_map.add(user, rw_lock);
 }
+
 /*
  * Destructor: ~spthread
  * Usage: ~spthread();
- * -----------------------------------------------------
+ * -------------------
  * Destruct spthread.
  */
 spthread::~spthread(){

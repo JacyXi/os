@@ -1,7 +1,12 @@
+/*
+ * File: Calculator.cpp
+ * ---------------
+ * This file implements the Calculator class.
+ */
 #include "Calculator.h"
 #include "iostream"
 #include "iomanip"
-#include  <string>
+#include <string>
 
 
 

@@ -1,3 +1,8 @@
+/*
+ * File: sFileSystem.cpp
+ * ---------------
+ * This file implements the sFileSystem class.
+ */
 #include "sFileSystem.h"
 #include <string>
 #include <map>
@@ -367,6 +372,10 @@ string sFileSystem::pwd(sPath * thislevel){
  * A helper function to change current path.
  */
 int sFileSystem::cd(string goalpath, sPath* operating_path){
+    if (goalpath.compare("..") == 0 && !operating_path->is_root()) {
+        current_path = operating_path->get_parent();
+        return 2;
+    }
     if (goalpath.find("/") != goalpath.npos) {
         int i = get_location(goalpath);
         if (i >= 0) {

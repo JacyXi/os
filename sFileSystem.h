@@ -11,7 +11,12 @@
 
 
 using namespace std;
-
+/*
+ * Class: sFileSystem
+ * ------------------
+ * This interface defines a class that
+ * models the filesystem in a filesystem.
+ */
 class sFileSystem
 {
 public:
