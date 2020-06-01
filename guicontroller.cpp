@@ -548,8 +548,13 @@ void GUIcontroller::dealFileSystem() {
         }
     } else if (!operant.compare("open")){
         fs->ch_user(current_user);
-
         string filename = input_file->getText();
+        try {
+            string s = fs->cat(filename);
+        } catch (ErrorException e) {
+            set_reporter(reporter_error, e.getMessage(), poolinfo);
+            return;
+        }
         GContainer * temp = new GContainer(GContainer::LAYOUT_FLOW_VERTICAL, 2, 3);
         temp->setX( X / 4);
         temp->setY(Y / 10);
@@ -877,17 +882,12 @@ void GUIcontroller::dealFileSystem() {
  * This function is invoked print error information on the reporter area of the GUI.
  */
 string GUIcontroller::set_reporter(GTextArea * reporter, string toadd, string info){
-    if (rows > 6) {
-        string information = toadd;
-        rows = 1;
-        reporter->setText(information);
-        return information;
-    } else {
-        rows += 1;
-        info.append(toadd);
-        reporter->setText(info);
-        return info;
-    }
+
+    rows += 1;
+    info.append(toadd);
+    reporter->setText(info);
+    return info;
+
 }
 /*
  * Method:_widget
@@ -954,7 +954,7 @@ void GUIcontroller::initThread() {
     GContainer * thread_lay2 = new GContainer();
     reporter_wrlock = new GTextArea();
     thread_lay2->setBounds(0.208 * X, Y / 5 * 4.02, X * 0.287, 1.07 * Y / 6);
-    reporter_wrlock->setRows(10);
+    reporter_wrlock->setRows(7);
     reporter_wrlock->setEditable(false);
     reporter_wrlock->setWidth(X * 0.284);
     wrinfo = "Initialize the reader-writer lock reporter.\n";
@@ -968,7 +968,7 @@ void GUIcontroller::initThread() {
     GContainer * thread_lay3 = new GContainer();
     thread_lay3->setBounds(X * 0.502, Y / 5 * 4.02, X * 0.287, 1.07 * Y / 6);
     reporter_error = new GTextArea();
-    reporter_error->setRows(10);
+    reporter_error->setRows(7);
     reporter_error->setEditable(false);
     reporter_error->setWidth(X * 0.284);
     poolinfo = "Initialize the error reporter.\n";

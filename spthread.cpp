@@ -150,7 +150,8 @@ string spthread::unlock(string user) {
         string result = "Successfully release a writer lock for ";
         result.append(user);
         if (!wt_queue.isEmpty() && !global_rd) {
-            wrlock(wt_queue.dequeue());
+            result.append("\n");
+            result.append(wrlock(wt_queue.dequeue()));
         } else if (wt_queue.isEmpty() && !rd_queue.isEmpty()) {
             while (!rd_queue.isEmpty()) {
                 result.append("\n");
@@ -173,6 +174,7 @@ string spthread::unlock(string user) {
             result.append("\n");
             result.append(wrlock(wt_queue.dequeue()));
         }
+        result.append("\n");
         return result;
     } else {
         return "";

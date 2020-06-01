@@ -271,7 +271,7 @@ string sPath::read_file(string filename) {
     if (location != -1) {
         return filegory[location] -> get_content();
     } else {
-        error("No such  file.");
+        error("No such file.");
     }
 }
 
